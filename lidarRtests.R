@@ -28,6 +28,8 @@ require(rasterVis)
 # 
 #writeLAS(lidclip,'ClippedBratsberg.las')
 lidclip<-readLAS('LidarTest\\ClippedBratsberg.las')
+lidclip
+plot(lidclip)
 
 #Clip to exclosure and open plots
 lidexclosure<-lasclipRectangle(lidtest2,573675,7025681,573695,7025701)
