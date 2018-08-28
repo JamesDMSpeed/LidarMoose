@@ -13,17 +13,21 @@ require(rasterVis)
 #lasground(lidtest,'pmf')
 
 #Exclosure site - 2014 data
-lidtest2<-readLAS('S:\\Anders Kolstad\\lidar\\Trondheim2014\\data\\32-1-511-213-45.las')
-plot(lidtest2)
-plot(lidtest2,trim=0.9)#Omit highest 10% of records in colour scheme (birds)
-
-#Test Clip
-lidclip<-lasclipRectangle(lidtest2,573600,7025400,574000,7026000)
-lidclip<-lasclipRectangle(lidtest2,573659,7025660,573757,7025743)
-plot(lidclip)
-#Remove erroneous points far below surface
-lidclip@data$Z[lidclip@data$clip<226]<-NA
-plot(lidclip,colorPalette = heat.colors(50))
+#lidtest2<-readLAS('S:\\Anders Kolstad\\lidar\\Trondheim2014\\data\\32-1-511-213-45.las')
+# lidtest2<-readLAS('LidarTest\\32-1-511-213-45.las')
+# plot(lidtest2)
+# plot(lidtest2,trim=0.9)#Omit highest 10% of records in colour scheme (birds)
+# 
+# #Test Clip
+# lidclip<-lasclipRectangle(lidtest2,573600,7025400,574000,7026000)
+# lidclip<-lasclipRectangle(lidtest2,573659,7025660,573757,7025743)
+# plot(lidclip)
+# #Remove erroneous points far below surface
+# lidclip@data$Z[lidclip@data$clip<226]<-NA
+# plot(lidclip,colorPalette = heat.colors(50))
+# 
+#writeLAS(lidclip,'ClippedBratsberg.las')
+lidclip<-readLAS('LidarTest\\ClippedBratsberg.las')
 
 #Clip to exclosure and open plots
 lidexclosure<-lasclipRectangle(lidtest2,573675,7025681,573695,7025701)
