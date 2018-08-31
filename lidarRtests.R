@@ -4,6 +4,9 @@ require(lidR)
 require(raster)
 require(rasterVis)
 
+
+
+#testtest
 #Import data
 #Clips of area around Bratsberg exclosure sites. Converted from laz to las using laszip.exe
 #Trondheim 2010 data
