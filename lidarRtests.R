@@ -1,7 +1,7 @@
 #LidR
-install.packages("lidR")
-installed.packages("raster")
-install.packages("rasterVis")
+#install.packages("lidR")
+#installed.packages("raster")
+#install.packages("rasterVis")
 
 require(lidR)
 require(raster)
@@ -32,6 +32,9 @@ require(rasterVis)
 # 
 #writeLAS(lidclip,'ClippedBratsberg.las')
 lidclip<-readLAS('LidarTest\\ClippedBratsberg.las')
+lidclip
+#Set coordinate reference system
+crs(lidclip)<-'+init=epsg:25832 +proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
 lidclip
 plot(lidclip)
 
