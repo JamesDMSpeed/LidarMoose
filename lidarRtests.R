@@ -37,8 +37,6 @@ lidclip
 crs(lidclip)<-'+init=epsg:25832 +proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
 lidclip
 plot(lidclip)
-plot(lidclip)#Do it again...
-
 
 #Clip to exclosure and open plots
 #lidexclosure<-lasclipRectangle(lidtest2,573675,7025681,573695,7025701)
