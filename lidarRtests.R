@@ -47,14 +47,14 @@ plot(lidexclosure)
 lidopen<-lasclipRectangle(lidclip,573751,7025718,573771,7025738)
 plot(lidopen)
 
-#Remove the tallest trees -why?
+#Remove the tallest trees, but this is done only for exclosure here? 
 lidex1<-lidexclosure
 hist(lidexclosure@data$Z)
 #Does the line above extract the z-coordinate data from lidexclosure? 
 lidex1@data[lidex1@data$Z>245]<-NA
 #Make all of the tree heights larger than 245 NA?
 plot(lidex1)
-?grid_terrain
+
 #Make canopy and terrain TIN models for each treatment. TIN:representation if a continous surface.
 terrainmod<-grid_terrain(lidexclosure,method='knnidw',res=1)
 canopymod<-grid_canopy(lidexclosure,res=1)
@@ -89,8 +89,8 @@ rterropen<-as.raster(grid_terrain(lidopen,method='knnidw',res=0.5))
 rcanopen<-as.raster(grid_canopy(lidopen,res=0.5))
 plot(rcanopen-crop(rterropen,rcanopen))
 rtreesopen<-rcanopen-crop(rterropen,rcanopen)
-plot3d(rtreesopen)#looks a bit smaller then the exclosed plot, doesn't look like 20x20.
-?cellStats
+plot3d(rtreesopen)
+
 #Remove preexisting trees (>7m)
 rtreesex[rtreesex>7]<-NA
 rtreesopen[rtreesopen>7]<-NA
@@ -111,15 +111,9 @@ rex
 rop
 r2 <- extend(rex,rop)
 r2
-#r1 <- resample(rex,rop)
-#plot(r1)
 
-#can't make this last part work. Stack - make rex and rop a single vector. Error in compareRaster(x) : different number or columns
-#tried to resample. tried extend. But then there is no need to stack?
 stack1<-stack(rex,rop)
 names(stack1)<-c('Exclosure','Open')
-mytheme #whats mytheme?
+mytheme #whats mytheme? Error: object mytheme not found
 levelplot(stack1,par.settings='viridisTheme')
-
 bwplot(stack1,ylab='Canopy height (m) at 0.5m resoltion')
-?resample
