@@ -24,19 +24,21 @@ require(rasterVis)
 # 
 # #Test Clip
 # lidclip<-lasclipRectangle(lidtest2,573600,7025400,574000,7026000)
-# lidclip<-lasclipRectangle(lidtest2,573659,7025660,573757,7025743)
+# lidclip<-lasclipRectangle(lidtest2,573600,7025660,573800,7025800)
 # plot(lidclip)
 # #Remove erroneous points far below surface
 # lidclip@data$Z[lidclip@data$clip<226]<-NA
 # plot(lidclip,colorPalette = heat.colors(50))
 # 
-#writeLAS(lidclip,'ClippedBratsberg.las')
+#writeLAS(lidclip,'LidarTest\\ClippedBratsberg.las')
 lidclip<-readLAS('LidarTest\\ClippedBratsberg.las')
 lidclip
 #Set coordinate reference system
 crs(lidclip)<-'+init=epsg:25832 +proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
 lidclip
 plot(lidclip)
+plot(lidclip)#Do it again...
+
 
 #Clip to exclosure and open plots
 #lidexclosure<-lasclipRectangle(lidtest2,573675,7025681,573695,7025701)
