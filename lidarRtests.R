@@ -111,7 +111,6 @@ rex
 rop
 r2 <- extend(rex,rop)
 r2
-
 stack1<-stack(rex,rop)
 names(stack1)<-c('Exclosure','Open')
 mytheme #whats mytheme? Error: object mytheme not found
