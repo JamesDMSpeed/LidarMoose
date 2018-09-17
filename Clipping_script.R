@@ -17,7 +17,7 @@ plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 
 bratsbserg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
 
-bratsberglas <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/plotdata/bratsberg_b.las')
+bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/bratsberg.las')
 bratsberglas 
 plot(bratsberglas)
 
@@ -30,5 +30,5 @@ plot(bratsberg_b)
 bratsberg_ub
 plot(bratsberg_ub)
 
-writeLAS(bratsberg_b,'TestIngrid/plotdata/bratsberg_b.las')
-writeLAS(bratsberg_ub,'TestIngrid/plotdata/bratsberg_ub.las')
+writeLAS(bratsberg_b,'clipped_las/bratsberg_b.las')
+writeLAS(bratsberg_ub,'clipped_las/bratsberg_ub.las')
