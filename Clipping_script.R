@@ -21,11 +21,11 @@ bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_l
 bratsberglas 
 plot(bratsberglas)
 
-bbx<-lasclip(bratsberglas,bratsbserg_b_poly)
+bbx<-lasclip(bratsberglas,bratsbserg_b_poly) #what does this one do?
 bbx
+plot(bbx)
 
-
-bratsberg_b<-lasclipRectangle(bratsberglas,573723,7025715,573750,7025741) #this one is not 20x20 m, it has an area of 700m^2.
+bratsberg_b<-lasclipRectangle(bratsberglas,573723,7025715,573750,7025741) #this one is not 20x20 m, it has an area of 700m^2. Bruk lasclipPoly
 bratsberg_ub<-lasclipRectangle(bratsberglas,573675,7025681,573695,7025701)
 bratsberg_b
 plot(bratsberg_b)
