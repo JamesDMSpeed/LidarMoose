@@ -4,7 +4,7 @@ require(lidR)
 require(raster)
 require(rasterVis)
 
-
+#BRATSBERG
 #Import plot coords
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 #Import las file
