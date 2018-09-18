@@ -1,20 +1,13 @@
 #Clipping_script
 
-#LidR
-#install.packages("lidR")
-#installed.packages("raster")
-#install.packages("rasterVis")
-
 require(lidR)
 require(raster)
 require(rasterVis)
 
 
-#Import data
-
 #Import plot coords
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
-
+#Import las file
 bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/bratsberg.las')
 bratsberglas 
 plot(bratsberglas)
