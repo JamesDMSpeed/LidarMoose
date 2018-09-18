@@ -34,5 +34,5 @@ bratsberg_ub_plot<-lasclip(bratsberglas,bratsberg_ub_poly)
 plot(bratsberg_ub_plot)
 bratsberg_ub_plot
 
-writeLAS(bratsberg_b_plot,'clipped_las/bratsberg_b.las')
-writeLAS(bratsberg_ub_plot,'clipped_las/bratsberg_ub.las')
+writeLAS(bratsberg_b_plot,'Trondelag/clipped_las/bratsberg_b.las')
+writeLAS(bratsberg_ub_plot,'Trondelag/clipped_las/bratsberg_ub.las')
