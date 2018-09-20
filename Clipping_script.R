@@ -219,3 +219,24 @@ plot(sl_tydal_ub_cut)
 
 writeLAS(sl_tydal_b_cut,'Trondelag/clipped_las/sl_tydal_b.las')
 writeLAS(sl_tydal_ub_cut,'Trondelag/clipped_las/sl_tydal_ub.las')
+#######################################################################
+#Steinkjer_1BBb
+
+steinkjer_1BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Steinkjer_1BBb.las')
+steinkjer_1BBb_las 
+plot(steinkjer_1BBb_las)
+
+steinkjer_1BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5]))
+steinkjer_1BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5][steinkjer_1BBb_b_order,]))
+steinkjer_1BBb_b_cut<-lasclip(steinkjer_1BBb_las,steinkjer_1BBb_b_poly)
+steinkjer_1BBb_b_cut
+plot(steinkjer_1BBb_b_cut)
+
+steinkjer_1BBb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbub',4:5]))
+steinkjer_1BBb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Bbub',4:5][steinkjer_1BBb_ub_order,]))
+steinkjer_1BBb_ub_cut<-lasclip(steinkjer_1BBb_las,steinkjer_1BBb_ub_poly)
+steinkjer_1BBb_ub_cut
+plot(steinkjer_1BBb_ub_cut)
+
+writeLAS(steinkjer_1BBb_b_cut,'Trondelag/clipped_las/steinkjer_1BBb_b.las')
+writeLAS(steinkjer_1BBb_ub_cut,'Trondelag/clipped_las/steinkjer_1BBb_ub.las')
