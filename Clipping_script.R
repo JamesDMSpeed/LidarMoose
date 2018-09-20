@@ -29,3 +29,29 @@ bratsberg_ub_plot
 
 writeLAS(bratsberg_b_plot,'Trondelag/clipped_las/bratsberg_b.las')
 writeLAS(bratsberg_ub_plot,'Trondelag/clipped_las/bratsberg_ub.las')
+
+#############################################################################
+#Hi_Tydal
+
+
+#Import las file
+hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hi_tydal.las')
+hi_tydal_las 
+plot(hi_tydal_las)
+
+
+hi_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5]))
+hi_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5][hi_tydal_b_order,]))
+#This one clips the las to the polygon
+hi_tydal_b_cut<-lasclip(hi_tydal_las,hi_tydal_b_poly)
+hi_tydal_b_cut
+plot(hi_tydal_b_cut)
+
+hi_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5]))
+hi_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5][hi_tydal_ub_order,]))
+hi_tydal_ub_cut<-lasclip(hi_tydal_las,hi_tydal_ub_poly)
+hi_tydal_ub_cut
+plot(hi_tydal_ub_cut)
+
+writeLAS(hi_tydal_b_cut,'Trondelag/clipped_las/hi_tydal_b.las')
+writeLAS(hi_tydal_ub_cut,'Trondelag/clipped_las/hi_tydal_ub.las')
