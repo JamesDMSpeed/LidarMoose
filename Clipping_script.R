@@ -54,7 +54,6 @@ writeLAS(hi_tydal_b_cut,'Trondelag/clipped_las/hi_tydal_b.las')
 writeLAS(hi_tydal_ub_cut,'Trondelag/clipped_las/hi_tydal_ub.las')
 
 ####################################################################
-
 #Malvik
 
 malvik_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Malvik.las')
@@ -76,9 +75,8 @@ plot(malvik_ub_cut)
 writeLAS(malvik_b_cut,'Trondelag/clipped_las/malvik_b.las')
 writeLAS(malvik_ub_cut,'Trondelag/clipped_las/malvik_ub.las')
 ##########################################################################
-
 #Namdalseid_1kub
-#Import las file
+
 namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/namdalseid_1kub.las')
 namdalseid_1kub_las 
 plot(namdalseid_1kub_las)
@@ -98,4 +96,26 @@ plot(malvik_ub_cut)
 writeLAS(namdalseid_1kub_b_cut,'Trondelag/clipped_las/namdalseid_1kub_b.las')
 writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
 ###################################################################################
+#Nsb_Verdal OBS! Error i linja som starter med nsb_verdal_ub_poly (112)
+
+nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Nsb_Verdal.las')
+nsb_verdal_las 
+plot(nsb_verdal_las)
+
+nsb_verdal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5]))
+nsb_verdal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5][nsb_verdal_b_order,]))
+nsb_verdal_b_cut<-lasclip(malvik_las,malvik_b_poly)
+nsb_verdal_b_cut
+plot(nsb_verdal_b_cut)
+
+nsb_verdal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5]))
+nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))
+nsb_verdal_ub_cut<-lasclip(nsb_verdal_las,nsb_verdal_ub_poly)
+nsb_verdal_ub_cut
+plot(nsb_verdal_ub_cut)
+
+writeLAS(nsb_verdal_b_cut,'Trondelag/clipped_las/nsb_verdal_b.las')
+writeLAS(nsb_verdal_ub_cut,'Trondelag/clipped_las/nsb_verdal_ub.las')
+###########################################################################
+
 
