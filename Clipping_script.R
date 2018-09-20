@@ -198,3 +198,24 @@ plot(singsaas_ub_cut)
 
 writeLAS(singsaas_b_cut,'Trondelag/clipped_las/singsaas_b.las')
 writeLAS(singsaas_ub_cut,'Trondelag/clipped_las/singsaas_ub.las')
+#################################################################################
+#Sl_Tydal
+
+sl_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Sl_Tydal.las')
+sl_tydal_las 
+plot(sl_tydal_las) #all blue??
+
+sl_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Seb',4:5]))
+sl_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Seb',4:5][sl_tydal_b_order,]))
+sl_tydal_b_cut<-lasclip(sl_tydal_las,sl_tydal_b_poly)
+sl_tydal_b_cut
+plot(sl_tydal_b_cut)
+
+sl_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5]))
+sl_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5][sl_tydal_ub_order,]))
+sl_tydal_ub_cut<-lasclip(sl_tydal_las,sl_tydal_ub_poly)
+sl_tydal_ub_cut
+plot(sl_tydal_ub_cut)
+
+writeLAS(sl_tydal_b_cut,'Trondelag/clipped_las/sl_tydal_b.las')
+writeLAS(sl_tydal_ub_cut,'Trondelag/clipped_las/sl_tydal_ub.las')
