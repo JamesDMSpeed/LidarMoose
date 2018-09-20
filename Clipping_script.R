@@ -136,4 +136,25 @@ plot(selbu_flub_ub_cut)
 
 writeLAS(selbu_flub_b_cut,'Trondelag/clipped_las/selbu_flub_b.las')
 writeLAS(selbu_flub_ub_cut,'Trondelag/clipped_las/selbu_flub_ub.las')
+########################################################################################
+#Selbu_kl
 
+selbu_kl_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Selbu_kl.las')
+selbu_kl_las 
+plot(selbu_kl_las)
+
+selbu_kl_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5]))
+selbu_kl_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5][selbu_kl_b_order,]))
+selbu_kl_b_cut<-lasclip(selbu_kl_las,selbu_kl_b_poly)
+selbu_kl_b_cut
+plot(selbu_kl_b_cut)
+
+selbu_kl_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Klub',4:5]))
+selbu_kl_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Klub',4:5][selbu_kl_ub_order,]))
+selbu_kl_ub_cut<-lasclip(selbu_kl_las,selbu_kl_ub_poly)
+selbu_kl_ub_cut
+plot(selbu_kl_ub_cut)
+
+writeLAS(selbu_kl_b_cut,'Trondelag/clipped_las/selbu_kl_b.las')
+writeLAS(selbu_kl_ub_cut,'Trondelag/clipped_las/selbu_kl_ub.las')
+############################################################################
