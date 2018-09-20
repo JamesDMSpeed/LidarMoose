@@ -33,7 +33,6 @@ writeLAS(bratsberg_ub_plot,'Trondelag/clipped_las/bratsberg_ub.las')
 #############################################################################
 #Hi_Tydal
 
-#Import las file
 hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hi_tydal.las')
 hi_tydal_las 
 plot(hi_tydal_las)
@@ -41,7 +40,6 @@ plot(hi_tydal_las)
 
 hi_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5]))
 hi_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5][hi_tydal_b_order,]))
-#This one clips the las to the polygon
 hi_tydal_b_cut<-lasclip(hi_tydal_las,hi_tydal_b_poly)
 hi_tydal_b_cut
 plot(hi_tydal_b_cut)
@@ -57,4 +55,47 @@ writeLAS(hi_tydal_ub_cut,'Trondelag/clipped_las/hi_tydal_ub.las')
 
 ####################################################################
 
+#Malvik
+
+malvik_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Malvik.las')
+malvik_las 
+plot(malvik_las)
+
+malvik_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5]))
+malvik_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5][malvik_b_order,]))
+malvik_b_cut<-lasclip(malvik_las,malvik_b_poly)
+malvik_b_cut
+plot(malvik_b_cut)
+
+malvik_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5]))
+malvik_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5][malvik_ub_order,]))
+malvik_ub_cut<-lasclip(malvik_las,malvik_ub_poly)
+malvik_ub_cut
+plot(malvik_ub_cut)
+
+writeLAS(malvik_b_cut,'Trondelag/clipped_las/malvik_b.las')
+writeLAS(malvik_ub_cut,'Trondelag/clipped_las/malvik_ub.las')
+##########################################################################
+
+#Namdalseid_1kub
+#Import las file
+namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/namdalseid_1kub.las')
+namdalseid_1kub_las 
+plot(namdalseid_1kub_las)
+
+namdalseid_1kub_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Kb',4:5]))
+namdalseid_1kub_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Kb',4:5][namdalseid_1kub_b_order,]))
+namdalseid_1kub_b_cut<-lasclip(namdalseid_1kub_las,namdalseid_1kub_b_poly)
+namdalseid_1kub_b_cut
+plot(namdalseid_1kub_b_cut)
+
+namdalseid_1kub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5]))
+namdalseid_1kub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5][namdalseid_1kub_ub_order,]))
+namdalseid_1kub_ub_cut<-lasclip(namdalseid_1kub_las,namdalseid_1kub_ub_poly)
+namdalseid_1kub_ub_cut
+plot(malvik_ub_cut)
+
+writeLAS(namdalseid_1kub_b_cut,'Trondelag/clipped_las/namdalseid_1kub_b.las')
+writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
+###################################################################################
 
