@@ -178,3 +178,23 @@ plot(selbu_sl_ub_cut)
 
 writeLAS(selbu_sl_b_cut,'Trondelag/clipped_las/selbu_sl_b.las')
 writeLAS(selbu_sl_ub_cut,'Trondelag/clipped_las/selbu_sl_ub.las')
+#############################################################################
+#Singsaas
+singsaas_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Singsaas.las')
+singsaas_las 
+plot(singsaas_las)
+
+singsaas_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Lab',4:5]))
+singsaas_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Lab',4:5][singsaas_b_order,]))
+singsaas_b_cut<-lasclip(singsaas_las,singsaas_b_poly)
+singsaas_b_cut
+plot(singsaas_b_cut)
+
+singsaas_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Laub',4:5]))
+singsaas_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Laub',4:5][singsaas_ub_order,]))
+singsaas_ub_cut<-lasclip(singsaas_las,singsaas_ub_poly)
+singsaas_ub_cut
+plot(singsaas_ub_cut)
+
+writeLAS(singsaas_b_cut,'Trondelag/clipped_las/singsaas_b.las')
+writeLAS(singsaas_ub_cut,'Trondelag/clipped_las/singsaas_ub.las')
