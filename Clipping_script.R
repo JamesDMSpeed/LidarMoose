@@ -33,7 +33,6 @@ writeLAS(bratsberg_ub_plot,'Trondelag/clipped_las/bratsberg_ub.las')
 #############################################################################
 #Hi_Tydal
 
-
 #Import las file
 hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hi_tydal.las')
 hi_tydal_las 
@@ -55,3 +54,7 @@ plot(hi_tydal_ub_cut)
 
 writeLAS(hi_tydal_b_cut,'Trondelag/clipped_las/hi_tydal_b.las')
 writeLAS(hi_tydal_ub_cut,'Trondelag/clipped_las/hi_tydal_ub.las')
+
+####################################################################
+
+
