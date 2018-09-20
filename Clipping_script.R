@@ -117,5 +117,23 @@ plot(nsb_verdal_ub_cut)
 writeLAS(nsb_verdal_b_cut,'Trondelag/clipped_las/nsb_verdal_b.las')
 writeLAS(nsb_verdal_ub_cut,'Trondelag/clipped_las/nsb_verdal_ub.las')
 ###########################################################################
+#Selbu_flub
+selbu_flub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Selbu_flub.las')
+selbu_flub_las 
+plot(selbu_flub_las)
 
+selbu_flub_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5]))
+selbu_flub_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5][selbu_flub_b_order,]))
+selbu_flub_b_cut<-lasclip(selbu_flub_las,selbu_flub_b_poly)
+selbu_flub_b_cut
+plot(selbu_flub_b_cut)
+
+selbu_flub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5]))
+selbu_flub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5][selbu_flub_ub_order,]))
+selbu_flub_ub_cut<-lasclip(selbu_flub_las,selbu_flub_ub_poly)
+selbu_flub_ub_cut
+plot(selbu_flub_ub_cut)
+
+writeLAS(selbu_flub_b_cut,'Trondelag/clipped_las/selbu_flub_b.las')
+writeLAS(selbu_flub_ub_cut,'Trondelag/clipped_las/selbu_flub_ub.las')
 
