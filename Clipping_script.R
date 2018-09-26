@@ -240,3 +240,24 @@ plot(steinkjer_1BBb_ub_cut)
 
 writeLAS(steinkjer_1BBb_b_cut,'Trondelag/clipped_las/steinkjer_1BBb_b.las')
 writeLAS(steinkjer_1BBb_ub_cut,'Trondelag/clipped_las/steinkjer_1BBb_ub.las')
+#########################################################################################################
+#Steinkjer_2BBb
+
+steinkjer_2BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Steinkjer_2BBb.las')
+steinkjer_2BBb_las 
+plot(steinkjer_2BBb_las)
+
+steinkjer_2BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5]))
+steinkjer_2BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5][steinkjer_2BBb_b_order,])) #error
+steinkjer_2BBb_b_cut<-lasclip(steinkjer_2BBb_las,steinkjer_2BBb_b_poly)
+steinkjer_2BBb_b_cut
+plot(steinkjer_2BBb_b_cut)
+
+steinkjer_2BBb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Bbub',4:5]))
+steinkjer_2BBb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbub',4:5][steinkjer_2BBb_ub_order,]))
+steinkjer_2BBb_ub_cut<-lasclip(steinkjer_2BBb_las,steinkjer_2BBb_ub_poly)
+steinkjer_2BBb_ub_cut
+plot(steinkjer_2BBb_ub_cut)
+
+writeLAS(steinkjer_2BBb_b_cut,'Trondelag/clipped_las/steinkjer_2BBb_b.las')
+writeLAS(steinkjer_2BBb_ub_cut,'Trondelag/clipped_las/steinkjer_2BBb_ub.las')
