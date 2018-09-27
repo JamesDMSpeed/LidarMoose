@@ -4,6 +4,7 @@ require(lidR)
 require(raster)
 require(rasterVis)
 
+############TRONDELAG##################################################################
 #BRATSBERG
 #Import plot coords
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
@@ -96,7 +97,7 @@ plot(malvik_ub_cut)
 writeLAS(namdalseid_1kub_b_cut,'Trondelag/clipped_las/namdalseid_1kub_b.las')
 writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
 ###################################################################################
-#Nsb_Verdal OBS! Error i linja som starter med nsb_verdal_ub_poly (112)
+#Nsb_Verdal OBS! ERROR in nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))
 
 nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Nsb_Verdal.las')
 nsb_verdal_las 
@@ -104,12 +105,12 @@ plot(nsb_verdal_las)
 
 nsb_verdal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5]))
 nsb_verdal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5][nsb_verdal_b_order,]))
-nsb_verdal_b_cut<-lasclip(malvik_las,malvik_b_poly)
+nsb_verdal_b_cut<-lasclip(nsb_verdal_las,nsb_verdal_b_poly)
 nsb_verdal_b_cut
 plot(nsb_verdal_b_cut)
 
 nsb_verdal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5]))
-nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))
+nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))#error
 nsb_verdal_ub_cut<-lasclip(nsb_verdal_las,nsb_verdal_ub_poly)
 nsb_verdal_ub_cut
 plot(nsb_verdal_ub_cut)
@@ -248,7 +249,7 @@ steinkjer_2BBb_las
 plot(steinkjer_2BBb_las)
 
 steinkjer_2BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5]))
-steinkjer_2BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5][steinkjer_2BBb_b_order,])) #error
+steinkjer_2BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5][steinkjer_2BBb_b_order,])) 
 steinkjer_2BBb_b_cut<-lasclip(steinkjer_2BBb_las,steinkjer_2BBb_b_poly)
 steinkjer_2BBb_b_cut
 plot(steinkjer_2BBb_b_cut)
@@ -322,3 +323,7 @@ plot(verdal_2vb_ub_cut)
 
 writeLAS(verdal_2vb_b_cut,'Trondelag/clipped_las/verdal_2vb_b.las')
 writeLAS(verdal_2vb_ub_cut,'Trondelag/clipped_las/verdal_2vb_ub.las')
+#####END TRONDELAG##################################################################
+
+
+
