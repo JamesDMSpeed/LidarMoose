@@ -9,7 +9,7 @@ require(rasterVis)
 #Import plot coords
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 #Import las file
-bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/bratsberg.las')
+bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Trondelag/Trondelag/bratsberg.las')
 bratsberglas 
 plot(bratsberglas)
 
@@ -34,7 +34,7 @@ writeLAS(bratsberg_ub_plot,'Trondelag/clipped_las/bratsberg_ub.las')
 #############################################################################
 #Hi_Tydal
 
-hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hi_tydal.las')
+hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Hi_tydal.las')
 hi_tydal_las 
 plot(hi_tydal_las)
 
@@ -57,7 +57,7 @@ writeLAS(hi_tydal_ub_cut,'Trondelag/clipped_las/hi_tydal_ub.las')
 ####################################################################
 #Malvik
 
-malvik_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Malvik.las')
+malvik_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Malvik.las')
 malvik_las 
 plot(malvik_las)
 
@@ -78,7 +78,7 @@ writeLAS(malvik_ub_cut,'Trondelag/clipped_las/malvik_ub.las')
 ##########################################################################
 #Namdalseid_1kub
 
-namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/namdalseid_1kub.las')
+namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/namdalseid_1kub.las')
 namdalseid_1kub_las 
 plot(namdalseid_1kub_las)
 
@@ -99,7 +99,7 @@ writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
 ###################################################################################
 #Nsb_Verdal OBS! ERROR in nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))
 
-nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Nsb_Verdal.las')
+nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Nsb_Verdal.las')
 nsb_verdal_las 
 plot(nsb_verdal_las)
 
@@ -119,7 +119,7 @@ writeLAS(nsb_verdal_b_cut,'Trondelag/clipped_las/nsb_verdal_b.las')
 writeLAS(nsb_verdal_ub_cut,'Trondelag/clipped_las/nsb_verdal_ub.las')
 ###########################################################################
 #Selbu_flub
-selbu_flub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Selbu_flub.las')
+selbu_flub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Selbu_flub.las')
 selbu_flub_las 
 plot(selbu_flub_las)
 
@@ -140,7 +140,7 @@ writeLAS(selbu_flub_ub_cut,'Trondelag/clipped_las/selbu_flub_ub.las')
 ########################################################################################
 #Selbu_kl
 
-selbu_kl_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Selbu_kl.las')
+selbu_kl_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Selbu_kl.las')
 selbu_kl_las 
 plot(selbu_kl_las)
 
@@ -161,7 +161,7 @@ writeLAS(selbu_kl_ub_cut,'Trondelag/clipped_las/selbu_kl_ub.las')
 ############################################################################
 #Selbu_sl
 
-selbu_sl_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Selbu_sl.las')
+selbu_sl_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Selbu_sl.las')
 selbu_sl_las 
 plot(selbu_sl_las)
 
@@ -181,7 +181,7 @@ writeLAS(selbu_sl_b_cut,'Trondelag/clipped_las/selbu_sl_b.las')
 writeLAS(selbu_sl_ub_cut,'Trondelag/clipped_las/selbu_sl_ub.las')
 #############################################################################
 #Singsaas
-singsaas_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Singsaas.las')
+singsaas_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Singsaas.las')
 singsaas_las 
 plot(singsaas_las)
 
@@ -202,7 +202,7 @@ writeLAS(singsaas_ub_cut,'Trondelag/clipped_las/singsaas_ub.las')
 #################################################################################
 #Sl_Tydal
 
-sl_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Sl_Tydal.las')
+sl_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Sl_Tydal.las')
 sl_tydal_las 
 plot(sl_tydal_las) #all blue??
 
@@ -223,7 +223,7 @@ writeLAS(sl_tydal_ub_cut,'Trondelag/clipped_las/sl_tydal_ub.las')
 #######################################################################
 #Steinkjer_1BBb
 
-steinkjer_1BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Steinkjer_1BBb.las')
+steinkjer_1BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Steinkjer_1BBb.las')
 steinkjer_1BBb_las 
 plot(steinkjer_1BBb_las)
 
@@ -244,7 +244,7 @@ writeLAS(steinkjer_1BBb_ub_cut,'Trondelag/clipped_las/steinkjer_1BBb_ub.las')
 #########################################################################################################
 #Steinkjer_2BBb
 
-steinkjer_2BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Steinkjer_2BBb.las')
+steinkjer_2BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Steinkjer_2BBb.las')
 steinkjer_2BBb_las 
 plot(steinkjer_2BBb_las)
 
@@ -264,7 +264,7 @@ writeLAS(steinkjer_2BBb_b_cut,'Trondelag/clipped_las/steinkjer_2BBb_b.las')
 writeLAS(steinkjer_2BBb_ub_cut,'Trondelag/clipped_las/steinkjer_2BBb_ub.las')
 ##########################################################################################
 # Sub_Namdalseid
-sub_namdalseid_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Sub_Namdalseid.las')
+sub_namdalseid_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Sub_Namdalseid.las')
 sub_namdalseid_las 
 plot(sub_namdalseid_las)
 
@@ -284,7 +284,7 @@ writeLAS(sub_namdalseid_b_cut,'Trondelag/clipped_las/sub_namdalseid_b.las')
 writeLAS(sub_namdalseid_ub_cut,'Trondelag/clipped_las/sub_namdalseid_ub.las')
 ########################################################################################
 #Verdal_1vb
-verdal_1vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Verdal_1vb.las')
+verdal_1vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Verdal_1vb.las')
 verdal_1vb_las 
 plot(verdal_1vb_las)
 
@@ -305,7 +305,7 @@ writeLAS(verdal_1vb_ub_cut,'Trondelag/clipped_las/verdal_1vb_ub.las')
 
 #########################################################################################
 #Verdal_2vb
-verdal_2vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Verdal_2vb.las')
+verdal_2vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Verdal_2vb.las')
 verdal_2vb_las 
 plot(verdal_2vb_las)
 
