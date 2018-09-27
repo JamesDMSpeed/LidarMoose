@@ -283,3 +283,21 @@ writeLAS(sub_namdalseid_b_cut,'Trondelag/clipped_las/sub_namdalseid_b.las')
 writeLAS(sub_namdalseid_ub_cut,'Trondelag/clipped_las/sub_namdalseid_ub.las')
 ########################################################################################
 #Verdal_2vb
+verdal_2vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Verdal_2vb.las')
+verdal_2vb_las 
+plot(verdal_2vb_las)
+
+verdal_2vb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5]))
+verdal_2vb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5][verdal_2vb_b_order,]))
+verdal_2vb_b_cut<-lasclip(verdal_2vb_las,verdal_2vb_b_poly)
+verdal_2vb_b_cut
+plot(verdal_2vb_b_cut)
+
+verdal_2vb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Vbub',4:5]))
+verdal_2vb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Vbub',4:5][verdal_2vb_ub_order,]))
+verdal_2vb_ub_cut<-lasclip(verdal_2vb_las,verdal_2vb_ub_poly)
+verdal_2vb_ub_cut
+plot(verdal_2vb_ub_cut)
+
+writeLAS(verdal_2vb_b_cut,'Trondelag/clipped_las/verdal_2vb_b.las')
+writeLAS(verdal_2vb_ub_cut,'Trondelag/clipped_las/verdal_2vb_ub.las')
