@@ -261,3 +261,25 @@ plot(steinkjer_2BBb_ub_cut)
 
 writeLAS(steinkjer_2BBb_b_cut,'Trondelag/clipped_las/steinkjer_2BBb_b.las')
 writeLAS(steinkjer_2BBb_ub_cut,'Trondelag/clipped_las/steinkjer_2BBb_ub.las')
+##########################################################################################
+# Sub_Namdalseid
+sub_namdalseid_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Sub_Namdalseid.las')
+sub_namdalseid_las 
+plot(sub_namdalseid_las)
+
+sub_namdalseid_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Sb',4:5]))
+sub_namdalseid_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Sb',4:5][sub_namdalseid_b_order,]))
+sub_namdalseid_b_cut<-lasclip(sub_namdalseid_las,sub_namdalseid_b_poly)
+sub_namdalseid_b_cut
+plot(sub_namdalseid_b_cut)
+
+sub_namdalseid_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Sub',4:5]))
+sub_namdalseid_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Sub',4:5][sub_namdalseid_ub_order,]))
+sub_namdalseid_ub_cut<-lasclip(sub_namdalseid_las,sub_namdalseid_ub_poly)
+sub_namdalseid_ub_cut
+plot(sub_namdalseid_ub_cut)
+
+writeLAS(sub_namdalseid_b_cut,'Trondelag/clipped_las/sub_namdalseid_b.las')
+writeLAS(sub_namdalseid_ub_cut,'Trondelag/clipped_las/sub_namdalseid_ub.las')
+########################################################################################
+#Verdal_2vb
