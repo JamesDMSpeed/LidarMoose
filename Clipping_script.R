@@ -9,7 +9,7 @@ require(rasterVis)
 #Import plot coords
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 #Import las file
-bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Trondelag/Trondelag/bratsberg.las')
+bratsberglas <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/bratsberg.las')
 bratsberglas 
 plot(bratsberglas)
 
@@ -97,7 +97,7 @@ plot(malvik_ub_cut)
 writeLAS(namdalseid_1kub_b_cut,'Trondelag/clipped_las/namdalseid_1kub_b.las')
 writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
 ###################################################################################
-#Nsb_Verdal OBS! ERROR in nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))
+#Nsb_Verdal 
 
 nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Nsb_Verdal.las')
 nsb_verdal_las 
@@ -109,9 +109,8 @@ nsb_verdal_b_cut<-lasclip(nsb_verdal_las,nsb_verdal_b_poly)
 nsb_verdal_b_cut
 plot(nsb_verdal_b_cut)
 
-nsb_verdal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5]))
-nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsub',4:5][nsb_verdal_ub_order,]))#error
-nsb_verdal_ub_cut<-lasclip(nsb_verdal_las,nsb_verdal_ub_poly)
+nsb_verdal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name==' 1Nsub',4:5]))
+nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name==' 1Nsub',4:5][nsb_verdal_ub_order,]))
 nsb_verdal_ub_cut
 plot(nsb_verdal_ub_cut)
 
