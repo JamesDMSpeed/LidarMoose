@@ -322,7 +322,32 @@ plot(verdal_2vb_ub_cut)
 
 writeLAS(verdal_2vb_b_cut,'Trondelag/clipped_las/verdal_2vb_b.las')
 writeLAS(verdal_2vb_ub_cut,'Trondelag/clipped_las/verdal_2vb_ub.las')
-#####END TRONDELAG##################################################################
 
+
+##############################TELEMARK#################################################################
+
+#Import plot coords
+plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
+
+#Fritsoe1
+fritsoe1_1FR_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Fritsoe1.las')
+fritsoe1_1FR_las 
+plot(fritsoe1_1FR_las)
+
+fritsoel_1FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',9:10]))
+fritsoel_1FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',9:10][fritsoel_1FR_b_order,]))
+fritsoel_1FR_b_cut<-lasclip(fritsoe1_1FR_las,fritsoel_1FR_b_poly)
+fritsoel_1FR_b_cut
+plot(fritsoel_1FR_b_cut)
+fritsoel_1FR_b_poly
+
+verdal_1vb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5]))
+verdal_1vb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5][verdal_1vb_ub_order,]))
+verdal_1vb_ub_cut<-lasclip(fritsoe1_1FR_las,verdal_1vb_ub_poly)
+verdal_1vb_ub_cut
+plot(verdal_1vb_ub_cut)
+
+writeLAS(verdal_1vb_b_cut,'Trondelag/clipped_las/verdal_1vb_b.las')
+writeLAS(verdal_1vb_ub_cut,'Trondelag/clipped_las/verdal_1vb_ub.las')
 
 
