@@ -662,3 +662,6 @@ plot(Furesdal_ub_cut)
 
 writeLAS(Furesdal_b_cut,'Telemark/clipped_las/Furesdal_b.las')
 writeLAS(Furesdal_ub_cut,'Telemark/clipped_las/Furesdal_ub.las')
+
+
+#########################HEDMARK_AKERSHUS#############################################################
