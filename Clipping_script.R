@@ -476,3 +476,23 @@ plot(notodden5_ub_cut)
 writeLAS(notodden5_b_cut,'Telemark/clipped_las/notodden5_b.las')
 writeLAS(notodden5_ub_cut,'Telemark/clipped_las/notodden5_ub.las')
 ####################################################################################
+
+#Notodden 6
+notodden6_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden6.las')
+notodden6_las 
+plot(notodden6_las)
+
+notodden6_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9]))
+notodden6_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9][notodden6_b_order,]))
+notodden6_b_cut<-lasclip(notodden6_las,notodden6_b_poly)
+notodden6_b_cut
+plot(notodden6_b_cut)
+
+notodden6_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9]))
+notodden6_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9][notodden6_ub_order,]))
+notodden6_ub_cut<-lasclip(notodden6_las,notodden6_ub_poly)
+notodden6_ub_cut
+plot(notodden6_ub_cut)
+
+writeLAS(notodden6_b_cut,'Telemark/clipped_las/notodden6_b.las')
+writeLAS(notodden6_ub_cut,'Telemark/clipped_las/notodden6_ub.las')
