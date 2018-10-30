@@ -334,20 +334,39 @@ fritsoe1_1FR_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orgina
 fritsoe1_1FR_las 
 plot(fritsoe1_1FR_las)
 
-fritsoel_1FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',9:10]))
-fritsoel_1FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',9:10][fritsoel_1FR_b_order,]))
+fritsoel_1FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9]))
+fritsoel_1FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9][fritsoel_1FR_b_order,]))
 fritsoel_1FR_b_cut<-lasclip(fritsoe1_1FR_las,fritsoel_1FR_b_poly)
 fritsoel_1FR_b_cut
 plot(fritsoel_1FR_b_cut)
-fritsoel_1FR_b_poly
 
-verdal_1vb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5]))
-verdal_1vb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5][verdal_1vb_ub_order,]))
-verdal_1vb_ub_cut<-lasclip(fritsoe1_1FR_las,verdal_1vb_ub_poly)
-verdal_1vb_ub_cut
-plot(verdal_1vb_ub_cut)
+fritsoel_1FR_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9]))
+fritsoel_1FR_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9][fritsoel_1FR_ub_order,]))
+fritsoel_1FR_ub_cut<-lasclip(fritsoe1_1FR_las,fritsoel_1FR_ub_poly)
+fritsoel_1FR_ub_cut
+plot(fritsoel_1FR_ub_cut)
 
-writeLAS(verdal_1vb_b_cut,'Trondelag/clipped_las/verdal_1vb_b.las')
-writeLAS(verdal_1vb_ub_cut,'Trondelag/clipped_las/verdal_1vb_ub.las')
+writeLAS(fritsoel_1FR_b_cut,'Telemark/clipped_las/fritsoel_1FR_b.las')
+writeLAS(fritsoel_1FR_ub_cut,'Telemark/clipped_las/fritsoel_1FR_ub.las')
+######################################################################################
 
+#Fritsoe2
+fritsoe2_2FR_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Fritsoe2.las')
+fritsoe2_2FR_las 
+plot(fritsoe2_2FR_las)
+
+fritsoel_2FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9]))
+fritsoel_2FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9][fritsoel_2FR_b_order,]))
+fritsoel_2FR_b_cut<-lasclip(fritsoe2_2FR_las,fritsoel_2FR_b_poly)
+fritsoel_2FR_b_cut
+plot(fritsoel_2FR_b_cut)
+
+fritsoel_2FR_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9]))
+fritsoel_2FR_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9][fritsoel_2FR_ub_order,]))
+fritsoel_2FR_ub_cut<-lasclip(fritsoe2_2FR_las,fritsoel_2FR_ub_poly)
+fritsoel_2FR_ub_cut
+plot(fritsoel_2FR_ub_cut)
+
+writeLAS(fritsoel_2FR_b_cut,'Telemark/clipped_las/fritsoel_2FR_b.las')
+writeLAS(fritsoel_2FR_ub_cut,'Telemark/clipped_las/fritsoel_2FR_ub.las')
 
