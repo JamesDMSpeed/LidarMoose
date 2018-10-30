@@ -641,3 +641,24 @@ plot(kviteseid3_ub_cut)
 
 writeLAS(kviteseid3_b_cut,'Telemark/clipped_las/kviteseid3_b.las')
 writeLAS(kviteseid3_ub_cut,'Telemark/clipped_las/kviteseid3_ub.las')
+########################################################################################
+
+#Furesdal
+Furesdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Furesdal.las') 
+Furesdal_las 
+plot(Furesdal_las)
+
+Furesdal_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9]))
+Furesdal_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9][Furesdal_b_order,]))
+Furesdal_b_cut<-lasclip(Furesdal_las,Furesdal_b_poly)
+Furesdal_b_cut
+plot(Furesdal_b_cut)
+
+Furesdal_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9]))
+Furesdal_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9][Furesdal_ub_order,]))
+Furesdal_ub_cut<-lasclip(Furesdal_las,Furesdal_ub_poly)
+Furesdal_ub_cut
+plot(Furesdal_ub_cut)
+
+writeLAS(Furesdal_b_cut,'Telemark/clipped_las/Furesdal_b.las')
+writeLAS(Furesdal_ub_cut,'Telemark/clipped_las/Furesdal_ub.las')
