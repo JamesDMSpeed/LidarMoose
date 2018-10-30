@@ -560,3 +560,22 @@ plot(drangedal4_ub_cut)
 writeLAS(drangedal4_b_cut,'Telemark/clipped_las/drangedal4_b.las')
 writeLAS(drangedal4_ub_cut,'Telemark/clipped_las/drangedal4_ub.las')
 ############################################################################################
+#Nome_Cappelen_2 
+nome_cappelen_2_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Nome_Cappelen2.las')
+nome_cappelen_2_las 
+plot(nome_cappelen_2_las)
+
+nome_cappelen_2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9]))
+nome_cappelen_2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9][nome_cappelen_2_b_order,]))
+nome_cappelen_2_b_cut<-lasclip(nome_cappelen_2_las,nome_cappelen_2_b_poly)
+nome_cappelen_2_b_cut
+plot(nome_cappelen_2_b_cut)
+
+nome_cappelen_2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9]))
+nome_cappelen_2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9][nome_cappelen_2_ub_order,]))
+nome_cappelen_2_ub_cut<-lasclip(nome_cappelen_2_las,nome_cappelen_2_ub_poly)
+nome_cappelen_2_ub_cut
+plot(nome_cappelen_2_ub_cut)
+
+writeLAS(nome_cappelen_2_b_cut,'Telemark/clipped_las/nome_cappelen_2_b.las')
+writeLAS(nome_cappelen_2_ub_cut,'Telemark/clipped_las/nome_cappelen_2_ub.las')
