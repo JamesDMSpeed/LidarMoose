@@ -600,3 +600,24 @@ plot(kviteseid1_ub_cut)
 writeLAS(kviteseid1_b_cut,'Telemark/clipped_las/kviteseid1_b.las')
 writeLAS(kviteseid1_ub_cut,'Telemark/clipped_las/kviteseid1_ub.las')
 #####################################################################################
+
+#Kviteseid2
+kviteseid2_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Kviteseid2.las') 
+kviteseid2_las 
+plot(kviteseid2_las)
+
+kviteseid2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9]))
+kviteseid2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9][kviteseid2_b_order,]))
+kviteseid2_b_cut<-lasclip(kviteseid2_las,kviteseid2_b_poly)
+kviteseid2_b_cut
+plot(kviteseid2_b_cut)
+
+kviteseid2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9]))
+kviteseid2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9][kviteseid2_ub_order,]))
+kviteseid2_ub_cut<-lasclip(kviteseid2_las,kviteseid2_ub_poly)
+kviteseid2_ub_cut
+plot(kviteseid2_ub_cut)
+
+writeLAS(kviteseid2_b_cut,'Telemark/clipped_las/kviteseid2_b.las')
+writeLAS(kviteseid2_ub_cut,'Telemark/clipped_las/kviteseid2_ub.las')
+#####################################################################################
