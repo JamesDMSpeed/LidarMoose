@@ -355,18 +355,81 @@ fritsoe2_2FR_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orgina
 fritsoe2_2FR_las 
 plot(fritsoe2_2FR_las)
 
-fritsoel_2FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9]))
-fritsoel_2FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9][fritsoel_2FR_b_order,]))
-fritsoel_2FR_b_cut<-lasclip(fritsoe2_2FR_las,fritsoel_2FR_b_poly)
-fritsoel_2FR_b_cut
-plot(fritsoel_2FR_b_cut)
+fritsoe2_2FR_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9]))
+fritsoe2_2FR_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9][fritsoe2_2FR_b_order,]))
+fritsoe2_2FR_b_cut<-lasclip(fritsoe2_2FR_las,fritsoe2_2FR_b_poly)
+fritsoe2_2FR_b_cut
+plot(fritsoe2_2FR_b_cut)
 
-fritsoel_2FR_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9]))
-fritsoel_2FR_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9][fritsoel_2FR_ub_order,]))
-fritsoel_2FR_ub_cut<-lasclip(fritsoe2_2FR_las,fritsoel_2FR_ub_poly)
-fritsoel_2FR_ub_cut
-plot(fritsoel_2FR_ub_cut)
+fritsoe2_2FR_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9]))
+fritsoe2_2FR_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9][fritsoe2_2FR_ub_order,]))
+fritsoe2_2FR_ub_cut<-lasclip(fritsoe2_2FR_las,fritsoe2_2FR_ub_poly)
+fritsoe2_2FR_ub_cut
+plot(fritsoe2_2FR_ub_cut)
 
-writeLAS(fritsoel_2FR_b_cut,'Telemark/clipped_las/fritsoel_2FR_b.las')
-writeLAS(fritsoel_2FR_ub_cut,'Telemark/clipped_las/fritsoel_2FR_ub.las')
+writeLAS(fritsoe2_2FR_b_cut,'Telemark/clipped_las/fritsoe2_2FR_b.las')
+writeLAS(fritsoe2_2FR_ub_cut,'Telemark/clipped_las/fritsoe2_2FR_ub.las')
+##############################################################################
 
+#Nome_Cappelen_1 
+nome_cappelen_1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Nome_Cappelen1.las')
+nome_cappelen_1_las 
+plot(nome_cappelen_1_las)
+
+nome_cappelen_1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 B',10:9]))
+nome_cappelen_1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 B',10:9][nome_cappelen_1_b_order,]))
+nome_cappelen_1_b_cut<-lasclip(nome_cappelen_1_las,nome_cappelen_1_b_poly)
+nome_cappelen_1_b_cut
+plot(nome_cappelen_1_b_cut)
+
+nome_cappelen_1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 UB',10:9]))
+nome_cappelen_1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 UB',10:9][nome_cappelen_1_ub_order,]))
+nome_cappelen_1_ub_cut<-lasclip(nome_cappelen_1_las,nome_cappelen_1_ub_poly)
+nome_cappelen_1_ub_cut
+plot(nome_cappelen_1_ub_cut)
+
+writeLAS(nome_cappelen_1_b_cut,'Telemark/clipped_las/nome_cappelen_1_b.las')
+writeLAS(nome_cappelen_1_ub_cut,'Telemark/clipped_las/nome_cappelen_1_ub.las')
+#####################################################################################################################
+
+#Notodden 1 Something wrong with the las file
+
+notodden1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden1.las')
+notodden1_las 
+plot(notodden1_las)
+
+notodden1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9]))
+notodden1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9][notodden1_b_order,]))
+notodden1_b_cut<-lasclip(notodden1_las,notodden1_b_poly)
+notodden1_b_cut
+plot(notodden1_b_cut)
+
+notodden1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9]))
+notodden1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9][notodden1_ub_order,]))
+notodden1_ub_cut<-lasclip(notodden1_las,notodden1_ub_poly)
+notodden1_ub_cut
+plot(notodden1_ub_cut)
+
+writeLAS(notodden1_b_cut,'Telemark/clipped_las/notodden1_b.las')
+writeLAS(notodden1_ub_cut,'Telemark/clipped_las/notodden1_ub.las')
+#########################################################################################################
+
+#Notodden3
+notodden3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden3.las')
+notodden3_las 
+plot(notodden3_las)
+
+notodden3_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9]))
+notodden3_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9][notodden3_b_order,]))
+notodden3_b_cut<-lasclip(notodden3_las,notodden3_b_poly)
+notodden3_b_cut
+plot(notodden3_b_cut)
+
+notodden3_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9]))
+notodden3_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9][notodden3_ub_order,]))
+notodden3_ub_cut<-lasclip(notodden3_las,notodden3_ub_poly)
+notodden3_ub_cut
+plot(notodden3_ub_cut)
+
+writeLAS(notodden3_b_cut,'Telemark/clipped_las/notodden3_b.las')
+writeLAS(notodden3_ub_cut,'Telemark/clipped_las/notodden3_ub.las')
