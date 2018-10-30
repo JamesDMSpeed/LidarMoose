@@ -538,3 +538,25 @@ plot(drangedal3_ub_cut)
 
 writeLAS(drangedal3_b_cut,'Telemark/clipped_las/drangedal3_b.las')
 writeLAS(drangedal3_ub_cut,'Telemark/clipped_las/drangedal3_ub.las')
+############################################################################################
+
+#Drangedal 4
+drangedal4_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Drangedal4.las') #lagret med annet navn på disk, men vi har ikke noe Drangedal 2 egentlig
+drangedal4_las 
+plot(drangedal4_las)
+
+drangedal4_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 4 B',10:9]))
+drangedal4_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 4 B',10:9][drangedal4_b_order,]))
+drangedal4_b_cut<-lasclip(drangedal4_las,drangedal4_b_poly)
+drangedal4_b_cut
+plot(drangedal4_b_cut)
+
+drangedal4_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 4 UB',10:9]))
+drangedal4_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 4 UB',10:9][drangedal4_ub_order,]))
+drangedal4_ub_cut<-lasclip(drangedal4_las,drangedal4_ub_poly)
+drangedal4_ub_cut
+plot(drangedal4_ub_cut)
+
+writeLAS(drangedal4_b_cut,'Telemark/clipped_las/drangedal4_b.las')
+writeLAS(drangedal4_ub_cut,'Telemark/clipped_las/drangedal4_ub.las')
+############################################################################################
