@@ -665,3 +665,28 @@ writeLAS(Furesdal_ub_cut,'Telemark/clipped_las/Furesdal_ub.las')
 
 
 #########################HEDMARK_AKERSHUS#############################################################
+#Import plot coords
+plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
+
+#Didrik Holmsen
+didrik_holmsen_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Didrik_Holmsen.las') 
+didrik_holmsen_las 
+plot(didrik_holmsen_las)
+
+didrik_holmsen_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14]))
+didrik_holmsen_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14][didrik_holmsen_b_order,]))
+didrik_holmsen_b_cut<-lasclip(didrik_holmsen_las,didrik_holmsen_b_poly)
+didrik_holmsen_b_cut
+plot(didrik_holmsen_b_cut)
+
+didrik_holmsen_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14]))
+didrik_holmsen_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14][didrik_holmsen_ub_order,]))
+didrik_holmsen_ub_cut<-lasclip(didrik_holmsen_las,didrik_holmsen_ub_poly)
+didrik_holmsen_ub_cut
+plot(didrik_holmsen_ub_cut)
+
+writeLAS(didrik_holmsen_b_cut,'Hedmark_Akershus/clipped_las/didrik_holmsen_b.las')
+writeLAS(didrik_holmsen_ub_cut,'Hedmark_Akershus/clipped_las/didrik_holmsen_ub.las')
+
+
+
