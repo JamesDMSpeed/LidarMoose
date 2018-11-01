@@ -767,7 +767,28 @@ fet3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_ak
 fet3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14][fet3_ub_order,]))
 fet3_ub_cut<-lasclip(fet3_las,fet3_ub_poly)
 fet3_ub_cut
-plot(fet3_ub_cut)
+plot(fet3_ub_cut) #flatenes vi undersøker ser ok ut
 
 writeLAS(fet3_b_cut,'Hedmark_Akershus/clipped_las/fet3_b.las')
 writeLAS(fet3_ub_cut,'Hedmark_Akershus/clipped_las/fet3_ub.las')
+#####################################################################################################
+
+#Eidskog
+eidskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Eidskog.las') 
+eidskog_las 
+plot(eidskog_las) #helt blå flate
+
+eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14]))
+eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14][eidskog_b_order,]))
+eidskog_b_cut<-lasclip(eidskog_las,eidskog_b_poly)
+eidskog_b_cut
+plot(eidskog_b_cut)
+
+eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14]))
+eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14][eidskog_ub_order,]))
+eidskog_ub_cut<-lasclip(eidskog_las,eidskog_ub_poly)
+eidskog_ub_cut
+plot(eidskog_ub_cut)
+
+writeLAS(eidskog_b_cut,'Hedmark_Akershus/clipped_las/eidskog_b.las')
+writeLAS(eidskog_ub_cut,'Hedmark_Akershus/clipped_las/eidskog_ub.las')
