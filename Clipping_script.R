@@ -729,3 +729,26 @@ plot(stig_dahlen_ub_cut)
 
 writeLAS(stig_dahlen_b_cut,'Hedmark_Akershus/clipped_las/stig_dahlen_b.las')
 writeLAS(stig_dahlen_ub_cut,'Hedmark_Akershus/clipped_las/stig_dahlen_ub.las')
+##################################################################################################
+
+#Truls Holm
+truls_holm_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Truls_Holm.las') 
+truls_holm_las 
+plot(truls_holm_las)
+
+truls_holm_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH1',15:14]))
+truls_holm_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH1',15:14][truls_holm_b_order,]))
+truls_holm_b_cut<-lasclip(truls_holm_las,truls_holm_b_poly)
+truls_holm_b_cut
+plot(truls_holm_b_cut)
+
+truls_holm_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH2',15:14]))
+truls_holm_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH2',15:14][truls_holm_ub_order,]))
+truls_holm_ub_cut<-lasclip(truls_holm_las,truls_holm_ub_poly)
+truls_holm_ub_cut
+plot(truls_holm_ub_cut)
+
+writeLAS(truls_holm_b_cut,'Hedmark_Akershus/clipped_las/truls_holm_b.las')
+writeLAS(truls_holm_ub_cut,'Hedmark_Akershus/clipped_las/truls_holm_ub.las')
+####################################################################################################
+
