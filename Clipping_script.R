@@ -752,3 +752,22 @@ writeLAS(truls_holm_b_cut,'Hedmark_Akershus/clipped_las/truls_holm_b.las')
 writeLAS(truls_holm_ub_cut,'Hedmark_Akershus/clipped_las/truls_holm_ub.las')
 ####################################################################################################
 
+#Fet3
+fet3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Fet3.las') 
+fet3_las 
+plot(fet3_las) #helt blått terreng, noen røde prikker høyt oppe -fugler?
+
+fet3_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14]))
+fet3_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14][fet3_b_order,]))
+fet3_b_cut<-lasclip(fet3_las,fet3_b_poly)
+fet3_b_cut
+plot(fet3_b_cut)
+
+fet3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14]))
+fet3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14][fet3_ub_order,]))
+fet3_ub_cut<-lasclip(fet3_las,fet3_ub_poly)
+fet3_ub_cut
+plot(fet3_ub_cut)
+
+writeLAS(fet3_b_cut,'Hedmark_Akershus/clipped_las/fet3_b.las')
+writeLAS(fet3_ub_cut,'Hedmark_Akershus/clipped_las/fet3_ub.las')
