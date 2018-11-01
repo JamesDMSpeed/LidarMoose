@@ -708,4 +708,24 @@ plot(stangeskovene_aurskog_ub_cut)
 
 writeLAS(stangeskovene_aurskog_b_cut,'Hedmark_Akershus/clipped_las/stangeskovene_aurskog_b.las')
 writeLAS(stangeskovene_aurskog_ub_cut,'Hedmark_Akershus/clipped_las/stangeskovene_aurskog_ub.las')
+#######################################################################################################
 
+#Stig Dæhlen
+stig_dahlen_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stig_Dahlen.las') 
+stig_dahlen_las 
+plot(stig_dahlen_las)
+
+stig_dahlen_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD2',15:14]))
+stig_dahlen_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD2',15:14][stig_dahlen_b_order,]))
+stig_dahlen_b_cut<-lasclip(stig_dahlen_las,stig_dahlen_b_poly)
+stig_dahlen_b_cut
+plot(stig_dahlen_b_cut)
+
+stig_dahlen_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD1',15:14]))
+stig_dahlen_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD1',15:14][stig_dahlen_ub_order,]))
+stig_dahlen_ub_cut<-lasclip(stig_dahlen_las,stig_dahlen_ub_poly)
+stig_dahlen_ub_cut
+plot(stig_dahlen_ub_cut)
+
+writeLAS(stig_dahlen_b_cut,'Hedmark_Akershus/clipped_las/stig_dahlen_b.las')
+writeLAS(stig_dahlen_ub_cut,'Hedmark_Akershus/clipped_las/stig_dahlen_ub.las')
