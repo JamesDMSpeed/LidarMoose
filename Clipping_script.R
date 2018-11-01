@@ -792,3 +792,46 @@ plot(eidskog_ub_cut)
 
 writeLAS(eidskog_b_cut,'Hedmark_Akershus/clipped_las/eidskog_b.las')
 writeLAS(eidskog_ub_cut,'Hedmark_Akershus/clipped_las/eidskog_ub.las')
+################################################################################################
+
+#Halvard Pramhus
+halvard_pramhus_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Halvard_Pramhus.las') 
+halvard_pramhus_las 
+plot(halvard_pramhus_las)
+
+halvard_pramhus_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14]))
+halvard_pramhus_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14][halvard_pramhus_b_order,]))
+halvard_pramhus_b_cut<-lasclip(halvard_pramhus_las,halvard_pramhus_b_poly)
+halvard_pramhus_b_cut
+plot(halvard_pramhus_b_cut)
+
+halvard_pramhus_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14]))
+halvard_pramhus_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14][halvard_pramhus_ub_order,]))
+halvard_pramhus_ub_cut<-lasclip(halvard_pramhus_las,halvard_pramhus_ub_poly)
+halvard_pramhus_ub_cut
+plot(halvard_pramhus_ub_cut)
+
+writeLAS(halvard_pramhus_b_cut,'Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
+writeLAS(halvard_pramhus_ub_cut,'Hedmark_Akershus/clipped_las/halvard_pramhus_ub.las')
+################################################################################################
+
+#Stangeskovene Eidskog
+stangeskovene_eidskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stangeskovene_Eidskog.las') 
+stangeskovene_eidskog_las 
+plot(stangeskovene_eidskog_las) #helt blå
+
+stangeskovene_eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14]))
+stangeskovene_eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14][stangeskovene_eidskog_b_order,]))
+stangeskovene_eidskog_b_cut<-lasclip(stangeskovene_eidskog_las,stangeskovene_eidskog_b_poly)
+stangeskovene_eidskog_b_cut
+plot(stangeskovene_eidskog_b_cut)
+
+stangeskovene_eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14]))
+stangeskovene_eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14][stangeskovene_eidskog_ub_order,]))
+stangeskovene_eidskog_ub_cut<-lasclip(stangeskovene_eidskog_las,stangeskovene_eidskog_ub_poly)
+stangeskovene_eidskog_ub_cut
+plot(stangeskovene_eidskog_ub_cut)
+
+writeLAS(stangeskovene_eidskog_b_cut,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_b.las')
+writeLAS(stangeskovene_eidskog_ub_cut,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
+
