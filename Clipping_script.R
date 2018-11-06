@@ -398,6 +398,9 @@ notodden1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_
 notodden1_las 
 plot(notodden1_las)
 
+notodden1_las@data$Z[notodden1_las@data$Z<300]<-NA
+notodden1_las@data$Z[notodden1_las@data$Z>600]<-NA
+
 notodden1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9]))
 notodden1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9][notodden1_b_order,]))
 notodden1_b_cut<-lasclip(notodden1_las,notodden1_b_poly)
@@ -809,6 +812,13 @@ halvard_pramhus_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords
 halvard_pramhus_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14][halvard_pramhus_ub_order,]))
 halvard_pramhus_ub_cut<-lasclip(halvard_pramhus_las,halvard_pramhus_ub_poly)
 halvard_pramhus_ub_cut
+plot(halvard_pramhus_ub_cut)
+
+#1 outlying very high point (like a bird?)
+summary(halvard_pramhus_ub_cut@data$Z)
+#Set the outliers to NA
+halvard_pramhus_ub_cut@data$Z[halvard_pramhus_ub_cut@data$Z>500]<-NA
+hist(halvard_pramhus_ub_cut@data$Z)
 plot(halvard_pramhus_ub_cut)
 
 writeLAS(halvard_pramhus_b_cut,'Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
