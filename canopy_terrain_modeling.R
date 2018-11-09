@@ -65,6 +65,22 @@ notodden5_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarM
 notodden6_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_b.las')
 notodden6_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_ub.las')
 #Hedmark and Akershus
+didrik_holmsen_b   <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/didrik_holmsen_b.las')
+didrik_holmsen_ub  <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/didrik_holmsen_ub.las')
+eidskog_b          <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/eidskog_b.las')
+eidskog_ub         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/eidskog_ub.las')
+fet3_b             <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/fet3_b.las')
+fet3_ub            <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/fet3_ub.las')
+h_pramhus_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
+h_pramhus_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/halvard_pramhus_ub.las')
+stangesk_aurskog_b <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_aurskog_b.las')
+stangesk_aurskog_ub<-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_aurskog_ub.las')
+stangesk_eidskog_b <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_eidskog_b.las')
+stangesk_eidskog_ub<-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
+stig_dahlen_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stig_dahlen_b.las')
+stig_dahlen_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stig_dahlen_ub.las')
+truls_holm_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/truls_holm_b.las')
+truls_holm_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/truls_holm_ub.las')
 
 
 #Make canopy and terrain TIN models for each treatment, and plot difference between canopy and terrain model
