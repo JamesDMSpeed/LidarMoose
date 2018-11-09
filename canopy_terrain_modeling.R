@@ -40,7 +40,7 @@ verdal_2vb_ub <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose
 
 
 #Make canopy and terrain TIN models for each treatment. TIN:representation of a continous surface.
-
+#Trondelag
 terrainmod_bratsberg_b  <-grid_terrain(bratsberg_b, method='knnidw',res=1)
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
 plot(terrainmod_bratsberg_b)
@@ -49,3 +49,5 @@ canopymod_bratsberg_b   <-grid_canopy(bratsberg_b,res=1)
 canopymod_bratsberg_ub   <-grid_canopy(bratsberg_ub,res=1)
 plot(canopymod_bratsberg_b)
 plot(canopymo_bratsberg_ub)
+
+height_bratsberg_b <- canopymod_bratsberg_b - terrainmod_bratsberg_b
