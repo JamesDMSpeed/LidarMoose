@@ -35,12 +35,41 @@ verdal_1vb_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarM
 verdal_1vb_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_1vb_ub.las')
 verdal_2vb_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_2vb_b.las')
 verdal_2vb_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_2vb_ub.las')
+#Telemark
+drangedal1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal1_b.las')
+drangedal1_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal1_ub.las')
+drangedal3_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal3_b.las')
+drangedal3_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal3_ub.las')
+drangedal4_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_b.las')
+drangedal4_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_ub.las')
+fritsoe2_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_2FR_b.las')
+fritsoe2_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_2FR_ub.las')
+fritsoe1_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoel_1FR_b.las')
+fritsoe1_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoel_1FR_ub.las')
+fyresdal_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_b.las')
+fyresdal_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_ub.las')
+kviteseid1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_b.las')
+kviteseid1_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_ub.las')
+kviteseid2_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid2_b.las')
+kviteseid2_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid2_ub.las')
+kviteseid3_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid3_b.las')
+kviteseid3_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid3_ub.las')
+n_cappelen1_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_1_b.las')
+n_cappelen1_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_1_ub.las')
+n_cappelen2_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_2_b.las')
+n_cappelen2_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_2_ub.las')
+notodden3_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden3_b.las')
+notodden3_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden3_ub.las')
+notodden5_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden5_b.las')
+notodden5_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden5_ub.las')
+notodden6_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_b.las')
+notodden6_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_ub.las')
+#Hedmark and Akershus
 
 
+#Make canopy and terrain TIN models for each treatment, and plot difference between canopy and terrain model
 
-
-#Make canopy and terrain TIN models for each treatment. TIN:representation of a continous surface.
-#####################################Trondelag###################################
+##################################### Trondelag ###################################
 #Bratsberg
 terrainmod_bratsberg_b  <-grid_terrain(bratsberg_b, method='knnidw',res=1)
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
@@ -253,5 +282,7 @@ terrainmod_verdal_2vb_ub_resampeled <- resample(as.raster(terrainmod_verdal_2vb_
 canopy_diff_verdal_2vb_ub <- (as.raster(canopymod_verdal_2vb_ub)-terrainmod_verdal_2vb_ub_resampeled)
 plot(canopy_diff_verdal_2vb_ub)
 
+
+################################## Telemark #############################
 
 
