@@ -111,6 +111,7 @@ plot(nsb_verdal_b_cut)
 
 nsb_verdal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name==' 1Nsub',4:5]))
 nsb_verdal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name==' 1Nsub',4:5][nsb_verdal_ub_order,]))
+nsb_verdal_ub_cut<-lasclip(nsb_verdal_las,nsb_verdal_ub_poly)
 nsb_verdal_ub_cut
 plot(nsb_verdal_ub_cut)
 
