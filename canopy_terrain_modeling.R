@@ -301,3 +301,214 @@ plot(canopy_diff_verdal_2vb_ub)
 
 ################################## Telemark #############################
 
+#Drangedal1
+terrainmod_drangedal1_b  <-grid_terrain(drangedal1_b, method='knnidw',res=1)
+terrainmod_drangedal1_ub <-grid_terrain(drangedal1_ub,method='knnidw',res=1)
+canopymod_drangedal1_b   <-grid_canopy(drangedal1_b,res=1)
+canopymod_drangedal1_ub  <-grid_canopy(drangedal1_ub,res=1)
+
+terrainmod_drangedal1_b_resampled <-resample(as.raster(terrainmod_drangedal1_b), as.raster(canopymod_drangedal1_b), method='bilinear')
+canopy_diff_drangedal1_b<-(as.raster(canopymod_drangedal1_b)-terrainmod_drangedal1_b_resampled)
+plot(canopy_diff_drangedal1_b)
+
+terrainmod_drangedal1_ub_resampeled <- resample(as.raster(terrainmod_drangedal1_ub), as.raster(canopymod_drangedal1_ub, method='bilinear'))
+canopy_diff_drangedal1_ub <- (as.raster(canopymod_drangedal1_ub)-terrainmod_drangedal1_ub_resampeled)
+plot(canopy_diff_drangedal1_ub)
+
+
+#Drangedal3
+terrainmod_drangedal3_b  <-grid_terrain(drangedal3_b, method='knnidw',res=1)
+terrainmod_drangedal3_ub <-grid_terrain(drangedal3_ub,method='knnidw',res=1)
+canopymod_drangedal3_b   <-grid_canopy(drangedal3_b,res=1)
+canopymod_drangedal3_ub  <-grid_canopy(drangedal3_ub,res=1)
+
+terrainmod_drangedal3_b_resampled <-resample(as.raster(terrainmod_drangedal3_b), as.raster(canopymod_drangedal3_b), method='bilinear')
+canopy_diff_drangedal3_b<-(as.raster(canopymod_drangedal3_b)-terrainmod_drangedal3_b_resampled)
+plot(canopy_diff_drangedal3_b)
+
+terrainmod_drangedal3_ub_resampeled <- resample(as.raster(terrainmod_drangedal3_ub), as.raster(canopymod_drangedal3_ub, method='bilinear'))
+canopy_diff_drangedal3_ub <- (as.raster(canopymod_drangedal3_ub)-terrainmod_drangedal3_ub_resampeled)
+plot(canopy_diff_drangedal3_ub)
+
+
+#Drangedal4
+terrainmod_drangedal4_b  <-grid_terrain(drangedal4_b, method='knnidw',res=1)
+terrainmod_drangedal4_ub <-grid_terrain(drangedal4_ub,method='knnidw',res=1)
+canopymod_drangedal4_b   <-grid_canopy(drangedal4_b,res=1)
+canopymod_drangedal4_ub  <-grid_canopy(drangedal4_ub,res=1)
+
+terrainmod_drangedal4_b_resampled <-resample(as.raster(terrainmod_drangedal4_b), as.raster(canopymod_drangedal4_b), method='bilinear')
+canopy_diff_drangedal4_b<-(as.raster(canopymod_drangedal4_b)-terrainmod_drangedal4_b_resampled)
+plot(canopy_diff_drangedal4_b)
+
+terrainmod_drangedal4_ub_resampeled <- resample(as.raster(terrainmod_drangedal4_ub), as.raster(canopymod_drangedal4_ub, method='bilinear'))
+canopy_diff_drangedal4_ub <- (as.raster(canopymod_drangedal4_ub)-terrainmod_drangedal4_ub_resampeled)
+plot(canopy_diff_drangedal4_ub)
+
+
+# Fritsoe2
+terrainmod_fritsoe2_b  <-grid_terrain(fritsoe2_b, method='knnidw',res=1)
+terrainmod_fritsoe2_ub <-grid_terrain(fritsoe2_ub,method='knnidw',res=1)
+canopymod_fritsoe2_b   <-grid_canopy(fritsoe2_b,res=1)
+canopymod_fritsoe2_ub  <-grid_canopy(fritsoe2_ub,res=1)
+
+terrainmod_fritsoe2_b_resampled <-resample(as.raster(terrainmod_fritsoe2_b), as.raster(canopymod_fritsoe2_b), method='bilinear')
+canopy_diff_fritsoe2_b<-(as.raster(canopymod_fritsoe2_b)-terrainmod_fritsoe2_b_resampled)
+plot(canopy_diff_fritsoe2_b)
+
+terrainmod_fritsoe2_ub_resampeled <- resample(as.raster(terrainmod_fritsoe2_ub), as.raster(canopymod_fritsoe2_ub, method='bilinear'))
+canopy_diff_fritsoe2_ub <- (as.raster(canopymod_fritsoe2_ub)-terrainmod_fritsoe2_ub_resampeled)
+plot(canopy_diff_fritsoe2_ub)
+
+
+
+# Fritsoe1
+terrainmod_fritsoe1_b  <-grid_terrain(fritsoe1_b, method='knnidw',res=1)
+terrainmod_fritsoe1_ub <-grid_terrain(fritsoe1_ub,method='knnidw',res=1)
+canopymod_fritsoe1_b   <-grid_canopy(fritsoe1_b,res=1)
+canopymod_fritsoe1_ub  <-grid_canopy(fritsoe1_ub,res=1)
+
+terrainmod_fritsoe1_b_resampled <-resample(as.raster(terrainmod_fritsoe1_b), as.raster(canopymod_fritsoe1_b), method='bilinear')
+canopy_diff_fritsoe1_b<-(as.raster(canopymod_fritsoe1_b)-terrainmod_fritsoe1_b_resampled)
+plot(canopy_diff_fritsoe1_b)
+
+terrainmod_fritsoe1_ub_resampeled <- resample(as.raster(terrainmod_fritsoe1_ub), as.raster(canopymod_fritsoe1_ub, method='bilinear'))
+canopy_diff_fritsoe1_ub <- (as.raster(canopymod_fritsoe1_ub)-terrainmod_fritsoe1_ub_resampeled)
+plot(canopy_diff_fritsoe1_ub)
+
+
+# Fyresdal
+terrainmod_fyresdal_b  <-grid_terrain(fyresdal_b, method='knnidw',res=1)
+terrainmod_fyresdal_ub <-grid_terrain(fyresdal_ub,method='knnidw',res=1)
+canopymod_fyresdal_b   <-grid_canopy(fyresdal_b,res=1)
+canopymod_fyresdal_ub  <-grid_canopy(fyresdal_ub,res=1)
+
+terrainmod_fyresdal_b_resampled <-resample(as.raster(terrainmod_fyresdal_b), as.raster(canopymod_fyresdal_b), method='bilinear')
+canopy_diff_fyresdal_b<-(as.raster(canopymod_fyresdal_b)-terrainmod_fyresdal_b_resampled)
+plot(canopy_diff_fyresdal_b)
+
+terrainmod_fyresdal_ub_resampeled <- resample(as.raster(terrainmod_fyresdal_ub), as.raster(canopymod_fyresdal_ub, method='bilinear'))
+canopy_diff_fyresdal_ub <- (as.raster(canopymod_fyresdal_ub)-terrainmod_fyresdal_ub_resampeled)
+plot(canopy_diff_fyresdal_ub)
+
+
+# kviteseid1
+terrainmod_kviteseid1_b  <-grid_terrain(kviteseid1_b, method='knnidw',res=1)
+terrainmod_kviteseid1_ub <-grid_terrain(kviteseid1_ub,method='knnidw',res=1)
+canopymod_kviteseid1_b   <-grid_canopy(kviteseid1_b,res=1)
+canopymod_kviteseid1_ub  <-grid_canopy(kviteseid1_ub,res=1)
+
+terrainmod_kviteseid1_b_resampled <-resample(as.raster(terrainmod_kviteseid1_b), as.raster(canopymod_kviteseid1_b), method='bilinear')
+canopy_diff_kviteseid1_b<-(as.raster(canopymod_kviteseid1_b)-terrainmod_kviteseid1_b_resampled)
+plot(canopy_diff_kviteseid1_b)
+
+terrainmod_kviteseid1_ub_resampeled <- resample(as.raster(terrainmod_kviteseid1_ub), as.raster(canopymod_kviteseid1_ub, method='bilinear'))
+canopy_diff_kviteseid1_ub <- (as.raster(canopymod_kviteseid1_ub)-terrainmod_kviteseid1_ub_resampeled)
+plot(canopy_diff_kviteseid1_ub)
+
+
+# kviteseid2
+terrainmod_kviteseid2_b  <-grid_terrain(kviteseid2_b, method='knnidw',res=1)
+terrainmod_kviteseid2_ub <-grid_terrain(kviteseid2_ub,method='knnidw',res=1)
+canopymod_kviteseid2_b   <-grid_canopy(kviteseid2_b,res=1)
+canopymod_kviteseid2_ub  <-grid_canopy(kviteseid2_ub,res=1)
+
+terrainmod_kviteseid2_b_resampled <-resample(as.raster(terrainmod_kviteseid2_b), as.raster(canopymod_kviteseid2_b), method='bilinear')
+canopy_diff_kviteseid2_b<-(as.raster(canopymod_kviteseid2_b)-terrainmod_kviteseid2_b_resampled)
+plot(canopy_diff_kviteseid2_b)
+
+terrainmod_kviteseid2_ub_resampeled <- resample(as.raster(terrainmod_kviteseid2_ub), as.raster(canopymod_kviteseid2_ub, method='bilinear'))
+canopy_diff_kviteseid2_ub <- (as.raster(canopymod_kviteseid2_ub)-terrainmod_kviteseid2_ub_resampeled)
+plot(canopy_diff_kviteseid2_ub)
+
+
+# kviteseid3
+terrainmod_kviteseid3_b  <-grid_terrain(kviteseid3_b, method='knnidw',res=1)
+terrainmod_kviteseid3_ub <-grid_terrain(kviteseid3_ub,method='knnidw',res=1)
+canopymod_kviteseid3_b   <-grid_canopy(kviteseid3_b,res=1)
+canopymod_kviteseid3_ub  <-grid_canopy(kviteseid3_ub,res=1)
+
+terrainmod_kviteseid3_b_resampled <-resample(as.raster(terrainmod_kviteseid3_b), as.raster(canopymod_kviteseid3_b), method='bilinear')
+canopy_diff_kviteseid3_b<-(as.raster(canopymod_kviteseid3_b)-terrainmod_kviteseid3_b_resampled)
+plot(canopy_diff_kviteseid3_b)
+
+terrainmod_kviteseid3_ub_resampeled <- resample(as.raster(terrainmod_kviteseid3_ub), as.raster(canopymod_kviteseid3_ub, method='bilinear'))
+canopy_diff_kviteseid3_ub <- (as.raster(canopymod_kviteseid3_ub)-terrainmod_kviteseid3_ub_resampeled)
+plot(canopy_diff_kviteseid3_ub)
+
+
+# n_cappelen1
+terrainmod_n_cappelen1_b  <-grid_terrain(n_cappelen1_b, method='knnidw',res=1)
+terrainmod_n_cappelen1_ub <-grid_terrain(n_cappelen1_ub,method='knnidw',res=1)
+canopymod_n_cappelen1_b   <-grid_canopy(n_cappelen1_b,res=1)
+canopymod_n_cappelen1_ub  <-grid_canopy(n_cappelen1_ub,res=1)
+
+terrainmod_n_cappelen1_b_resampled <-resample(as.raster(terrainmod_n_cappelen1_b), as.raster(canopymod_n_cappelen1_b), method='bilinear')
+canopy_diff_n_cappelen1_b<-(as.raster(canopymod_n_cappelen1_b)-terrainmod_n_cappelen1_b_resampled)
+plot(canopy_diff_n_cappelen1_b)
+
+terrainmod_n_cappelen1_ub_resampeled <- resample(as.raster(terrainmod_n_cappelen1_ub), as.raster(canopymod_n_cappelen1_ub, method='bilinear'))
+canopy_diff_n_cappelen1_ub <- (as.raster(canopymod_n_cappelen1_ub)-terrainmod_n_cappelen1_ub_resampeled)
+plot(canopy_diff_n_cappelen1_ub)
+
+
+# n_cappelen2
+terrainmod_n_cappelen2_b  <-grid_terrain(n_cappelen2_b, method='knnidw',res=1)
+terrainmod_n_cappelen2_ub <-grid_terrain(n_cappelen2_ub,method='knnidw',res=1)
+canopymod_n_cappelen2_b   <-grid_canopy(n_cappelen2_b,res=1)
+canopymod_n_cappelen2_ub  <-grid_canopy(n_cappelen2_ub,res=1)
+
+terrainmod_n_cappelen2_b_resampled <-resample(as.raster(terrainmod_n_cappelen2_b), as.raster(canopymod_n_cappelen2_b), method='bilinear')
+canopy_diff_n_cappelen2_b<-(as.raster(canopymod_n_cappelen2_b)-terrainmod_n_cappelen2_b_resampled)
+plot(canopy_diff_n_cappelen2_b)
+
+terrainmod_n_cappelen2_ub_resampeled <- resample(as.raster(terrainmod_n_cappelen2_ub), as.raster(canopymod_n_cappelen2_ub, method='bilinear'))
+canopy_diff_n_cappelen2_ub <- (as.raster(canopymod_n_cappelen2_ub)-terrainmod_n_cappelen2_ub_resampeled)
+plot(canopy_diff_n_cappelen2_ub)
+
+
+# notodden3
+terrainmod_notodden3_b  <-grid_terrain(notodden3_b, method='knnidw',res=1)
+terrainmod_notodden3_ub <-grid_terrain(notodden3_ub,method='knnidw',res=1)
+canopymod_notodden3_b   <-grid_canopy(notodden3_b,res=1)
+canopymod_notodden3_ub  <-grid_canopy(notodden3_ub,res=1)
+
+terrainmod_notodden3_b_resampled <-resample(as.raster(terrainmod_notodden3_b), as.raster(canopymod_notodden3_b), method='bilinear')
+canopy_diff_notodden3_b<-(as.raster(canopymod_notodden3_b)-terrainmod_notodden3_b_resampled)
+plot(canopy_diff_notodden3_b)
+
+terrainmod_notodden3_ub_resampeled <- resample(as.raster(terrainmod_notodden3_ub), as.raster(canopymod_notodden3_ub, method='bilinear'))
+canopy_diff_notodden3_ub <- (as.raster(canopymod_notodden3_ub)-terrainmod_notodden3_ub_resampeled)
+plot(canopy_diff_notodden3_ub)
+
+
+# notodden5
+terrainmod_notodden5_b  <-grid_terrain(notodden5_b, method='knnidw',res=1)
+terrainmod_notodden5_ub <-grid_terrain(notodden5_ub,method='knnidw',res=1)
+canopymod_notodden5_b   <-grid_canopy(notodden5_b,res=1)
+canopymod_notodden5_ub  <-grid_canopy(notodden5_ub,res=1)
+
+terrainmod_notodden5_b_resampled <-resample(as.raster(terrainmod_notodden5_b), as.raster(canopymod_notodden5_b), method='bilinear')
+canopy_diff_notodden5_b<-(as.raster(canopymod_notodden5_b)-terrainmod_notodden5_b_resampled)
+plot(canopy_diff_notodden5_b)
+
+terrainmod_notodden5_ub_resampeled <- resample(as.raster(terrainmod_notodden5_ub), as.raster(canopymod_notodden5_ub, method='bilinear'))
+canopy_diff_notodden5_ub <- (as.raster(canopymod_notodden5_ub)-terrainmod_notodden5_ub_resampeled)
+plot(canopy_diff_notodden5_ub)
+
+
+
+# notodden6
+terrainmod_notodden6_b  <-grid_terrain(notodden6_b, method='knnidw',res=1)
+terrainmod_notodden6_ub <-grid_terrain(notodden6_ub,method='knnidw',res=1)
+canopymod_notodden6_b   <-grid_canopy(notodden6_b,res=1)
+canopymod_notodden6_ub  <-grid_canopy(notodden6_ub,res=1)
+
+terrainmod_notodden6_b_resampled <-resample(as.raster(terrainmod_notodden6_b), as.raster(canopymod_notodden6_b), method='bilinear')
+canopy_diff_notodden6_b<-(as.raster(canopymod_notodden6_b)-terrainmod_notodden6_b_resampled)
+plot(canopy_diff_notodden6_b)
+
+terrainmod_notodden6_ub_resampeled <- resample(as.raster(terrainmod_notodden6_ub), as.raster(canopymod_notodden6_ub, method='bilinear'))
+canopy_diff_notodden6_ub <- (as.raster(canopymod_notodden6_ub)-terrainmod_notodden6_ub_resampeled)
+plot(canopy_diff_notodden6_ub)
+
