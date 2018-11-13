@@ -512,3 +512,127 @@ terrainmod_notodden6_ub_resampeled <- resample(as.raster(terrainmod_notodden6_ub
 canopy_diff_notodden6_ub <- (as.raster(canopymod_notodden6_ub)-terrainmod_notodden6_ub_resampeled)
 plot(canopy_diff_notodden6_ub)
 
+
+############################### Hedmark og Akershus ###############################
+
+# Didrik Holmsen
+terrainmod_didrik_holmsen_b  <-grid_terrain(didrik_holmsen_b, method='knnidw',res=1)
+terrainmod_didrik_holmsen_ub <-grid_terrain(didrik_holmsen_ub,method='knnidw',res=1)
+canopymod_didrik_holmsen_b   <-grid_canopy(didrik_holmsen_b,res=1)
+canopymod_didrik_holmsen_ub  <-grid_canopy(didrik_holmsen_ub,res=1)
+
+terrainmod_didrik_holmsen_b_resampled <-resample(as.raster(terrainmod_didrik_holmsen_b), as.raster(canopymod_didrik_holmsen_b), method='bilinear')
+canopy_diff_didrik_holmsen_b<-(as.raster(canopymod_didrik_holmsen_b)-terrainmod_didrik_holmsen_b_resampled)
+plot(canopy_diff_didrik_holmsen_b)
+
+terrainmod_didrik_holmsen_ub_resampeled <- resample(as.raster(terrainmod_didrik_holmsen_ub), as.raster(canopymod_didrik_holmsen_ub, method='bilinear'))
+canopy_diff_didrik_holmsen_ub <- (as.raster(canopymod_didrik_holmsen_ub)-terrainmod_didrik_holmsen_ub_resampeled)
+plot(canopy_diff_didrik_holmsen_ub)
+
+
+#Eidskog
+terrainmod_eidskog_b  <-grid_terrain(eidskog_b, method='knnidw',res=1)
+terrainmod_eidskog_ub <-grid_terrain(eidskog_ub,method='knnidw',res=1)
+canopymod_eidskog_b   <-grid_canopy(eidskog_b,res=1)
+canopymod_eidskog_ub  <-grid_canopy(eidskog_ub,res=1)
+
+terrainmod_eidskog_b_resampled <-resample(as.raster(terrainmod_eidskog_b), as.raster(canopymod_eidskog_b), method='bilinear')
+canopy_diff_eidskog_b<-(as.raster(canopymod_eidskog_b)-terrainmod_eidskog_b_resampled)
+plot(canopy_diff_eidskog_b)
+
+terrainmod_eidskog_ub_resampeled <- resample(as.raster(terrainmod_eidskog_ub), as.raster(canopymod_eidskog_ub, method='bilinear'))
+canopy_diff_eidskog_ub <- (as.raster(canopymod_eidskog_ub)-terrainmod_eidskog_ub_resampeled)
+plot(canopy_diff_eidskog_ub)
+
+
+# Fet3
+terrainmod_fet3_b  <-grid_terrain(fet3_b, method='knnidw',res=1)
+terrainmod_fet3_ub <-grid_terrain(fet3_ub,method='knnidw',res=1)
+canopymod_fet3_b   <-grid_canopy(fet3_b,res=1)
+canopymod_fet3_ub  <-grid_canopy(fet3_ub,res=1)
+
+terrainmod_fet3_b_resampled <-resample(as.raster(terrainmod_fet3_b), as.raster(canopymod_fet3_b), method='bilinear')
+canopy_diff_fet3_b<-(as.raster(canopymod_fet3_b)-terrainmod_fet3_b_resampled)
+plot(canopy_diff_fet3_b)
+
+terrainmod_fet3_ub_resampeled <- resample(as.raster(terrainmod_fet3_ub), as.raster(canopymod_fet3_ub, method='bilinear'))
+canopy_diff_fet3_ub <- (as.raster(canopymod_fet3_ub)-terrainmod_fet3_ub_resampeled)
+plot(canopy_diff_fet3_ub)
+
+
+# h_pramhus Noe galt i clipping script enda, derfor blir ub plot rart her og
+terrainmod_h_pramhus_b  <-grid_terrain(h_pramhus_b, method='knnidw',res=1)
+terrainmod_h_pramhus_ub <-grid_terrain(h_pramhus_ub,method='knnidw',res=1)
+canopymod_h_pramhus_b   <-grid_canopy(h_pramhus_b,res=1)
+canopymod_h_pramhus_ub  <-grid_canopy(h_pramhus_ub,res=1)
+
+terrainmod_h_pramhus_b_resampled <-resample(as.raster(terrainmod_h_pramhus_b), as.raster(canopymod_h_pramhus_b), method='bilinear')
+canopy_diff_h_pramhus_b<-(as.raster(canopymod_h_pramhus_b)-terrainmod_h_pramhus_b_resampled)
+plot(canopy_diff_h_pramhus_b)
+
+terrainmod_h_pramhus_ub_resampeled <- resample(as.raster(terrainmod_h_pramhus_ub), as.raster(canopymod_h_pramhus_ub, method='bilinear'))
+canopy_diff_h_pramhus_ub <- (as.raster(canopymod_h_pramhus_ub)-terrainmod_h_pramhus_ub_resampeled)
+plot(canopy_diff_h_pramhus_ub)
+
+
+# stangeskovene aurskog
+terrainmod_stangesk_aurskog_b  <-grid_terrain(stangesk_aurskog_b, method='knnidw',res=1)
+terrainmod_stangesk_aurskog_ub <-grid_terrain(stangesk_aurskog_ub,method='knnidw',res=1)
+canopymod_stangesk_aurskog_b   <-grid_canopy(stangesk_aurskog_b,res=1)
+canopymod_stangesk_aurskog_ub  <-grid_canopy(stangesk_aurskog_ub,res=1)
+
+terrainmod_stangesk_aurskog_b_resampled <-resample(as.raster(terrainmod_stangesk_aurskog_b), as.raster(canopymod_stangesk_aurskog_b), method='bilinear')
+canopy_diff_stangesk_aurskog_b<-(as.raster(canopymod_stangesk_aurskog_b)-terrainmod_stangesk_aurskog_b_resampled)
+plot(canopy_diff_stangesk_aurskog_b)
+
+terrainmod_stangesk_aurskog_ub_resampeled <- resample(as.raster(terrainmod_stangesk_aurskog_ub), as.raster(canopymod_stangesk_aurskog_ub, method='bilinear'))
+canopy_diff_stangesk_aurskog_ub <- (as.raster(canopymod_stangesk_aurskog_ub)-terrainmod_stangesk_aurskog_ub_resampeled)
+plot(canopy_diff_stangesk_aurskog_ub)
+
+
+# stangeskovene eidskog
+terrainmod_stangesk_eidskog_b  <-grid_terrain(stangesk_eidskog_b, method='knnidw',res=1)
+terrainmod_stangesk_eidskog_ub <-grid_terrain(stangesk_eidskog_ub,method='knnidw',res=1)
+canopymod_stangesk_eidskog_b   <-grid_canopy(stangesk_eidskog_b,res=1)
+canopymod_stangesk_eidskog_ub  <-grid_canopy(stangesk_eidskog_ub,res=1)
+
+terrainmod_stangesk_eidskog_b_resampled <-resample(as.raster(terrainmod_stangesk_eidskog_b), as.raster(canopymod_stangesk_eidskog_b), method='bilinear')
+canopy_diff_stangesk_eidskog_b<-(as.raster(canopymod_stangesk_eidskog_b)-terrainmod_stangesk_eidskog_b_resampled)
+plot(canopy_diff_stangesk_eidskog_b)
+
+terrainmod_stangesk_eidskog_ub_resampeled <- resample(as.raster(terrainmod_stangesk_eidskog_ub), as.raster(canopymod_stangesk_eidskog_ub, method='bilinear'))
+canopy_diff_stangesk_eidskog_ub <- (as.raster(canopymod_stangesk_eidskog_ub)-terrainmod_stangesk_eidskog_ub_resampeled)
+plot(canopy_diff_stangesk_eidskog_ub)
+
+
+# stig_dahlen
+terrainmod_stig_dahlen_b  <-grid_terrain(stig_dahlen_b, method='knnidw',res=1)
+terrainmod_stig_dahlen_ub <-grid_terrain(stig_dahlen_ub,method='knnidw',res=1)
+canopymod_stig_dahlen_b   <-grid_canopy(stig_dahlen_b,res=1)
+canopymod_stig_dahlen_ub  <-grid_canopy(stig_dahlen_ub,res=1)
+
+terrainmod_stig_dahlen_b_resampled <-resample(as.raster(terrainmod_stig_dahlen_b), as.raster(canopymod_stig_dahlen_b), method='bilinear')
+canopy_diff_stig_dahlen_b<-(as.raster(canopymod_stig_dahlen_b)-terrainmod_stig_dahlen_b_resampled)
+plot(canopy_diff_stig_dahlen_b)
+
+terrainmod_stig_dahlen_ub_resampeled <- resample(as.raster(terrainmod_stig_dahlen_ub), as.raster(canopymod_stig_dahlen_ub, method='bilinear'))
+canopy_diff_stig_dahlen_ub <- (as.raster(canopymod_stig_dahlen_ub)-terrainmod_stig_dahlen_ub_resampeled)
+plot(canopy_diff_stig_dahlen_ub)
+
+
+# truls_holm
+terrainmod_truls_holm_b  <-grid_terrain(truls_holm_b, method='knnidw',res=1)
+terrainmod_truls_holm_ub <-grid_terrain(truls_holm_ub,method='knnidw',res=1)
+canopymod_truls_holm_b   <-grid_canopy(truls_holm_b,res=1)
+canopymod_truls_holm_ub  <-grid_canopy(truls_holm_ub,res=1)
+
+terrainmod_truls_holm_b_resampled <-resample(as.raster(terrainmod_truls_holm_b), as.raster(canopymod_truls_holm_b), method='bilinear')
+canopy_diff_truls_holm_b<-(as.raster(canopymod_truls_holm_b)-terrainmod_truls_holm_b_resampled)
+plot(canopy_diff_truls_holm_b)
+
+terrainmod_truls_holm_ub_resampeled <- resample(as.raster(terrainmod_truls_holm_ub), as.raster(canopymod_truls_holm_ub, method='bilinear'))
+canopy_diff_truls_holm_ub <- (as.raster(canopymod_truls_holm_ub)-terrainmod_truls_holm_ub_resampeled)
+plot(canopy_diff_truls_holm_ub)
+
+
+
