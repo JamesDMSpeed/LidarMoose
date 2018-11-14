@@ -574,6 +574,12 @@ terrainmod_h_pramhus_ub_resampeled <- resample(as.raster(terrainmod_h_pramhus_ub
 canopy_diff_h_pramhus_ub <- (as.raster(canopymod_h_pramhus_ub)-terrainmod_h_pramhus_ub_resampeled)
 plot(canopy_diff_h_pramhus_ub)
 
+#1 outlying very high point (like a bird?)
+cellStats(canopy_diff_h_pramhus_ub,stat='max')
+canopy_diff_h_pramhus_ub[canopy_diff_h_pramhus_ub>300] <- NA
+canopy_diff_h_pramhus_u
+plot(canopy_diff_h_pramhus_ub)
+
 
 # stangeskovene aurskog
 terrainmod_stangesk_aurskog_b  <-grid_terrain(stangesk_aurskog_b, method='knnidw',res=1)

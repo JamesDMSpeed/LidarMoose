@@ -815,12 +815,12 @@ halvard_pramhus_ub_cut<-lasclip(halvard_pramhus_las,halvard_pramhus_ub_poly)
 halvard_pramhus_ub_cut
 plot(halvard_pramhus_ub_cut)
 
-#1 outlying very high point (like a bird?)
-summary(halvard_pramhus_ub_cut@data$Z)
+#1 outlying very high point (like a bird?)-Fix in canopy terrain instead
+#summary(halvard_pramhus_ub_cut@data$Z)
 #Set the outliers to NA
-halvard_pramhus_ub_cut@data$Z[halvard_pramhus_ub_cut@data$Z>500]<-NA
-hist(halvard_pramhus_ub_cut@data$Z)
-plot(halvard_pramhus_ub_cut)
+#halvard_pramhus_ub_cut@data$Z[halvard_pramhus_ub_cut@data$Z>500]<-NA
+#hist(halvard_pramhus_ub_cut@data$Z)
+#plot(halvard_pramhus_ub_cut)
 
 writeLAS(halvard_pramhus_b_cut,'Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
 writeLAS(halvard_pramhus_ub_cut,'Hedmark_Akershus/clipped_las/halvard_pramhus_ub.las')
