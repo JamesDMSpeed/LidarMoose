@@ -102,6 +102,7 @@ terrainmod_bratsberg_ub_resampeled <- resample(as.raster(terrainmod_bratsberg_ub
 canopy_diff_bratsberg_ub <- (as.raster(canopymod_bratsberg_ub)-terrainmod_bratsberg_ub_resampeled)
 plot(canopy_diff_bratsberg_ub)
 
+
 #hi_tydal
 terrainmod_hi_tydal_b  <-grid_terrain(hi_tydal_b, method='knnidw',res=1)
 terrainmod_hi_tydal_ub <-grid_terrain(hi_tydal_ub,method='knnidw',res=1)
@@ -640,5 +641,16 @@ terrainmod_truls_holm_ub_resampeled <- resample(as.raster(terrainmod_truls_holm_
 canopy_diff_truls_holm_ub <- (as.raster(canopymod_truls_holm_ub)-terrainmod_truls_holm_ub_resampeled)
 plot(canopy_diff_truls_holm_ub)
 
+
+###############################################################################################
+# remove tall trees -see tree identification and masking
+
+
+
+
+
+#calculate differences in height?
+cellStats(canopy_diff_bratsberg_b, stat = 'mean')
+cellStats(canopy_diff_bratsberg_ub, stat = 'mean')
 
 
