@@ -16,9 +16,9 @@ canopydiffbb<-gridcanopybb-(crop(gridterrainbb,gridcanopybb))
 plot(canopydiffbb)
 
 #Tree detection
-trees<-tree_detection(bb,ws=5,hmin=5)#Detect all trees >5m with moving window of 3m 
+trees<-tree_detection(bb,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight<-extract(canopydiffbb,trees[,1:2])
-#trees_5m<-tree_detection(bb,ws=2,hmin=5)#Detect all trees >5m with moving window of 3m 
+#trees_5m<-tree_detection(bb,ws=2,hmin=5)#Detect all trees >5m with moving window of 5m 
 #Vary hmin and ws...
 
 
