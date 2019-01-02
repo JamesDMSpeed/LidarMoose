@@ -578,7 +578,7 @@ plot(canopy_diff_h_pramhus_ub)
 #1 outlying very high point (like a bird?)
 cellStats(canopy_diff_h_pramhus_ub,stat='max')
 canopy_diff_h_pramhus_ub[canopy_diff_h_pramhus_ub>300] <- NA
-canopy_diff_h_pramhus_u
+canopy_diff_h_pramhus_ub
 plot(canopy_diff_h_pramhus_ub)
 
 
@@ -644,13 +644,16 @@ plot(canopy_diff_truls_holm_ub)
 
 ###############################################################################################
 # remove tall trees -see tree identification and masking
+#test_list <- c(canopy_diff_bratsberg_b, canopy_diff_bratsberg_ub, canopy_diff_didrik_holmsen_b, canopy_diff_didrik_holmsen_ub)
+#for (i in test_list) {
+  
+#}
+#Funker det å lage for loop når trefjerningsalgoritmen tar inn både lasfila b eller ub og canopy difference fila? 
 
-
-
-
-
-#calculate differences in height?
+  
+#calculate mean canopy height?
 cellStats(canopy_diff_bratsberg_b, stat = 'mean')
 cellStats(canopy_diff_bratsberg_ub, stat = 'mean')
-
+cellStats(canopy_diff_bratsberg_b, stat = 'sd')
+cellStats(canopy_diff_bratsberg_ub, stat = 'sd')
 

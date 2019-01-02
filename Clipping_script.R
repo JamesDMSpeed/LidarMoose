@@ -395,27 +395,27 @@ writeLAS(nome_cappelen_1_ub_cut,'Telemark/clipped_las/nome_cappelen_1_ub.las')
 
 #Notodden 1 Something wrong with the las file
 
-notodden1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden1.las')
-notodden1_las 
-plot(notodden1_las)
+#notodden1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden1_new.las')
+#notodden1_las 
+#plot(notodden1_las)
 
-notodden1_las@data$Z[notodden1_las@data$Z<300]<-NA
-notodden1_las@data$Z[notodden1_las@data$Z>600]<-NA
+#notodden1_las@data$Z[notodden1_las@data$Z<300]<-NA
+#notodden1_las@data$Z[notodden1_las@data$Z>600]<-NA
 
-notodden1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9]))
-notodden1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9][notodden1_b_order,]))
-notodden1_b_cut<-lasclip(notodden1_las,notodden1_b_poly)
-notodden1_b_cut
-plot(notodden1_b_cut)
+#notodden1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9]))
+#notodden1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 B',10:9][notodden1_b_order,]))
+#notodden1_b_cut<-lasclip(notodden1_las,notodden1_b_poly)
+#notodden1_b_cut
+#plot(notodden1_b_cut)
 
-notodden1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9]))
-notodden1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9][notodden1_ub_order,]))
-notodden1_ub_cut<-lasclip(notodden1_las,notodden1_ub_poly)
-notodden1_ub_cut
-plot(notodden1_ub_cut)
+#notodden1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9]))
+#notodden1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 1 UB',10:9][notodden1_ub_order,]))
+#notodden1_ub_cut<-lasclip(notodden1_las,notodden1_ub_poly)
+#notodden1_ub_cut
+#plot(notodden1_ub_cut)
 
-writeLAS(notodden1_b_cut,'Telemark/clipped_las/notodden1_b.las')
-writeLAS(notodden1_ub_cut,'Telemark/clipped_las/notodden1_ub.las')
+#writeLAS(notodden1_b_cut,'Telemark/clipped_las/notodden1_b.las')
+#writeLAS(notodden1_ub_cut,'Telemark/clipped_las/notodden1_ub.las')
 #########################################################################################################
 
 #Notodden3
@@ -440,24 +440,24 @@ writeLAS(notodden3_ub_cut,'Telemark/clipped_las/notodden3_ub.las')
 ############################################################################################
 
 #Notodden 4
-notodden4_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden4.las')
-notodden4_las 
-plot(notodden4_las) #helt blått,med noen røde prikker høyt oppe
+#notodden4_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden4_new.las')
+#notodden4_las 
+#plot(notodden4_las) #helt blått,med noen røde prikker høyt oppe
 
-notodden4_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 B',10:9]))
-notodden4_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 B',10:9][notodden4_b_order,]))
-notodden4_b_cut<-lasclip(notodden4_las,notodden4_b_poly)
-notodden4_b_cut
-plot(notodden4_b_cut)#ser normal ut, normalt areal
+#notodden4_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 B',10:9]))
+#notodden4_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 B',10:9][notodden4_b_order,]))
+#notodden4_b_cut<-lasclip(notodden4_las,notodden4_b_poly)
+#notodden4_b_cut
+#plot(notodden4_b_cut)#ser normal ut, normalt areal
 
-notodden4_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 UB',10:9]))
-notodden4_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 UB',10:9][notodden4_ub_order,]))
-notodden4_ub_cut<-lasclip(notodden4_las,notodden4_ub_poly)
-notodden4_ub_cut
-plot(notodden4_ub_cut) #areal 182m^2?
+#notodden4_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 UB',10:9]))
+#notodden4_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 4 UB',10:9][notodden4_ub_order,]))
+#notodden4_ub_cut<-lasclip(notodden4_las,notodden4_ub_poly)
+#notodden4_ub_cut
+#plot(notodden4_ub_cut) #areal 182m^2?
 
-writeLAS(notodden4_b_cut,'Telemark/clipped_las/notodden4_b.las')
-writeLAS(notodden4_ub_cut,'Telemark/clipped_las/notodden4_ub.las')
+#writeLAS(notodden4_b_cut,'Telemark/clipped_las/notodden4_b.las')
+#writeLAS(notodden4_ub_cut,'Telemark/clipped_las/notodden4_ub.las')
 ###############################################################################################
 
 #Notodden 5
