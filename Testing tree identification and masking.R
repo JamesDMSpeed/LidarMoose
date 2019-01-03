@@ -30,6 +30,11 @@ lastrees_dalponte(bb,canopydiffbb,trees[treeheight>=4,],th_seed=0.05,th_cr=0.1)#
 #need to look further into arguments to ensure that whole tree is segmented
 
 
+
+#OBS!! Without tree detection and lastrees_dalponte there is no treeID and we cannot run tree_hulls
+
+
+
 #Now make hulls around the trees
 treeout<-tree_hulls(bb,type='convex',field='treeID')
 

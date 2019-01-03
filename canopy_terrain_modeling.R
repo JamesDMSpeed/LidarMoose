@@ -9,7 +9,7 @@ require(rasterVis)
 #Trondelag
 bratsberg_b       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_b.las')
 bratsberg_ub      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_ub.las')
-hi_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_b.las')
+brathi_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_b.las')
 hi_tydal_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_ub.las')
 malvik_b          <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_b.las')
 malvik_ub         <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_ub.las')
@@ -106,14 +106,18 @@ terrainmod_bratsberg_b_resampled <-resample(as.raster(terrainmod_bratsberg_b), a
 canopy_diff_bratsberg_b<-(as.raster(canopymod_bratsberg_b)-terrainmod_bratsberg_b_resampled)
 plot(canopy_diff_bratsberg_b)
 
-trees<-tree_detection(br,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
-treeheight<-extract(canopydiffbb,trees[,1:2])
-#Remove large trees
+#Remove large trees, first detect and create treeID
+trees_bratsberg_b<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_bratsberg_b<-extract(canopy_diff_bratsberg_b,trees_bratsberg_b[,1:2])
+
+lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_bratsberg_b[treeheight_bratsberg_b>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+#Make hulls around the trees
 treeout_bratsberg_b<-tree_hulls(bratsberg_b,type='convex',field='treeID')
 plot(canopy_diff_bratsberg_b)
 plot(treeout_bratsberg_b,add=T) 
 
-bigtrees_bratsberg_b<-which(extract(canopy_diff_bratsberg_b,treeout_bratsberg_b,fun=max,na.rm=T)>7) #identify trees larger than 7m
+bigtrees_bratsberg_b<-which(extract(canopy_diff_bratsberg_b,treeout_bratsberg_b,fun=max,na.rm=T)>8) #identify trees larger than 8m
 
 bratsberg_b_clip<-lasclip(bratsberg_b,treeout_bratsberg_b@polygons[[bigtrees_bratsberg_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_bratsberg_b)){
@@ -132,11 +136,18 @@ terrainmod_bratsberg_ub_resampeled <- resample(as.raster(terrainmod_bratsberg_ub
 canopy_diff_bratsberg_ub <- (as.raster(canopymod_bratsberg_ub)-terrainmod_bratsberg_ub_resampeled)
 plot(canopy_diff_bratsberg_ub)
 
+#Remove large trees, first detect and create treeID
+trees_bratsberg_ub<-tree_detection(bratsberg_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_bratsberg_ub<-extract(canopy_diff_bratsberg_ub,trees_bratsberg_ub[,1:2])
+
+lastrees_dalponte(bratsberg_ub,canopy_diff_bratsberg_ub,trees_bratsberg_ub[treeheight_bratsberg_ub>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+#Make hulls around the trees
 treeout_bratsberg_ub<-tree_hulls(bratsberg_ub,type='convex',field='treeID')
 plot(canopy_diff_bratsberg_ub)
 plot(treeout_bratsberg_ub,add=T) 
 
-bigtrees_bratsberg_ub<-which(extract(canopy_diff_bratsberg_ub,treeout_bratsberg_ub,fun=max,na.rm=T)>7) #identify trees larger than 7m
+bigtrees_bratsberg_ub<-which(extract(canopy_diff_bratsberg_ub,treeout_bratsberg_ub,fun=max,na.rm=T)>8) #identify trees larger than 8m
 
 bratsberg_ub_clip<-lasclip(bratsberg_ub,treeout_bratsberg_ub@polygons[[bigtrees_bratsberg_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_bratsberg_ub)){
@@ -144,23 +155,36 @@ for(i in 2:length(bigtrees_bratsberg_ub)){
   bratsberg_ub_clip<-lasclip(bratsberg_ub_clip,treeout_bratsberg_ub@polygons[[bigtrees_bratsberg_ub[i]]]@Polygons[[1]],inside=F)}
 plot(bratsberg_ub_clip) #point cloud without large trees
 
+#error when running the for loop here: in is(geometry, "Polygon") : 
+#trying to get slot "Polygons" from an object of a basic class ("NULL") with no slots -BUT it looks correct
+
 canopy_diff_bratsberg_ub_clip <- (as.raster(grid_canopy(bratsberg_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(bratsberg_ub_clip,res=0.5)))))
 plot(canopy_diff_bratsberg_ub_clip)
 
 
-#hi_tydal
+
+
+# Hi_tydal ----------------------------------------------------------------
+
+#Hi_tydal_b
 terrainmod_hi_tydal_b  <-grid_terrain(hi_tydal_b, method='knnidw',res=1)
-terrainmod_hi_tydal_ub <-grid_terrain(hi_tydal_ub,method='knnidw',res=1)
 canopymod_hi_tydal_b   <-grid_canopy(hi_tydal_b,res=1)
-canopymod_hi_tydal_ub  <-grid_canopy(hi_tydal_ub,res=1)
+
 
 terrainmod_hi_tydal_b_resampled <-resample(as.raster(terrainmod_hi_tydal_b), as.raster(canopymod_hi_tydal_b), method='bilinear')
 canopy_diff_hi_tydal_b<-(as.raster(canopymod_hi_tydal_b)-terrainmod_hi_tydal_b_resampled)
 plot(canopy_diff_hi_tydal_b)
 
+
+
+#Hi_tydal_ub
+terrainmod_hi_tydal_ub <-grid_terrain(hi_tydal_ub,method='knnidw',res=1)
+canopymod_hi_tydal_ub  <-grid_canopy(hi_tydal_ub,res=1)
+
 terrainmod_hi_tydal_ub_resampled <-resample(as.raster(terrainmod_hi_tydal_ub), as.raster(canopymod_hi_tydal_ub), method='bilinear')
 canopy_diff_hi_tydal_ub<-(as.raster(canopymod_hi_tydal_ub)-terrainmod_hi_tydal_ub_resampled)
 plot(canopy_diff_hi_tydal_ub)
+
 
 #Malvik
 terrainmod_malvik_b  <-grid_terrain(malvik_b, method='knnidw',res=1)
@@ -687,7 +711,10 @@ canopy_diff_truls_holm_ub <- (as.raster(canopymod_truls_holm_ub)-terrainmod_trul
 plot(canopy_diff_truls_holm_ub)
 
 
-###############################################################################################
+
+# Test --------------------------------------------------------------------
+
+
 # remove tall trees -see tree identification and masking
 #test_list <- c(canopy_diff_bratsberg_b, canopy_diff_bratsberg_ub, canopy_diff_didrik_holmsen_b, canopy_diff_didrik_holmsen_ub)
 #for (i in test_list) {
@@ -714,10 +741,10 @@ canopy_diff_bratsberg_b<-(as.raster(canopymod_bratsberg_b)-terrainmod_bratsberg_
 plot(canopy_diff_bratsberg_b)
 
 #Tree detection
-#trees_2<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
-#treeheight_2<-extract(canopy_diff_bratsberg_b,trees[,1:2])
+trees_bratsberg_b<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_bratsberg_b<-extract(canopy_diff_bratsberg_b,trees_bratsberg_b[,1:2])
 
-#test <- lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_2[treeheight_2>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_bratsberg_b[treeheight_bratsberg_b>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
 #Lastrees_dalponte seems to be the best method as it allows use of a canopy model.
 #need to look further into arguments to ensure that whole tree is segmented
 
