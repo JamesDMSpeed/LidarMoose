@@ -1,9 +1,11 @@
+# TOP ####
 
 require(lidR)
 require(raster)
 require(rasterVis)
 
-#Import clipped files
+
+# Import clipped files ----------------------------------------------------
 #Trondelag
 bratsberg_b       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_b.las')
 bratsberg_ub      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_ub.las')
@@ -83,10 +85,17 @@ truls_holm_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMo
 truls_holm_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/truls_holm_ub.las')
 
 
+
+
+
+
+
+# Trøndelag ---------------------------------------------------------------
 #Make canopy and terrain TIN models for each treatment, and plot difference between canopy and terrain model
 
-##################################### Trondelag ###################################
-#Bratsberg
+
+# Bratsberg ---------------------------------------------------------------
+
 terrainmod_bratsberg_b  <-grid_terrain(bratsberg_b, method='knnidw',res=1)
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
 canopymod_bratsberg_b   <-grid_canopy(bratsberg_b,res=1)
@@ -101,6 +110,27 @@ plot(canopy_diff_bratsberg_b)
 terrainmod_bratsberg_ub_resampeled <- resample(as.raster(terrainmod_bratsberg_ub), as.raster(canopymod_bratsberg_ub, method='bilinear'))
 canopy_diff_bratsberg_ub <- (as.raster(canopymod_bratsberg_ub)-terrainmod_bratsberg_ub_resampeled)
 plot(canopy_diff_bratsberg_ub)
+
+#Remove large trees
+treeout<-tree_hulls(bratsberg_b,type='convex',field='treeID')
+plot(canopy_diff_bratsberg_b)
+plot(treeout,add=T) 
+#Those greater than 7m
+bigtrees<-which(extract(canopy_diff_bratsberg_b,treeout,fun=max,na.rm=T)>7)
+#Clip out trees
+bclip<-lasclip(bratsberg_b,treeout@polygons[[bigtrees[1]]]@Polygons[[1]],inside=F)
+for(i in 2:length(bigtrees)){
+  print(i)
+  bclip<-lasclip(bclip,treeout@polygons[[bigtrees[i]]]@Polygons[[1]],inside=F)}
+plot(bclip) 
+
+plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,method='knnidw',res=0.5)),as.raster(grid_canopy(bclip,res=0.5)))))
+
+
+
+
+
+
 
 
 #hi_tydal
@@ -656,4 +686,45 @@ cellStats(canopy_diff_bratsberg_b, stat = 'mean')
 cellStats(canopy_diff_bratsberg_ub, stat = 'mean')
 cellStats(canopy_diff_bratsberg_b, stat = 'sd')
 cellStats(canopy_diff_bratsberg_ub, stat = 'sd')
+
+
+#Test: work flow: las -> canopy diff -> clip out big trees -> make new las without big trees -> canopy diff
+#Bratsberg
+terrainmod_bratsberg_b  <-grid_terrain(bratsberg_b, method='knnidw',res=1)
+canopymod_bratsberg_b   <-grid_canopy(bratsberg_b,res=1)
+
+
+terrainmod_bratsberg_b_resampled <-resample(as.raster(terrainmod_bratsberg_b), as.raster(canopymod_bratsberg_b), method='bilinear')
+canopy_diff_bratsberg_b<-(as.raster(canopymod_bratsberg_b)-terrainmod_bratsberg_b_resampled)
+plot(canopy_diff_bratsberg_b)
+
+#Tree detection
+#trees_2<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+#treeheight_2<-extract(canopy_diff_bratsberg_b,trees[,1:2])
+
+#test <- lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_2[treeheight_2>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+#Lastrees_dalponte seems to be the best method as it allows use of a canopy model.
+#need to look further into arguments to ensure that whole tree is segmented
+
+
+#Now make hulls around the trees
+treeout<-tree_hulls(bratsberg_b,type='convex',field='treeID')
+
+plot(canopy_diff_bratsberg_b)
+plot(treeout,add=T) # These regions seem to be the big trees. Clip these out...
+
+#Those greater than 7m
+bigtrees<-which(extract(canopy_diff_bratsberg_b,treeout,fun=max,na.rm=T)>4)
+
+#Clip out trees
+bclip<-lasclip(bratsberg_b,treeout@polygons[[bigtrees[1]]]@Polygons[[1]],inside=F)
+for(i in 2:length(bigtrees)){
+  print(i)
+  bclip<-lasclip(bclip,treeout@polygons[[bigtrees[i]]]@Polygons[[1]],inside=F)}
+plot(bclip) 
+
+plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,method='knnidw',res=0.5)),as.raster(grid_canopy(bclip,res=0.5)))))
+
+
+
 

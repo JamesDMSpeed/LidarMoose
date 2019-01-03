@@ -37,7 +37,9 @@ plot(canopydiffbb)
 plot(treeout,add=T) # These regions seem to be the big trees. Clip these out...
 
 #Those greater than 7m
-bigtrees<-which(extract(canopydiffbb,treeout,fun=max,na.rm=T)>4)
+bigtrees<-which(extract(canopydiffbb,treeout,fun=max,na.rm=T)>7)
+
+plot(treeout[bigtrees,],add=T,border=2)
 
 #Clip out trees
 bclip<-lasclip(bb,treeout@polygons[[bigtrees[1]]]@Polygons[[1]],inside=F)
@@ -47,6 +49,8 @@ bclip<-lasclip(bclip,treeout@polygons[[bigtrees[i]]]@Polygons[[1]],inside=F)}
 plot(bclip) 
 
 plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,method='knnidw',res=0.5)),as.raster(grid_canopy(bclip,res=0.5)))))
+
+
 
 ####################################################
 #Unbrowsed
