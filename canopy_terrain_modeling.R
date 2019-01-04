@@ -880,15 +880,21 @@ writeRaster(canopy_diff_verdal_2vb_ub_clip,'Trondelag/canopy_height_clipped_rast
 # Telemark ----------------------------------------------------------------
 
 
-#Drangedal1
+# Drangedal1 --------------------------------------------------------------
+
+
+#Drangedal1_b
 terrainmod_drangedal1_b  <-grid_terrain(drangedal1_b, method='knnidw',res=1)
-terrainmod_drangedal1_ub <-grid_terrain(drangedal1_ub,method='knnidw',res=1)
 canopymod_drangedal1_b   <-grid_canopy(drangedal1_b,res=1)
-canopymod_drangedal1_ub  <-grid_canopy(drangedal1_ub,res=1)
 
 terrainmod_drangedal1_b_resampled <-resample(as.raster(terrainmod_drangedal1_b), as.raster(canopymod_drangedal1_b), method='bilinear')
 canopy_diff_drangedal1_b<-(as.raster(canopymod_drangedal1_b)-terrainmod_drangedal1_b_resampled)
 plot(canopy_diff_drangedal1_b)
+
+
+#Drangedal1_ub
+terrainmod_drangedal1_ub <-grid_terrain(drangedal1_ub,method='knnidw',res=1)
+canopymod_drangedal1_ub  <-grid_canopy(drangedal1_ub,res=1)
 
 terrainmod_drangedal1_ub_resampeled <- resample(as.raster(terrainmod_drangedal1_ub), as.raster(canopymod_drangedal1_ub, method='bilinear'))
 canopy_diff_drangedal1_ub <- (as.raster(canopymod_drangedal1_ub)-terrainmod_drangedal1_ub_resampeled)
