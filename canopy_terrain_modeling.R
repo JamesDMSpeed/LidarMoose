@@ -621,19 +621,32 @@ canopy_diff_sl_tydal_ub #max value 5,8
 writeRaster(canopy_diff_sl_tydal_ub,'Trondelag/canopy_height_clipped_raster/sl_tydal_ub_canopyheight')
 
 
-# Steinkjer 1BBb
+# steinkjer_1BBb ----------------------------------------------------------
+
+
+# Steinkjer_1BBb_b
 terrainmod_steinkjer_1BBb_b  <-grid_terrain(steinkjer_1BBb_b, method='knnidw',res=1)
-terrainmod_steinkjer_1BBb_ub <-grid_terrain(steinkjer_1BBb_ub,method='knnidw',res=1)
 canopymod_steinkjer_1BBb_b   <-grid_canopy(steinkjer_1BBb_b,res=1)
-canopymod_steinkjer_1BBb_ub  <-grid_canopy(steinkjer_1BBb_ub,res=1)
 
 terrainmod_steinkjer_1BBb_b_resampled <-resample(as.raster(terrainmod_steinkjer_1BBb_b), as.raster(canopymod_steinkjer_1BBb_b), method='bilinear')
 canopy_diff_steinkjer_1BBb_b<-(as.raster(canopymod_steinkjer_1BBb_b)-terrainmod_steinkjer_1BBb_b_resampled)
 plot(canopy_diff_steinkjer_1BBb_b)
+canopy_diff_steinkjer_1BBb_b #max value 0,8
+
+writeRaster(canopy_diff_steinkjer_1BBb_b,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_b_canopyheight')
+
+
+# Steinkjer_1BBb_ub
+terrainmod_steinkjer_1BBb_ub <-grid_terrain(steinkjer_1BBb_ub,method='knnidw',res=1)
+canopymod_steinkjer_1BBb_ub  <-grid_canopy(steinkjer_1BBb_ub,res=1)
 
 terrainmod_steinkjer_1BBb_ub_resampeled <- resample(as.raster(terrainmod_steinkjer_1BBb_ub), as.raster(canopymod_steinkjer_1BBb_ub, method='bilinear'))
 canopy_diff_steinkjer_1BBb_ub <- (as.raster(canopymod_steinkjer_1BBb_ub)-terrainmod_steinkjer_1BBb_ub_resampeled)
 plot(canopy_diff_steinkjer_1BBb_ub)
+canopy_diff_steinkjer_1BBb_ub # max 1.1
+
+writeRaster(canopy_diff_steinkjer_1BBb_ub,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_ub_canopyheight')
+
 
 # Steinkjer 2BBb
 terrainmod_steinkjer_2BBb_b  <-grid_terrain(steinkjer_2BBb_b, method='knnidw',res=1)
