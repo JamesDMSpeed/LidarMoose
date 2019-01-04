@@ -507,33 +507,119 @@ canopy_diff_selbu_sl_ub #max value 3,77 m
 writeRaster(canopy_diff_selbu_sl_ub,'Trondelag/canopy_height_clipped_raster/selbu_sl_ub_canopyheight')
 
 
-# Singsaas
+
+# Singsaas ----------------------------------------------------------------
+
+
+# Singsaas_b
 terrainmod_singsaas_b  <-grid_terrain(singsaas_b, method='knnidw',res=1)
-terrainmod_singsaas_ub <-grid_terrain(singsaas_ub,method='knnidw',res=1)
 canopymod_singsaas_b   <-grid_canopy(singsaas_b,res=1)
-canopymod_singsaas_ub  <-grid_canopy(singsaas_ub,res=1)
 
 terrainmod_singsaas_b_resampled <-resample(as.raster(terrainmod_singsaas_b), as.raster(canopymod_singsaas_b), method='bilinear')
 canopy_diff_singsaas_b<-(as.raster(canopymod_singsaas_b)-terrainmod_singsaas_b_resampled)
 plot(canopy_diff_singsaas_b)
 
+trees_singsaas_b<-tree_detection(singsaas_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_singsaas_b<-extract(canopy_diff_singsaas_b,trees_singsaas_b[,1:2])
+
+lastrees_dalponte(singsaas_b,canopy_diff_singsaas_b,trees_singsaas_b[treeheight_singsaas_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_singsaas_b<-tree_hulls(singsaas_b,type='convex',field='treeID')
+plot(canopy_diff_singsaas_b)
+plot(treeout_singsaas_b,add=T) 
+
+bigtrees_singsaas_b<-which(extract(canopy_diff_singsaas_b,treeout_singsaas_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+singsaas_b_clip<-lasclip(singsaas_b,treeout_singsaas_b@polygons[[bigtrees_singsaas_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_singsaas_b)){
+  print(i)
+  singsaas_b_clip<-lasclip(singsaas_b_clip,treeout_singsaas_b@polygons[[bigtrees_singsaas_b[i]]]@Polygons[[1]],inside=F)}
+plot(singsaas_b_clip) 
+
+canopy_diff_singsaas_b_clip <- (as.raster(grid_canopy(singsaas_b_clip,res=0.5))-(crop(as.raster(grid_terrain(singsaas_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(singsaas_b_clip,res=0.5)))))
+plot(canopy_diff_singsaas_b_clip)
+
+writeRaster(canopy_diff_singsaas_b_clip,'Trondelag/canopy_height_clipped_raster/singsaas_b_canopyheight')
+
+
+
+# Singsaas_ub
+terrainmod_singsaas_ub <-grid_terrain(singsaas_ub,method='knnidw',res=1)
+canopymod_singsaas_ub  <-grid_canopy(singsaas_ub,res=1)
+
 terrainmod_singsaas_ub_resampeled <- resample(as.raster(terrainmod_singsaas_ub), as.raster(canopymod_singsaas_ub, method='bilinear'))
 canopy_diff_singsaas_ub <- (as.raster(canopymod_singsaas_ub)-terrainmod_singsaas_ub_resampeled)
 plot(canopy_diff_singsaas_ub)
 
-# sl_tydal
+trees_singsaas_ub<-tree_detection(singsaas_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_singsaas_ub<-extract(canopy_diff_singsaas_ub,trees_singsaas_ub[,1:2])
+
+lastrees_dalponte(singsaas_ub,canopy_diff_singsaas_ub,trees_singsaas_ub[treeheight_singsaas_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_singsaas_ub<-tree_hulls(singsaas_ub,type='convex',field='treeID')
+plot(canopy_diff_singsaas_ub)
+plot(treeout_singsaas_ub,add=T) 
+
+bigtrees_singsaas_ub<-which(extract(canopy_diff_singsaas_ub,treeout_singsaas_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+singsaas_ub_clip<-lasclip(singsaas_ub,treeout_singsaas_ub@polygons[[bigtrees_singsaas_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_singsaas_ub)){
+  print(i)
+  singsaas_ub_clip<-lasclip(singsaas_ub_clip,treeout_singsaas_ub@polygons[[bigtrees_singsaas_ub[i]]]@Polygons[[1]],inside=F)}
+plot(singsaas_ub_clip) 
+
+canopy_diff_singsaas_ub_clip <- (as.raster(grid_canopy(singsaas_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(singsaas_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(singsaas_ub_clip,res=0.5)))))
+plot(canopy_diff_singsaas_ub_clip)
+
+writeRaster(canopy_diff_singsaas_ub_clip,'Trondelag/canopy_height_clipped_raster/singsaas_ub_canopyheight')
+
+
+
+# sl_tydal ----------------------------------------------------------------
+
+
+# sl_tydal_b
 terrainmod_sl_tydal_b  <-grid_terrain(sl_tydal_b, method='knnidw',res=1)
-terrainmod_sl_tydal_ub <-grid_terrain(sl_tydal_ub,method='knnidw',res=1)
 canopymod_sl_tydal_b   <-grid_canopy(sl_tydal_b,res=1)
-canopymod_sl_tydal_ub  <-grid_canopy(sl_tydal_ub,res=1)
 
 terrainmod_sl_tydal_b_resampled <-resample(as.raster(terrainmod_sl_tydal_b), as.raster(canopymod_sl_tydal_b), method='bilinear')
 canopy_diff_sl_tydal_b<-(as.raster(canopymod_sl_tydal_b)-terrainmod_sl_tydal_b_resampled)
 plot(canopy_diff_sl_tydal_b)
 
+trees_sl_tydal_b<-tree_detection(sl_tydal_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_sl_tydal_b<-extract(canopy_diff_sl_tydal_b,trees_sl_tydal_b[,1:2])
+
+lastrees_dalponte(sl_tydal_b,canopy_diff_sl_tydal_b,trees_sl_tydal_b[treeheight_sl_tydal_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_sl_tydal_b<-tree_hulls(sl_tydal_b,type='convex',field='treeID')
+plot(canopy_diff_sl_tydal_b)
+plot(treeout_sl_tydal_b,add=T) 
+
+bigtrees_sl_tydal_b<-which(extract(canopy_diff_sl_tydal_b,treeout_sl_tydal_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+sl_tydal_b_clip<-lasclip(sl_tydal_b,treeout_sl_tydal_b@polygons[[bigtrees_sl_tydal_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_sl_tydal_b)){
+  print(i)
+  sl_tydal_b_clip<-lasclip(sl_tydal_b_clip,treeout_sl_tydal_b@polygons[[bigtrees_sl_tydal_b[i]]]@Polygons[[1]],inside=F)}
+plot(sl_tydal_b_clip) 
+
+canopy_diff_sl_tydal_b_clip <- (as.raster(grid_canopy(sl_tydal_b_clip,res=0.5))-(crop(as.raster(grid_terrain(sl_tydal_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sl_tydal_b_clip,res=0.5)))))
+plot(canopy_diff_sl_tydal_b_clip)
+
+writeRaster(canopy_diff_sl_tydal_b_clip,'Trondelag/canopy_height_clipped_raster/sl_tydal_b_canopyheight')
+
+
+# sl_tydal_ub
+terrainmod_sl_tydal_ub <-grid_terrain(sl_tydal_ub,method='knnidw',res=1)
+canopymod_sl_tydal_ub  <-grid_canopy(sl_tydal_ub,res=1)
+
 terrainmod_sl_tydal_ub_resampeled <- resample(as.raster(terrainmod_sl_tydal_ub), as.raster(canopymod_sl_tydal_ub, method='bilinear'))
 canopy_diff_sl_tydal_ub <- (as.raster(canopymod_sl_tydal_ub)-terrainmod_sl_tydal_ub_resampeled)
 plot(canopy_diff_sl_tydal_ub)
+canopy_diff_sl_tydal_ub #max value 5,8
+
+writeRaster(canopy_diff_sl_tydal_ub,'Trondelag/canopy_height_clipped_raster/sl_tydal_ub_canopyheight')
+
 
 # Steinkjer 1BBb
 terrainmod_steinkjer_1BBb_b  <-grid_terrain(steinkjer_1BBb_b, method='knnidw',res=1)
