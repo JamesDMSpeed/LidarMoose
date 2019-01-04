@@ -9,7 +9,7 @@ require(rasterVis)
 #Trondelag
 bratsberg_b       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_b.las')
 bratsberg_ub      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_ub.las')
-brathi_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_b.las')
+hi_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_b.las')
 hi_tydal_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_ub.las')
 malvik_b          <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_b.las')
 malvik_ub         <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_ub.las')
@@ -110,14 +110,14 @@ plot(canopy_diff_bratsberg_b)
 trees_bratsberg_b<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight_bratsberg_b<-extract(canopy_diff_bratsberg_b,trees_bratsberg_b[,1:2])
 
-lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_bratsberg_b[treeheight_bratsberg_b>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_bratsberg_b[treeheight_bratsberg_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
 
 #Make hulls around the trees
 treeout_bratsberg_b<-tree_hulls(bratsberg_b,type='convex',field='treeID')
 plot(canopy_diff_bratsberg_b)
 plot(treeout_bratsberg_b,add=T) 
 
-bigtrees_bratsberg_b<-which(extract(canopy_diff_bratsberg_b,treeout_bratsberg_b,fun=max,na.rm=T)>8) #identify trees larger than 8m
+bigtrees_bratsberg_b<-which(extract(canopy_diff_bratsberg_b,treeout_bratsberg_b,fun=max,na.rm=T)>7) #identify trees larger than 7m
 
 bratsberg_b_clip<-lasclip(bratsberg_b,treeout_bratsberg_b@polygons[[bigtrees_bratsberg_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_bratsberg_b)){
@@ -170,12 +170,11 @@ plot(canopy_diff_bratsberg_ub_clip)
 terrainmod_hi_tydal_b  <-grid_terrain(hi_tydal_b, method='knnidw',res=1)
 canopymod_hi_tydal_b   <-grid_canopy(hi_tydal_b,res=1)
 
-
 terrainmod_hi_tydal_b_resampled <-resample(as.raster(terrainmod_hi_tydal_b), as.raster(canopymod_hi_tydal_b), method='bilinear')
 canopy_diff_hi_tydal_b<-(as.raster(canopymod_hi_tydal_b)-terrainmod_hi_tydal_b_resampled)
 plot(canopy_diff_hi_tydal_b)
-
-
+#see that the largest trees are 3,5m high,
+#unlikely that they left so small trees standing when clear cutting. Conclude: no old trees standing
 
 #Hi_tydal_ub
 terrainmod_hi_tydal_ub <-grid_terrain(hi_tydal_ub,method='knnidw',res=1)
@@ -185,20 +184,48 @@ terrainmod_hi_tydal_ub_resampled <-resample(as.raster(terrainmod_hi_tydal_ub), a
 canopy_diff_hi_tydal_ub<-(as.raster(canopymod_hi_tydal_ub)-terrainmod_hi_tydal_ub_resampled)
 plot(canopy_diff_hi_tydal_ub)
 
+trees_hi_tydal_ub<-tree_detection(hi_tydal_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_hi_tydal_ub<-extract(canopy_diff_hi_tydal_ub,trees_hi_tydal_ub[,1:2])
 
-#Malvik
+lastrees_dalponte(hi_tydal_ub,canopy_diff_hi_tydal_ub,trees_hi_tydal_ub[treeheight_hi_tydal_ub>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_hi_tydal_ub<-tree_hulls(hi_tydal_ub,type='convex',field='treeID')
+plot(canopy_diff_hi_tydal_ub)
+plot(treeout_hi_tydal_ub,add=T) 
+
+bigtrees_hi_tydal_ub<-which(extract(canopy_diff_hi_tydal_ub,treeout_hi_tydal_ub,fun=max,na.rm=T)>8) #identify trees larger than 8m
+
+hi_tydal_ub_clip<-lasclip(hi_tydal_ub,treeout_hi_tydal_ub@polygons[[bigtrees_hi_tydal_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_hi_tydal_ub)){
+  print(i)
+  hi_tydal_ub_clip<-lasclip(hi_tydal_ub_clip,treeout_hi_tydal_ub@polygons[[bigtrees_hi_tydal_ub[i]]]@Polygons[[1]],inside=F)}
+plot(hi_tydal_ub_clip) #point cloud without large trees
+
+canopy_diff_hi_tydal_ub_clip <- (as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(hi_tydal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5)))))
+plot(canopy_diff_hi_tydal_ub_clip)
+
+
+# Malvik ------------------------------------------------------------------
+
+#Malvik_b
+
 terrainmod_malvik_b  <-grid_terrain(malvik_b, method='knnidw',res=1)
-terrainmod_malvik_ub <-grid_terrain(malvik_ub,method='knnidw',res=1)
 canopymod_malvik_b   <-grid_canopy(malvik_b,res=1)
-canopymod_malvik_ub  <-grid_canopy(malvik_ub,res=1)
 
 terrainmod_malvik_b_resampled <-resample(as.raster(terrainmod_malvik_b), as.raster(canopymod_malvik_b), method='bilinear')
 canopy_diff_malvik_b<-(as.raster(canopymod_malvik_b)-terrainmod_malvik_b_resampled)
 plot(canopy_diff_malvik_b)
 
+
+
+#Malvik_ub
+terrainmod_malvik_ub <-grid_terrain(malvik_ub,method='knnidw',res=1)
+canopymod_malvik_ub  <-grid_canopy(malvik_ub,res=1)
+
 terrainmod_malvik_ub_resampeled <- resample(as.raster(terrainmod_malvik_ub), as.raster(canopymod_malvik_ub, method='bilinear'))
 canopy_diff_malvik_ub <- (as.raster(canopymod_malvik_ub)-terrainmod_malvik_ub_resampeled)
 plot(canopy_diff_malvik_ub)
+
 
 # Namdalseid_1kub
 terrainmod_namdalseid_1kub_b  <-grid_terrain(namdalseid_1kub_b, method='knnidw',res=1)
