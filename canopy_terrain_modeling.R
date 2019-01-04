@@ -713,19 +713,71 @@ plot(canopy_diff_steinkjer_2BBb_ub_clip)
 writeRaster(canopy_diff_steinkjer_2BBb_ub_clip,'Trondelag/canopy_height_clipped_raster/steinkjer_2BBb_ub_canopyheight')
 
 
-# sub_namdalseid
+
+# Sub_namdalseid ----------------------------------------------------------
+
+
+# sub_namdalseid_b
 terrainmod_sub_namdalseid_b  <-grid_terrain(sub_namdalseid_b, method='knnidw',res=1)
-terrainmod_sub_namdalseid_ub <-grid_terrain(sub_namdalseid_ub,method='knnidw',res=1)
 canopymod_sub_namdalseid_b   <-grid_canopy(sub_namdalseid_b,res=1)
-canopymod_sub_namdalseid_ub  <-grid_canopy(sub_namdalseid_ub,res=1)
 
 terrainmod_sub_namdalseid_b_resampled <-resample(as.raster(terrainmod_sub_namdalseid_b), as.raster(canopymod_sub_namdalseid_b), method='bilinear')
 canopy_diff_sub_namdalseid_b<-(as.raster(canopymod_sub_namdalseid_b)-terrainmod_sub_namdalseid_b_resampled)
 plot(canopy_diff_sub_namdalseid_b)
 
+trees_sub_namdalseid_b<-tree_detection(sub_namdalseid_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_sub_namdalseid_b<-extract(canopy_diff_sub_namdalseid_b,trees_sub_namdalseid_b[,1:2])
+
+lastrees_dalponte(sub_namdalseid_b,canopy_diff_sub_namdalseid_b,trees_sub_namdalseid_b[treeheight_sub_namdalseid_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_sub_namdalseid_b<-tree_hulls(sub_namdalseid_b,type='convex',field='treeID')
+plot(canopy_diff_sub_namdalseid_b)
+plot(treeout_sub_namdalseid_b,add=T) 
+
+bigtrees_sub_namdalseid_b<-which(extract(canopy_diff_sub_namdalseid_b,treeout_sub_namdalseid_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+sub_namdalseid_b_clip<-lasclip(sub_namdalseid_b,treeout_sub_namdalseid_b@polygons[[bigtrees_sub_namdalseid_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_sub_namdalseid_b)){
+  print(i)
+  sub_namdalseid_b_clip<-lasclip(sub_namdalseid_b_clip,treeout_sub_namdalseid_b@polygons[[bigtrees_sub_namdalseid_b[i]]]@Polygons[[1]],inside=F)}
+plot(sub_namdalseid_b_clip) 
+
+canopy_diff_sub_namdalseid_b_clip <- (as.raster(grid_canopy(sub_namdalseid_b_clip,res=0.5))-(crop(as.raster(grid_terrain(sub_namdalseid_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sub_namdalseid_b_clip,res=0.5)))))
+plot(canopy_diff_sub_namdalseid_b_clip)
+
+writeRaster(canopy_diff_sub_namdalseid_b_clip,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_b_canopyheight')
+
+
+# sub_namdalseid_ub
+terrainmod_sub_namdalseid_ub <-grid_terrain(sub_namdalseid_ub,method='knnidw',res=1)
+canopymod_sub_namdalseid_ub  <-grid_canopy(sub_namdalseid_ub,res=1)
+
+
 terrainmod_sub_namdalseid_ub_resampeled <- resample(as.raster(terrainmod_sub_namdalseid_ub), as.raster(canopymod_sub_namdalseid_ub, method='bilinear'))
 canopy_diff_sub_namdalseid_ub <- (as.raster(canopymod_sub_namdalseid_ub)-terrainmod_sub_namdalseid_ub_resampeled)
 plot(canopy_diff_sub_namdalseid_ub)
+
+trees_sub_namdalseid_ub<-tree_detection(sub_namdalseid_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_sub_namdalseid_ub<-extract(canopy_diff_sub_namdalseid_ub,trees_sub_namdalseid_ub[,1:2])
+
+lastrees_dalponte(sub_namdalseid_ub,canopy_diff_sub_namdalseid_ub,trees_sub_namdalseid_ub[treeheight_sub_namdalseid_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_sub_namdalseid_ub<-tree_hulls(sub_namdalseid_ub,type='convex',field='treeID')
+plot(canopy_diff_sub_namdalseid_ub)
+plot(treeout_sub_namdalseid_ub,add=T) 
+
+bigtrees_sub_namdalseid_ub<-which(extract(canopy_diff_sub_namdalseid_ub,treeout_sub_namdalseid_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+sub_namdalseid_ub_clip<-lasclip(sub_namdalseid_ub,treeout_sub_namdalseid_ub@polygons[[bigtrees_sub_namdalseid_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_sub_namdalseid_ub)){
+  print(i)
+  sub_namdalseid_ub_clip<-lasclip(sub_namdalseid_ub_clip,treeout_sub_namdalseid_ub@polygons[[bigtrees_sub_namdalseid_ub[i]]]@Polygons[[1]],inside=F)}
+plot(sub_namdalseid_ub_clip) 
+
+canopy_diff_sub_namdalseid_ub_clip <- (as.raster(grid_canopy(sub_namdalseid_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(sub_namdalseid_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sub_namdalseid_ub_clip,res=0.5)))))
+plot(canopy_diff_sub_namdalseid_ub_clip)
+
+writeRaster(canopy_diff_sub_namdalseid_ub_clip,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_ub_canopyheight')
 
 # verdal_1vb
 terrainmod_verdal_1vb_b  <-grid_terrain(verdal_1vb_b, method='knnidw',res=1)
