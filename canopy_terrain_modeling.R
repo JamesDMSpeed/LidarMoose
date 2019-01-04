@@ -128,6 +128,8 @@ plot(bratsberg_b_clip) #point cloud without large trees
 canopy_diff_bratsberg_b_clip <- (as.raster(grid_canopy(bratsberg_b_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(bratsberg_b_clip,res=0.5)))))
 plot(canopy_diff_bratsberg_b_clip)
 
+writeRaster(canopy_diff_bratsberg_b_clip,'Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
+
  #Bratsberg_ub
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
 canopymod_bratsberg_ub   <-grid_canopy(bratsberg_ub,res=1)
@@ -140,14 +142,14 @@ plot(canopy_diff_bratsberg_ub)
 trees_bratsberg_ub<-tree_detection(bratsberg_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight_bratsberg_ub<-extract(canopy_diff_bratsberg_ub,trees_bratsberg_ub[,1:2])
 
-lastrees_dalponte(bratsberg_ub,canopy_diff_bratsberg_ub,trees_bratsberg_ub[treeheight_bratsberg_ub>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+lastrees_dalponte(bratsberg_ub,canopy_diff_bratsberg_ub,trees_bratsberg_ub[treeheight_bratsberg_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
 
 #Make hulls around the trees
 treeout_bratsberg_ub<-tree_hulls(bratsberg_ub,type='convex',field='treeID')
 plot(canopy_diff_bratsberg_ub)
 plot(treeout_bratsberg_ub,add=T) 
 
-bigtrees_bratsberg_ub<-which(extract(canopy_diff_bratsberg_ub,treeout_bratsberg_ub,fun=max,na.rm=T)>8) #identify trees larger than 8m
+bigtrees_bratsberg_ub<-which(extract(canopy_diff_bratsberg_ub,treeout_bratsberg_ub,fun=max,na.rm=T)>7) #identify trees larger than 7m
 
 bratsberg_ub_clip<-lasclip(bratsberg_ub,treeout_bratsberg_ub@polygons[[bigtrees_bratsberg_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_bratsberg_ub)){
@@ -162,6 +164,7 @@ canopy_diff_bratsberg_ub_clip <- (as.raster(grid_canopy(bratsberg_ub_clip,res=0.
 plot(canopy_diff_bratsberg_ub_clip)
 
 
+writeRaster(canopy_diff_bratsberg_ub_clip,'Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
 
 
 # Hi_tydal ----------------------------------------------------------------
@@ -176,6 +179,9 @@ plot(canopy_diff_hi_tydal_b)
 #see that the largest trees are 3,5m high,
 #unlikely that they left so small trees standing when clear cutting. Conclude: no old trees standing
 
+writeRaster(canopy_diff_hi_tydal_b,'Trondelag/canopy_height_clipped_raster/hi_tydal_b_canopyheight')
+
+
 #Hi_tydal_ub
 terrainmod_hi_tydal_ub <-grid_terrain(hi_tydal_ub,method='knnidw',res=1)
 canopymod_hi_tydal_ub  <-grid_canopy(hi_tydal_ub,res=1)
@@ -187,13 +193,13 @@ plot(canopy_diff_hi_tydal_ub)
 trees_hi_tydal_ub<-tree_detection(hi_tydal_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight_hi_tydal_ub<-extract(canopy_diff_hi_tydal_ub,trees_hi_tydal_ub[,1:2])
 
-lastrees_dalponte(hi_tydal_ub,canopy_diff_hi_tydal_ub,trees_hi_tydal_ub[treeheight_hi_tydal_ub>=4,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+lastrees_dalponte(hi_tydal_ub,canopy_diff_hi_tydal_ub,trees_hi_tydal_ub[treeheight_hi_tydal_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
 
 treeout_hi_tydal_ub<-tree_hulls(hi_tydal_ub,type='convex',field='treeID')
 plot(canopy_diff_hi_tydal_ub)
 plot(treeout_hi_tydal_ub,add=T) 
 
-bigtrees_hi_tydal_ub<-which(extract(canopy_diff_hi_tydal_ub,treeout_hi_tydal_ub,fun=max,na.rm=T)>8) #identify trees larger than 8m
+bigtrees_hi_tydal_ub<-which(extract(canopy_diff_hi_tydal_ub,treeout_hi_tydal_ub,fun=max,na.rm=T)>7) #identify trees larger than 7m
 
 hi_tydal_ub_clip<-lasclip(hi_tydal_ub,treeout_hi_tydal_ub@polygons[[bigtrees_hi_tydal_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_hi_tydal_ub)){
@@ -203,6 +209,8 @@ plot(hi_tydal_ub_clip) #point cloud without large trees
 
 canopy_diff_hi_tydal_ub_clip <- (as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(hi_tydal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5)))))
 plot(canopy_diff_hi_tydal_ub_clip)
+
+writeRaster(canopy_diff_hi_tydal_ub_clip,'Trondelag/canopy_height_clipped_raster/hi_tydal_ub_canopyheight')
 
 
 # Malvik ------------------------------------------------------------------
