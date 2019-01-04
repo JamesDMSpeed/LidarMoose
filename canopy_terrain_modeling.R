@@ -460,19 +460,52 @@ writeRaster(canopy_diff_selbu_kl_ub_clip,'Trondelag/canopy_height_clipped_raster
 
 
 
-# Selbu sl
+# Selbu_sl ----------------------------------------------------------------
+
+
+# Selbu_sl_b
 terrainmod_selbu_sl_b  <-grid_terrain(selbu_sl_b, method='knnidw',res=1)
-terrainmod_selbu_sl_ub <-grid_terrain(selbu_sl_ub,method='knnidw',res=1)
 canopymod_selbu_sl_b   <-grid_canopy(selbu_sl_b,res=1)
-canopymod_selbu_sl_ub  <-grid_canopy(selbu_sl_ub,res=1)
 
 terrainmod_selbu_sl_b_resampled <-resample(as.raster(terrainmod_selbu_sl_b), as.raster(canopymod_selbu_sl_b), method='bilinear')
 canopy_diff_selbu_sl_b<-(as.raster(canopymod_selbu_sl_b)-terrainmod_selbu_sl_b_resampled)
 plot(canopy_diff_selbu_sl_b)
 
+trees_selbu_sl_b<-tree_detection(selbu_sl_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_selbu_sl_b<-extract(canopy_diff_selbu_sl_b,trees_selbu_sl_b[,1:2])
+
+lastrees_dalponte(selbu_sl_b,canopy_diff_selbu_sl_b,trees_selbu_sl_b[treeheight_selbu_sl_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_selbu_sl_b<-tree_hulls(selbu_sl_b,type='convex',field='treeID')
+plot(canopy_diff_selbu_sl_b)
+plot(treeout_selbu_sl_b,add=T) 
+
+bigtrees_selbu_sl_b<-which(extract(canopy_diff_selbu_sl_b,treeout_selbu_sl_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+selbu_sl_b_clip<-lasclip(selbu_sl_b,treeout_selbu_sl_b@polygons[[bigtrees_selbu_sl_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_selbu_sl_b)){
+  print(i)
+  selbu_sl_b_clip<-lasclip(selbu_sl_b_clip,treeout_selbu_sl_b@polygons[[bigtrees_selbu_sl_b[i]]]@Polygons[[1]],inside=F)}
+plot(selbu_sl_b_clip) #point cloud without large trees
+
+canopy_diff_selbu_sl_b_clip <- (as.raster(grid_canopy(selbu_sl_b_clip,res=0.5))-(crop(as.raster(grid_terrain(selbu_sl_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(selbu_sl_b_clip,res=0.5)))))
+plot(canopy_diff_selbu_sl_b_clip)
+
+writeRaster(canopy_diff_selbu_sl_b_clip,'Trondelag/canopy_height_clipped_raster/selbu_sl_b_canopyheight')
+
+
+
+# Selbu_sl_ub
+terrainmod_selbu_sl_ub <-grid_terrain(selbu_sl_ub,method='knnidw',res=1)
+canopymod_selbu_sl_ub  <-grid_canopy(selbu_sl_ub,res=1)
+
 terrainmod_selbu_sl_ub_resampeled <- resample(as.raster(terrainmod_selbu_sl_ub), as.raster(canopymod_selbu_sl_ub, method='bilinear'))
 canopy_diff_selbu_sl_ub <- (as.raster(canopymod_selbu_sl_ub)-terrainmod_selbu_sl_ub_resampeled)
 plot(canopy_diff_selbu_sl_ub)
+canopy_diff_selbu_sl_ub #max value 3,77 m
+
+writeRaster(canopy_diff_selbu_sl_ub,'Trondelag/canopy_height_clipped_raster/selbu_sl_ub_canopyheight')
+
 
 # Singsaas
 terrainmod_singsaas_b  <-grid_terrain(singsaas_b, method='knnidw',res=1)
