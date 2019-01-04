@@ -829,23 +829,56 @@ writeRaster(canopy_diff_verdal_1vb_ub_clip,'Trondelag/canopy_height_clipped_rast
 
 
 
+# Verdal_2vb --------------------------------------------------------------
 
-# Verdal_2vb
+
+
+# Verdal_2vb_b
 terrainmod_verdal_2vb_b  <-grid_terrain(verdal_2vb_b, method='knnidw',res=1)
-terrainmod_verdal_2vb_ub <-grid_terrain(verdal_2vb_ub,method='knnidw',res=1)
 canopymod_verdal_2vb_b   <-grid_canopy(verdal_2vb_b,res=1)
-canopymod_verdal_2vb_ub  <-grid_canopy(verdal_2vb_ub,res=1)
 
 terrainmod_verdal_2vb_b_resampled <-resample(as.raster(terrainmod_verdal_2vb_b), as.raster(canopymod_verdal_2vb_b), method='bilinear')
 canopy_diff_verdal_2vb_b<-(as.raster(canopymod_verdal_2vb_b)-terrainmod_verdal_2vb_b_resampled)
 plot(canopy_diff_verdal_2vb_b)
+canopy_diff_verdal_2vb_b #max 3,26
+
+writeRaster(canopy_diff_verdal_2vb_b ,'Trondelag/canopy_height_clipped_raster/verdal_2vb_b_canopyheight')
+
+# Verdal_2vb_ub
+terrainmod_verdal_2vb_ub <-grid_terrain(verdal_2vb_ub,method='knnidw',res=1)
+canopymod_verdal_2vb_ub  <-grid_canopy(verdal_2vb_ub,res=1)
 
 terrainmod_verdal_2vb_ub_resampeled <- resample(as.raster(terrainmod_verdal_2vb_ub), as.raster(canopymod_verdal_2vb_ub, method='bilinear'))
 canopy_diff_verdal_2vb_ub <- (as.raster(canopymod_verdal_2vb_ub)-terrainmod_verdal_2vb_ub_resampeled)
 plot(canopy_diff_verdal_2vb_ub)
 
+trees_verdal_2vb_ub<-tree_detection(verdal_2vb_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_verdal_2vb_ub<-extract(canopy_diff_verdal_2vb_ub,trees_verdal_2vb_ub[,1:2])
 
-################################## Telemark #############################
+lastrees_dalponte(verdal_2vb_ub,canopy_diff_verdal_2vb_ub,trees_verdal_2vb_ub[treeheight_verdal_2vb_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_verdal_2vb_ub<-tree_hulls(verdal_2vb_ub,type='convex',field='treeID')
+plot(canopy_diff_verdal_2vb_ub)
+plot(treeout_verdal_2vb_ub,add=T) 
+
+bigtrees_verdal_2vb_ub<-which(extract(canopy_diff_verdal_2vb_ub,treeout_verdal_2vb_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+verdal_2vb_ub_clip<-lasclip(verdal_2vb_ub,treeout_verdal_2vb_ub@polygons[[bigtrees_verdal_2vb_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_verdal_2vb_ub)){
+  print(i)
+  verdal_2vb_ub_clip<-lasclip(verdal_2vb_ub_clip,treeout_verdal_2vb_ub@polygons[[bigtrees_verdal_2vb_ub[i]]]@Polygons[[1]],inside=F)}
+plot(verdal_2vb_ub_clip) 
+
+canopy_diff_verdal_2vb_ub_clip <- (as.raster(grid_canopy(verdal_2vb_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(verdal_2vb_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(verdal_2vb_ub_clip,res=0.5)))))
+plot(canopy_diff_verdal_2vb_ub_clip)
+
+writeRaster(canopy_diff_verdal_2vb_ub_clip,'Trondelag/canopy_height_clipped_raster/verdal_2vb_ub_canopyheight')
+
+
+
+
+# Telemark ----------------------------------------------------------------
+
 
 #Drangedal1
 terrainmod_drangedal1_b  <-grid_terrain(drangedal1_b, method='knnidw',res=1)
