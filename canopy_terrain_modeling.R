@@ -1283,5 +1283,7 @@ plot(bclip)
 plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,method='knnidw',res=0.5)),as.raster(grid_canopy(bclip,res=0.5)))))
 
 
+##Reading raster
 
-
+test <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
+plot(test)

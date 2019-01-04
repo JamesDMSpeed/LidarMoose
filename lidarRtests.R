@@ -116,3 +116,5 @@ names(stack1)<-c('Exclosure','Open')
 mytheme #whats mytheme? Error: object mytheme not found
 levelplot(stack1,par.settings='viridisTheme')
 bwplot(stack1,ylab='Canopy height (m) at 0.5m resoltion')
+
+
