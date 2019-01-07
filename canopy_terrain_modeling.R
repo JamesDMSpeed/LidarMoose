@@ -1447,19 +1447,34 @@ plot(canopy_diff_eidskog_ub_clip)
 writeRaster(canopy_diff_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_ub_canopyheight')
 
 
-# Fet3
+# Fet3 --------------------------------------------------------------------
+
+
+# Fet3_b
 terrainmod_fet3_b  <-grid_terrain(fet3_b, method='knnidw',res=1)
-terrainmod_fet3_ub <-grid_terrain(fet3_ub,method='knnidw',res=1)
 canopymod_fet3_b   <-grid_canopy(fet3_b,res=1)
-canopymod_fet3_ub  <-grid_canopy(fet3_ub,res=1)
 
 terrainmod_fet3_b_resampled <-resample(as.raster(terrainmod_fet3_b), as.raster(canopymod_fet3_b), method='bilinear')
 canopy_diff_fet3_b<-(as.raster(canopymod_fet3_b)-terrainmod_fet3_b_resampled)
 plot(canopy_diff_fet3_b)
+canopy_diff_fet3_b# max 2
+
+writeRaster(canopy_diff_fet3_b,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_b_canopyheight')
+
+
+
+# Fet3_ub
+terrainmod_fet3_ub <-grid_terrain(fet3_ub,method='knnidw',res=1)
+canopymod_fet3_ub  <-grid_canopy(fet3_ub,res=1)
+
 
 terrainmod_fet3_ub_resampeled <- resample(as.raster(terrainmod_fet3_ub), as.raster(canopymod_fet3_ub, method='bilinear'))
 canopy_diff_fet3_ub <- (as.raster(canopymod_fet3_ub)-terrainmod_fet3_ub_resampeled)
 plot(canopy_diff_fet3_ub)
+canopy_diff_fet3_ub #max 6,6
+
+writeRaster(canopy_diff_fet3_ub,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_ub_canopyheight')
+
 
 
 # h_pramhus Noe galt i clipping script enda, derfor blir ub plot rart her og
