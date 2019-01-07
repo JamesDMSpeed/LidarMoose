@@ -1341,22 +1341,70 @@ plot(canopy_diff_kviteseid2_ub_clip)
 
 writeRaster(canopy_diff_kviteseid2_ub_clip,'Telemark/canopy_height_clipped_raster/kviteseid2_ub_canopyheight')
 
+
 # Kviteseid3 --------------------------------------------------------------
 
 
-# kviteseid3
+# kviteseid3_b
 terrainmod_kviteseid3_b  <-grid_terrain(kviteseid3_b, method='knnidw',res=1)
-terrainmod_kviteseid3_ub <-grid_terrain(kviteseid3_ub,method='knnidw',res=1)
 canopymod_kviteseid3_b   <-grid_canopy(kviteseid3_b,res=1)
-canopymod_kviteseid3_ub  <-grid_canopy(kviteseid3_ub,res=1)
 
 terrainmod_kviteseid3_b_resampled <-resample(as.raster(terrainmod_kviteseid3_b), as.raster(canopymod_kviteseid3_b), method='bilinear')
 canopy_diff_kviteseid3_b<-(as.raster(canopymod_kviteseid3_b)-terrainmod_kviteseid3_b_resampled)
 plot(canopy_diff_kviteseid3_b)
 
+trees_kviteseid3_b<-tree_detection(kviteseid3_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_kviteseid3_b<-extract(canopy_diff_kviteseid3_b,trees_kviteseid3_b[,1:2])
+
+lastrees_dalponte(kviteseid3_b,canopy_diff_kviteseid3_b,trees_kviteseid3_b[treeheight_kviteseid3_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_kviteseid3_b<-tree_hulls(kviteseid3_b,type='convex',field='treeID')
+plot(canopy_diff_kviteseid3_b)
+plot(treeout_kviteseid3_b,add=T) 
+
+bigtrees_kviteseid3_b<-which(extract(canopy_diff_kviteseid3_b,treeout_kviteseid3_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+kviteseid3_b_clip<-lasclip(kviteseid3_b,treeout_kviteseid3_b@polygons[[bigtrees_kviteseid3_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_kviteseid3_b)){
+  print(i)
+  kviteseid3_b_clip<-lasclip(kviteseid3_b_clip,treeout_kviteseid3_b@polygons[[bigtrees_kviteseid3_b[i]]]@Polygons[[1]],inside=F)}
+plot(kviteseid3_b_clip) 
+
+canopy_diff_kviteseid3_b_clip <- (as.raster(grid_canopy(kviteseid3_b_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid3_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid3_b_clip,res=0.5)))))
+plot(canopy_diff_kviteseid3_b_clip)
+
+writeRaster(canopy_diff_kviteseid3_b_clip,'Telemark/canopy_height_clipped_raster/kviteseid3_b_canopyheight')
+
+# kviteseid3_ub
+terrainmod_kviteseid3_ub <-grid_terrain(kviteseid3_ub,method='knnidw',res=1)
+canopymod_kviteseid3_ub  <-grid_canopy(kviteseid3_ub,res=1)
+
+
 terrainmod_kviteseid3_ub_resampeled <- resample(as.raster(terrainmod_kviteseid3_ub), as.raster(canopymod_kviteseid3_ub, method='bilinear'))
 canopy_diff_kviteseid3_ub <- (as.raster(canopymod_kviteseid3_ub)-terrainmod_kviteseid3_ub_resampeled)
 plot(canopy_diff_kviteseid3_ub)
+
+trees_kviteseid3_ub<-tree_detection(kviteseid3_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_kviteseid3_ub<-extract(canopy_diff_kviteseid3_ub,trees_kviteseid3_ub[,1:2])
+
+lastrees_dalponte(kviteseid3_ub,canopy_diff_kviteseid3_ub,trees_kviteseid3_ub[treeheight_kviteseid3_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_kviteseid3_ub<-tree_hulls(kviteseid3_ub,type='convex',field='treeID')
+plot(canopy_diff_kviteseid3_ub)
+plot(treeout_kviteseid3_ub,add=T) 
+
+bigtrees_kviteseid3_ub<-which(extract(canopy_diff_kviteseid3_ub,treeout_kviteseid3_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+kviteseid3_ub_clip<-lasclip(kviteseid3_ub,treeout_kviteseid3_ub@polygons[[bigtrees_kviteseid3_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_kviteseid3_ub)){
+  print(i)
+  kviteseid3_ub_clip<-lasclip(kviteseid3_ub_clip,treeout_kviteseid3_ub@polygons[[bigtrees_kviteseid3_ub[i]]]@Polygons[[1]],inside=F)}
+plot(kviteseid3_ub_clip) 
+
+canopy_diff_kviteseid3_ub_clip <- (as.raster(grid_canopy(kviteseid3_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid3_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid3_ub_clip,res=0.5)))))
+plot(canopy_diff_kviteseid3_ub_clip)
+
+writeRaster(canopy_diff_kviteseid3_ub_clip,'Telemark/canopy_height_clipped_raster/kviteseid3_ub_canopyheight')
 
 
 # Nome Cappelen 1 ---------------------------------------------------------
