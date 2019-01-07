@@ -1410,73 +1410,208 @@ writeRaster(canopy_diff_kviteseid3_ub_clip,'Telemark/canopy_height_clipped_raste
 # Nome Cappelen 1 ---------------------------------------------------------
 
 
-# n_cappelen1
+# n_cappelen1_b
 terrainmod_n_cappelen1_b  <-grid_terrain(n_cappelen1_b, method='knnidw',res=1)
-terrainmod_n_cappelen1_ub <-grid_terrain(n_cappelen1_ub,method='knnidw',res=1)
 canopymod_n_cappelen1_b   <-grid_canopy(n_cappelen1_b,res=1)
-canopymod_n_cappelen1_ub  <-grid_canopy(n_cappelen1_ub,res=1)
 
 terrainmod_n_cappelen1_b_resampled <-resample(as.raster(terrainmod_n_cappelen1_b), as.raster(canopymod_n_cappelen1_b), method='bilinear')
 canopy_diff_n_cappelen1_b<-(as.raster(canopymod_n_cappelen1_b)-terrainmod_n_cappelen1_b_resampled)
 plot(canopy_diff_n_cappelen1_b)
 
+trees_n_cappelen1_b<-tree_detection(n_cappelen1_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_n_cappelen1_b<-extract(canopy_diff_n_cappelen1_b,trees_n_cappelen1_b[,1:2])
+
+lastrees_dalponte(n_cappelen1_b,canopy_diff_n_cappelen1_b,trees_n_cappelen1_b[treeheight_n_cappelen1_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_n_cappelen1_b<-tree_hulls(n_cappelen1_b,type='convex',field='treeID')
+plot(canopy_diff_n_cappelen1_b)
+plot(treeout_n_cappelen1_b,add=T) 
+
+bigtrees_n_cappelen1_b<-which(extract(canopy_diff_n_cappelen1_b,treeout_n_cappelen1_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+n_cappelen1_b_clip<-lasclip(n_cappelen1_b,treeout_n_cappelen1_b@polygons[[bigtrees_n_cappelen1_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_n_cappelen1_b)){
+  print(i)
+  n_cappelen1_b_clip<-lasclip(n_cappelen1_b_clip,treeout_n_cappelen1_b@polygons[[bigtrees_n_cappelen1_b[i]]]@Polygons[[1]],inside=F)}
+plot(n_cappelen1_b_clip) 
+
+canopy_diff_n_cappelen1_b_clip <- (as.raster(grid_canopy(n_cappelen1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen1_b_clip,res=0.5)))))
+plot(canopy_diff_n_cappelen1_b_clip)
+
+writeRaster(canopy_diff_n_cappelen1_b_clip,'Telemark/canopy_height_clipped_raster/n_cappelen1_b_canopyheight')
+
+
+
+# n_cappelen1_ub
+terrainmod_n_cappelen1_ub <-grid_terrain(n_cappelen1_ub,method='knnidw',res=1)
+canopymod_n_cappelen1_ub  <-grid_canopy(n_cappelen1_ub,res=1)
+
 terrainmod_n_cappelen1_ub_resampeled <- resample(as.raster(terrainmod_n_cappelen1_ub), as.raster(canopymod_n_cappelen1_ub, method='bilinear'))
 canopy_diff_n_cappelen1_ub <- (as.raster(canopymod_n_cappelen1_ub)-terrainmod_n_cappelen1_ub_resampeled)
 plot(canopy_diff_n_cappelen1_ub)
+
+trees_n_cappelen1_ub<-tree_detection(n_cappelen1_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_n_cappelen1_ub<-extract(canopy_diff_n_cappelen1_ub,trees_n_cappelen1_ub[,1:2])
+
+lastrees_dalponte(n_cappelen1_ub,canopy_diff_n_cappelen1_ub,trees_n_cappelen1_ub[treeheight_n_cappelen1_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_n_cappelen1_ub<-tree_hulls(n_cappelen1_ub,type='convex',field='treeID')
+plot(canopy_diff_n_cappelen1_ub)
+plot(treeout_n_cappelen1_ub,add=T) 
+
+bigtrees_n_cappelen1_ub<-which(extract(canopy_diff_n_cappelen1_ub,treeout_n_cappelen1_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+n_cappelen1_ub_clip<-lasclip(n_cappelen1_ub,treeout_n_cappelen1_ub@polygons[[bigtrees_n_cappelen1_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_n_cappelen1_ub)){
+  print(i)
+  n_cappelen1_ub_clip<-lasclip(n_cappelen1_ub_clip,treeout_n_cappelen1_ub@polygons[[bigtrees_n_cappelen1_ub[i]]]@Polygons[[1]],inside=F)}
+plot(n_cappelen1_ub_clip) 
+
+canopy_diff_n_cappelen1_ub_clip <- (as.raster(grid_canopy(n_cappelen1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen1_ub_clip,res=0.5)))))
+plot(canopy_diff_n_cappelen1_ub_clip)
+
+writeRaster(canopy_diff_n_cappelen1_ub_clip,'Telemark/canopy_height_clipped_raster/n_cappelen1_ub_canopyheight')
+
 
 
 # Nome Cappelen 2 ---------------------------------------------------------
 
 
-# n_cappelen2
+# n_cappelen2_b
 terrainmod_n_cappelen2_b  <-grid_terrain(n_cappelen2_b, method='knnidw',res=1)
-terrainmod_n_cappelen2_ub <-grid_terrain(n_cappelen2_ub,method='knnidw',res=1)
 canopymod_n_cappelen2_b   <-grid_canopy(n_cappelen2_b,res=1)
-canopymod_n_cappelen2_ub  <-grid_canopy(n_cappelen2_ub,res=1)
 
 terrainmod_n_cappelen2_b_resampled <-resample(as.raster(terrainmod_n_cappelen2_b), as.raster(canopymod_n_cappelen2_b), method='bilinear')
 canopy_diff_n_cappelen2_b<-(as.raster(canopymod_n_cappelen2_b)-terrainmod_n_cappelen2_b_resampled)
 plot(canopy_diff_n_cappelen2_b)
 
+trees_n_cappelen2_b<-tree_detection(n_cappelen2_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_n_cappelen2_b<-extract(canopy_diff_n_cappelen2_b,trees_n_cappelen2_b[,1:2])
+
+lastrees_dalponte(n_cappelen2_b,canopy_diff_n_cappelen2_b,trees_n_cappelen2_b[treeheight_n_cappelen2_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_n_cappelen2_b<-tree_hulls(n_cappelen2_b,type='convex',field='treeID')
+plot(canopy_diff_n_cappelen2_b)
+plot(treeout_n_cappelen2_b,add=T) 
+
+bigtrees_n_cappelen2_b<-which(extract(canopy_diff_n_cappelen2_b,treeout_n_cappelen2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+n_cappelen2_b_clip<-lasclip(n_cappelen2_b,treeout_n_cappelen2_b@polygons[[bigtrees_n_cappelen2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_n_cappelen2_b)){
+  print(i)
+  n_cappelen2_b_clip<-lasclip(n_cappelen2_b_clip,treeout_n_cappelen2_b@polygons[[bigtrees_n_cappelen2_b[i]]]@Polygons[[1]],inside=F)}
+plot(n_cappelen2_b_clip) 
+
+canopy_diff_n_cappelen2_b_clip <- (as.raster(grid_canopy(n_cappelen2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen2_b_clip,res=0.5)))))
+plot(canopy_diff_n_cappelen2_b_clip)
+
+writeRaster(canopy_diff_n_cappelen2_b_clip,'Telemark/canopy_height_clipped_raster/n_cappelen2_b_canopyheight')
+
+
+# n_cappelen2_ub
+terrainmod_n_cappelen2_ub <-grid_terrain(n_cappelen2_ub,method='knnidw',res=1)
+canopymod_n_cappelen2_ub  <-grid_canopy(n_cappelen2_ub,res=1)
+
+
 terrainmod_n_cappelen2_ub_resampeled <- resample(as.raster(terrainmod_n_cappelen2_ub), as.raster(canopymod_n_cappelen2_ub, method='bilinear'))
 canopy_diff_n_cappelen2_ub <- (as.raster(canopymod_n_cappelen2_ub)-terrainmod_n_cappelen2_ub_resampeled)
 plot(canopy_diff_n_cappelen2_ub)
+
+trees_n_cappelen2_ub<-tree_detection(n_cappelen2_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_n_cappelen2_ub<-extract(canopy_diff_n_cappelen2_ub,trees_n_cappelen2_ub[,1:2])
+
+lastrees_dalponte(n_cappelen2_ub,canopy_diff_n_cappelen2_ub,trees_n_cappelen2_ub[treeheight_n_cappelen2_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_n_cappelen2_ub<-tree_hulls(n_cappelen2_ub,type='convex',field='treeID')
+plot(canopy_diff_n_cappelen2_ub)
+plot(treeout_n_cappelen2_ub,add=T) 
+
+bigtrees_n_cappelen2_ub<-which(extract(canopy_diff_n_cappelen2_ub,treeout_n_cappelen2_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+n_cappelen2_ub_clip<-lasclip(n_cappelen2_ub,treeout_n_cappelen2_ub@polygons[[bigtrees_n_cappelen2_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_n_cappelen2_ub)){
+  print(i)
+  n_cappelen2_ub_clip<-lasclip(n_cappelen2_ub_clip,treeout_n_cappelen2_ub@polygons[[bigtrees_n_cappelen2_ub[i]]]@Polygons[[1]],inside=F)}
+plot(n_cappelen2_ub_clip) 
+
+canopy_diff_n_cappelen2_ub_clip <- (as.raster(grid_canopy(n_cappelen2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen2_ub_clip,res=0.5)))))
+plot(canopy_diff_n_cappelen2_ub_clip)
+
+writeRaster(canopy_diff_n_cappelen2_ub_clip,'Telemark/canopy_height_clipped_raster/n_cappelen2_ub_canopyheight')
 
 
 # Notodden 3 --------------------------------------------------------------
 
 
-# notodden3
+# notodden3_b
 terrainmod_notodden3_b  <-grid_terrain(notodden3_b, method='knnidw',res=1)
-terrainmod_notodden3_ub <-grid_terrain(notodden3_ub,method='knnidw',res=1)
 canopymod_notodden3_b   <-grid_canopy(notodden3_b,res=1)
-canopymod_notodden3_ub  <-grid_canopy(notodden3_ub,res=1)
 
 terrainmod_notodden3_b_resampled <-resample(as.raster(terrainmod_notodden3_b), as.raster(canopymod_notodden3_b), method='bilinear')
 canopy_diff_notodden3_b<-(as.raster(canopymod_notodden3_b)-terrainmod_notodden3_b_resampled)
 plot(canopy_diff_notodden3_b)
+#max 3,282
+
+writeRaster(canopy_diff_notodden3_b,'Telemark/canopy_height_clipped_raster/notodden3_b_canopyheight')
+
+
+# notodden3_b
+terrainmod_notodden3_ub <-grid_terrain(notodden3_ub,method='knnidw',res=1)
+canopymod_notodden3_ub  <-grid_canopy(notodden3_ub,res=1)
+
 
 terrainmod_notodden3_ub_resampeled <- resample(as.raster(terrainmod_notodden3_ub), as.raster(canopymod_notodden3_ub, method='bilinear'))
 canopy_diff_notodden3_ub <- (as.raster(canopymod_notodden3_ub)-terrainmod_notodden3_ub_resampeled)
 plot(canopy_diff_notodden3_ub)
+#max 4,091
+
+writeRaster(canopy_diff_notodden3_ub,'Telemark/canopy_height_clipped_raster/notodden3_ub_canopyheight')
 
 
 # Notodden 5 --------------------------------------------------------------
 
 
-# notodden5
+# notodden5_b
 terrainmod_notodden5_b  <-grid_terrain(notodden5_b, method='knnidw',res=1)
-terrainmod_notodden5_ub <-grid_terrain(notodden5_ub,method='knnidw',res=1)
 canopymod_notodden5_b   <-grid_canopy(notodden5_b,res=1)
-canopymod_notodden5_ub  <-grid_canopy(notodden5_ub,res=1)
 
 terrainmod_notodden5_b_resampled <-resample(as.raster(terrainmod_notodden5_b), as.raster(canopymod_notodden5_b), method='bilinear')
 canopy_diff_notodden5_b<-(as.raster(canopymod_notodden5_b)-terrainmod_notodden5_b_resampled)
 plot(canopy_diff_notodden5_b)
 
+trees_notodden5_b<-tree_detection(notodden5_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_notodden5_b<-extract(canopy_diff_notodden5_b,trees_notodden5_b[,1:2])
+
+lastrees_dalponte(notodden5_b,canopy_diff_notodden5_b,trees_notodden5_b[treeheight_notodden5_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_notodden5_b<-tree_hulls(notodden5_b,type='convex',field='treeID')
+plot(canopy_diff_notodden5_b)
+plot(treeout_notodden5_b,add=T) 
+
+bigtrees_notodden5_b<-which(extract(canopy_diff_notodden5_b,treeout_notodden5_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+notodden5_b_clip<-lasclip(notodden5_b,treeout_notodden5_b@polygons[[bigtrees_notodden5_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_notodden5_b)){
+  print(i)
+  notodden5_b_clip<-lasclip(notodden5_b_clip,treeout_notodden5_b@polygons[[bigtrees_notodden5_b[i]]]@Polygons[[1]],inside=F)}
+plot(notodden5_b_clip) 
+
+canopy_diff_notodden5_b_clip <- (as.raster(grid_canopy(notodden5_b_clip,res=0.5))-(crop(as.raster(grid_terrain(notodden5_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(notodden5_b_clip,res=0.5)))))
+plot(canopy_diff_notodden5_b_clip)
+
+writeRaster(canopy_diff_notodden5_b_clip,'Telemark/canopy_height_clipped_raster/notodden5_b_canopyheight')
+
+# notodden5_ub
+terrainmod_notodden5_ub <-grid_terrain(notodden5_ub,method='knnidw',res=1)
+canopymod_notodden5_ub  <-grid_canopy(notodden5_ub,res=1)
+
+
 terrainmod_notodden5_ub_resampeled <- resample(as.raster(terrainmod_notodden5_ub), as.raster(canopymod_notodden5_ub, method='bilinear'))
 canopy_diff_notodden5_ub <- (as.raster(canopymod_notodden5_ub)-terrainmod_notodden5_ub_resampeled)
 plot(canopy_diff_notodden5_ub)
+#max 3,495
+
+writeRaster(canopy_diff_notodden5_ub,'Telemark/canopy_height_clipped_raster/notodden5_ub_canopyheight')
 
 
 
