@@ -1158,19 +1158,71 @@ canopy_diff_fritsoe1_ub #mac 4,8
 writeRaster(canopy_diff_fritsoe1_ub,'Telemark/canopy_height_clipped_raster/fritsoe1_ub_canopyheight')
 
 
-# Fyresdal
+
+# Fyresdal ----------------------------------------------------------------
+
+
+# Fyresdal_b
 terrainmod_fyresdal_b  <-grid_terrain(fyresdal_b, method='knnidw',res=1)
-terrainmod_fyresdal_ub <-grid_terrain(fyresdal_ub,method='knnidw',res=1)
 canopymod_fyresdal_b   <-grid_canopy(fyresdal_b,res=1)
-canopymod_fyresdal_ub  <-grid_canopy(fyresdal_ub,res=1)
 
 terrainmod_fyresdal_b_resampled <-resample(as.raster(terrainmod_fyresdal_b), as.raster(canopymod_fyresdal_b), method='bilinear')
 canopy_diff_fyresdal_b<-(as.raster(canopymod_fyresdal_b)-terrainmod_fyresdal_b_resampled)
 plot(canopy_diff_fyresdal_b)
 
+trees_fyresdal_b<-tree_detection(fyresdal_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_fyresdal_b<-extract(canopy_diff_fyresdal_b,trees_fyresdal_b[,1:2])
+
+lastrees_dalponte(fyresdal_b,canopy_diff_fyresdal_b,trees_fyresdal_b[treeheight_fyresdal_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_fyresdal_b<-tree_hulls(fyresdal_b,type='convex',field='treeID')
+plot(canopy_diff_fyresdal_b)
+plot(treeout_fyresdal_b,add=T) 
+
+bigtrees_fyresdal_b<-which(extract(canopy_diff_fyresdal_b,treeout_fyresdal_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+fyresdal_b_clip<-lasclip(fyresdal_b,treeout_fyresdal_b@polygons[[bigtrees_fyresdal_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_fyresdal_b)){
+  print(i)
+  fyresdal_b_clip<-lasclip(fyresdal_b_clip,treeout_fyresdal_b@polygons[[bigtrees_fyresdal_b[i]]]@Polygons[[1]],inside=F)}
+plot(fyresdal_b_clip) 
+
+canopy_diff_fyresdal_b_clip <- (as.raster(grid_canopy(fyresdal_b_clip,res=0.5))-(crop(as.raster(grid_terrain(fyresdal_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fyresdal_b_clip,res=0.5)))))
+plot(canopy_diff_fyresdal_b_clip)
+
+writeRaster(canopy_diff_fyresdal_b_clip,'Telemark/canopy_height_clipped_raster/fyresdal_b_canopyheight')
+
+
+
+# Fyresdal_ub
+terrainmod_fyresdal_ub <-grid_terrain(fyresdal_ub,method='knnidw',res=1)
+canopymod_fyresdal_ub  <-grid_canopy(fyresdal_ub,res=1)
+
 terrainmod_fyresdal_ub_resampeled <- resample(as.raster(terrainmod_fyresdal_ub), as.raster(canopymod_fyresdal_ub, method='bilinear'))
 canopy_diff_fyresdal_ub <- (as.raster(canopymod_fyresdal_ub)-terrainmod_fyresdal_ub_resampeled)
 plot(canopy_diff_fyresdal_ub)
+
+trees_fyresdal_ub<-tree_detection(fyresdal_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_fyresdal_ub<-extract(canopy_diff_fyresdal_ub,trees_fyresdal_ub[,1:2])
+
+lastrees_dalponte(fyresdal_ub,canopy_diff_fyresdal_ub,trees_fyresdal_ub[treeheight_fyresdal_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_fyresdal_ub<-tree_hulls(fyresdal_ub,type='convex',field='treeID')
+plot(canopy_diff_fyresdal_ub)
+plot(treeout_fyresdal_ub,add=T) 
+
+bigtrees_fyresdal_ub<-which(extract(canopy_diff_fyresdal_ub,treeout_fyresdal_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+fyresdal_ub_clip<-lasclip(fyresdal_ub,treeout_fyresdal_ub@polygons[[bigtrees_fyresdal_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_fyresdal_ub)){
+  print(i)
+  fyresdal_ub_clip<-lasclip(fyresdal_ub_clip,treeout_fyresdal_ub@polygons[[bigtrees_fyresdal_ub[i]]]@Polygons[[1]],inside=F)}
+plot(fyresdal_ub_clip) 
+
+canopy_diff_fyresdal_ub_clip <- (as.raster(grid_canopy(fyresdal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(fyresdal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fyresdal_ub_clip,res=0.5)))))
+plot(canopy_diff_fyresdal_ub_clip)
+
+writeRaster(canopy_diff_fyresdal_ub_clip,'Telemark/canopy_height_clipped_raster/fyresdal_ub_canopyheight')
 
 
 # kviteseid1
@@ -1294,7 +1346,11 @@ canopy_diff_notodden6_ub <- (as.raster(canopymod_notodden6_ub)-terrainmod_notodd
 plot(canopy_diff_notodden6_ub)
 
 
-############################### Hedmark og Akershus ###############################
+
+
+
+# Hedmark og Akershus -----------------------------------------------------
+
 
 # Didrik Holmsen
 terrainmod_didrik_holmsen_b  <-grid_terrain(didrik_holmsen_b, method='knnidw',res=1)
