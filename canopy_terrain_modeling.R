@@ -1062,35 +1062,100 @@ writeRaster(canopy_diff_drangedal4_ub,'Telemark/canopy_height_clipped_raster/dra
 
 
 
-# Fritsoe2
+# Fritsoe2 ----------------------------------------------------------------
+
+
+# Fritsoe2_b
 terrainmod_fritsoe2_b  <-grid_terrain(fritsoe2_b, method='knnidw',res=1)
-terrainmod_fritsoe2_ub <-grid_terrain(fritsoe2_ub,method='knnidw',res=1)
 canopymod_fritsoe2_b   <-grid_canopy(fritsoe2_b,res=1)
-canopymod_fritsoe2_ub  <-grid_canopy(fritsoe2_ub,res=1)
 
 terrainmod_fritsoe2_b_resampled <-resample(as.raster(terrainmod_fritsoe2_b), as.raster(canopymod_fritsoe2_b), method='bilinear')
 canopy_diff_fritsoe2_b<-(as.raster(canopymod_fritsoe2_b)-terrainmod_fritsoe2_b_resampled)
 plot(canopy_diff_fritsoe2_b)
 
+trees_fritsoe2_b<-tree_detection(fritsoe2_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_fritsoe2_b<-extract(canopy_diff_fritsoe2_b,trees_fritsoe2_b[,1:2])
+
+lastrees_dalponte(fritsoe2_b,canopy_diff_fritsoe2_b,trees_fritsoe2_b[treeheight_fritsoe2_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_fritsoe2_b<-tree_hulls(fritsoe2_b,type='convex',field='treeID')
+plot(canopy_diff_fritsoe2_b)
+plot(treeout_fritsoe2_b,add=T) 
+
+bigtrees_fritsoe2_b<-which(extract(canopy_diff_fritsoe2_b,treeout_fritsoe2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+#ERROR!!
+fritsoe2_b_clip<-lasclip(fritsoe2_b,treeout_fritsoe2_b@polygons[[bigtrees_fritsoe2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_fritsoe2_b)){
+  print(i)
+  fritsoe2_b_clip<-lasclip(fritsoe2_b_clip,treeout_fritsoe2_b@polygons[[bigtrees_fritsoe2_b[i]]]@Polygons[[1]],inside=F)}
+plot(fritsoe2_b_clip) 
+
+canopy_diff_fritsoe2_b_clip <- (as.raster(grid_canopy(fritsoe2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(fritsoe2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fritsoe2_b_clip,res=0.5)))))
+plot(canopy_diff_fritsoe2_b_clip)
+
+writeRaster(canopy_diff_fritsoe2_b_clip,'Telemark/canopy_height_clipped_raster/fritsoe2_b_canopyheight')
+
+
+
+# Fritsoe2_ub
+terrainmod_fritsoe2_ub <-grid_terrain(fritsoe2_ub,method='knnidw',res=1)
+canopymod_fritsoe2_ub  <-grid_canopy(fritsoe2_ub,res=1)
+
 terrainmod_fritsoe2_ub_resampeled <- resample(as.raster(terrainmod_fritsoe2_ub), as.raster(canopymod_fritsoe2_ub, method='bilinear'))
 canopy_diff_fritsoe2_ub <- (as.raster(canopymod_fritsoe2_ub)-terrainmod_fritsoe2_ub_resampeled)
 plot(canopy_diff_fritsoe2_ub)
 
+trees_fritsoe2_ub<-tree_detection(fritsoe2_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_fritsoe2_ub<-extract(canopy_diff_fritsoe2_ub,trees_fritsoe2_ub[,1:2])
+
+lastrees_dalponte(fritsoe2_ub,canopy_diff_fritsoe2_ub,trees_fritsoe2_ub[treeheight_fritsoe2_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_fritsoe2_ub<-tree_hulls(fritsoe2_ub,type='convex',field='treeID')
+plot(canopy_diff_fritsoe2_ub)
+plot(treeout_fritsoe2_ub,add=T) 
+
+bigtrees_fritsoe2_ub<-which(extract(canopy_diff_fritsoe2_ub,treeout_fritsoe2_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+fritsoe2_ub_clip<-lasclip(fritsoe2_ub,treeout_fritsoe2_ub@polygons[[bigtrees_fritsoe2_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_fritsoe2_ub)){
+  print(i)
+  fritsoe2_ub_clip<-lasclip(fritsoe2_ub_clip,treeout_fritsoe2_ub@polygons[[bigtrees_fritsoe2_ub[i]]]@Polygons[[1]],inside=F)}
+plot(fritsoe2_ub_clip) 
+
+canopy_diff_fritsoe2_ub_clip <- (as.raster(grid_canopy(fritsoe2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(fritsoe2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fritsoe2_ub_clip,res=0.5)))))
+plot(canopy_diff_fritsoe2_ub_clip)
+
+writeRaster(canopy_diff_fritsoe2_ub_clip,'Telemark/canopy_height_clipped_raster/fritsoe2_ub_canopyheight')
 
 
-# Fritsoe1
+
+# Fritsoe1 ----------------------------------------------------------------
+
+
+# Fritsoe1_b
 terrainmod_fritsoe1_b  <-grid_terrain(fritsoe1_b, method='knnidw',res=1)
-terrainmod_fritsoe1_ub <-grid_terrain(fritsoe1_ub,method='knnidw',res=1)
 canopymod_fritsoe1_b   <-grid_canopy(fritsoe1_b,res=1)
-canopymod_fritsoe1_ub  <-grid_canopy(fritsoe1_ub,res=1)
 
 terrainmod_fritsoe1_b_resampled <-resample(as.raster(terrainmod_fritsoe1_b), as.raster(canopymod_fritsoe1_b), method='bilinear')
 canopy_diff_fritsoe1_b<-(as.raster(canopymod_fritsoe1_b)-terrainmod_fritsoe1_b_resampled)
 plot(canopy_diff_fritsoe1_b)
+canopy_diff_fritsoe1_b #max 4
+
+writeRaster(canopy_diff_fritsoe1_b,'Telemark/canopy_height_clipped_raster/fritsoe1_b_canopyheight')
+
+
+# Fritsoe1_ub
+terrainmod_fritsoe1_ub <-grid_terrain(fritsoe1_ub,method='knnidw',res=1)
+canopymod_fritsoe1_ub  <-grid_canopy(fritsoe1_ub,res=1)
+
 
 terrainmod_fritsoe1_ub_resampeled <- resample(as.raster(terrainmod_fritsoe1_ub), as.raster(canopymod_fritsoe1_ub, method='bilinear'))
 canopy_diff_fritsoe1_ub <- (as.raster(canopymod_fritsoe1_ub)-terrainmod_fritsoe1_ub_resampeled)
 plot(canopy_diff_fritsoe1_ub)
+canopy_diff_fritsoe1_ub #mac 4,8
+
+writeRaster(canopy_diff_fritsoe1_ub,'Telemark/canopy_height_clipped_raster/fritsoe1_ub_canopyheight')
 
 
 # Fyresdal
