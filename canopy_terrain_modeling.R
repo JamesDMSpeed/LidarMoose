@@ -1380,19 +1380,71 @@ canopy_diff_didrik_holmsen_ub #max 4,7
 writeRaster(canopy_diff_didrik_holmsen_ub,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_ub_canopyheight')
 
 
-#Eidskog
+# Eidskog -----------------------------------------------------------------
+
+
+#Eidskog_b
 terrainmod_eidskog_b  <-grid_terrain(eidskog_b, method='knnidw',res=1)
-terrainmod_eidskog_ub <-grid_terrain(eidskog_ub,method='knnidw',res=1)
 canopymod_eidskog_b   <-grid_canopy(eidskog_b,res=1)
-canopymod_eidskog_ub  <-grid_canopy(eidskog_ub,res=1)
 
 terrainmod_eidskog_b_resampled <-resample(as.raster(terrainmod_eidskog_b), as.raster(canopymod_eidskog_b), method='bilinear')
 canopy_diff_eidskog_b<-(as.raster(canopymod_eidskog_b)-terrainmod_eidskog_b_resampled)
 plot(canopy_diff_eidskog_b)
 
+trees_eidskog_b<-tree_detection(eidskog_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_eidskog_b<-extract(canopy_diff_eidskog_b,trees_eidskog_b[,1:2])
+
+lastrees_dalponte(eidskog_b,canopy_diff_eidskog_b,trees_eidskog_b[treeheight_eidskog_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_eidskog_b<-tree_hulls(eidskog_b,type='convex',field='treeID')
+plot(canopy_diff_eidskog_b)
+plot(treeout_eidskog_b,add=T) 
+
+bigtrees_eidskog_b<-which(extract(canopy_diff_eidskog_b,treeout_eidskog_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+eidskog_b_clip<-lasclip(eidskog_b,treeout_eidskog_b@polygons[[bigtrees_eidskog_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_eidskog_b)){
+  print(i)
+  eidskog_b_clip<-lasclip(eidskog_b_clip,treeout_eidskog_b@polygons[[bigtrees_eidskog_b[i]]]@Polygons[[1]],inside=F)}
+plot(eidskog_b_clip) 
+
+canopy_diff_eidskog_b_clip <- (as.raster(grid_canopy(eidskog_b_clip,res=0.5))-(crop(as.raster(grid_terrain(eidskog_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(eidskog_b_clip,res=0.5)))))
+plot(canopy_diff_eidskog_b_clip)
+
+writeRaster(canopy_diff_eidskog_b_clip,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_b_canopyheight')
+
+
+
+#Eidskog_ub
+terrainmod_eidskog_ub <-grid_terrain(eidskog_ub,method='knnidw',res=1)
+canopymod_eidskog_ub  <-grid_canopy(eidskog_ub,res=1)
+
 terrainmod_eidskog_ub_resampeled <- resample(as.raster(terrainmod_eidskog_ub), as.raster(canopymod_eidskog_ub, method='bilinear'))
 canopy_diff_eidskog_ub <- (as.raster(canopymod_eidskog_ub)-terrainmod_eidskog_ub_resampeled)
 plot(canopy_diff_eidskog_ub)
+
+
+trees_eidskog_ub<-tree_detection(eidskog_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_eidskog_ub<-extract(canopy_diff_eidskog_ub,trees_eidskog_ub[,1:2])
+
+lastrees_dalponte(eidskog_ub,canopy_diff_eidskog_ub,trees_eidskog_ub[treeheight_eidskog_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_eidskog_ub<-tree_hulls(eidskog_ub,type='convex',field='treeID')
+plot(canopy_diff_eidskog_ub)
+plot(treeout_eidskog_ub,add=T) 
+
+bigtrees_eidskog_ub<-which(extract(canopy_diff_eidskog_ub,treeout_eidskog_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+eidskog_ub_clip<-lasclip(eidskog_ub,treeout_eidskog_ub@polygons[[bigtrees_eidskog_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_eidskog_ub)){
+  print(i)
+  eidskog_ub_clip<-lasclip(eidskog_ub_clip,treeout_eidskog_ub@polygons[[bigtrees_eidskog_ub[i]]]@Polygons[[1]],inside=F)}
+plot(eidskog_ub_clip) 
+
+canopy_diff_eidskog_ub_clip <- (as.raster(grid_canopy(eidskog_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(eidskog_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(eidskog_ub_clip,res=0.5)))))
+plot(canopy_diff_eidskog_ub_clip)
+
+writeRaster(canopy_diff_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_ub_canopyheight')
 
 
 # Fet3
