@@ -892,6 +892,30 @@ canopy_diff_drangedal1_b<-(as.raster(canopymod_drangedal1_b)-terrainmod_drangeda
 plot(canopy_diff_drangedal1_b)
 
 
+trees_drangedal1_b<-tree_detection(drangedal1_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_drangedal1_b<-extract(canopy_diff_drangedal1_b,trees_drangedal1_b[,1:2])
+
+lastrees_dalponte(drangedal1_b,canopy_diff_drangedal1_b,trees_drangedal1_b[treeheight_drangedal1_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_drangedal1_b<-tree_hulls(drangedal1_b,type='convex',field='treeID')
+plot(canopy_diff_drangedal1_b)
+plot(treeout_drangedal1_b,add=T) 
+
+bigtrees_drangedal1_b<-which(extract(canopy_diff_drangedal1_b,treeout_drangedal1_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+drangedal1_b_clip<-lasclip(drangedal1_b,treeout_drangedal1_b@polygons[[bigtrees_drangedal1_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_drangedal1_b)){
+  print(i)
+  drangedal1_b_clip<-lasclip(drangedal1_b_clip,treeout_drangedal1_b@polygons[[bigtrees_drangedal1_b[i]]]@Polygons[[1]],inside=F)}
+plot(drangedal1_b_clip) 
+
+canopy_diff_drangedal1_b_clip <- (as.raster(grid_canopy(drangedal1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal1_b_clip,res=0.5)))))
+plot(canopy_diff_drangedal1_b_clip)
+
+writeRaster(canopy_diff_drangedal1_b_clip,'Trondelag/canopy_height_clipped_raster/drangedal1_b_canopyheight')
+
+
+
 #Drangedal1_ub
 terrainmod_drangedal1_ub <-grid_terrain(drangedal1_ub,method='knnidw',res=1)
 canopymod_drangedal1_ub  <-grid_canopy(drangedal1_ub,res=1)
@@ -900,20 +924,95 @@ terrainmod_drangedal1_ub_resampeled <- resample(as.raster(terrainmod_drangedal1_
 canopy_diff_drangedal1_ub <- (as.raster(canopymod_drangedal1_ub)-terrainmod_drangedal1_ub_resampeled)
 plot(canopy_diff_drangedal1_ub)
 
+trees_drangedal1_ub<-tree_detection(drangedal1_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_drangedal1_ub<-extract(canopy_diff_drangedal1_ub,trees_drangedal1_ub[,1:2])
 
-#Drangedal3
+lastrees_dalponte(drangedal1_ub,canopy_diff_drangedal1_ub,trees_drangedal1_ub[treeheight_drangedal1_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_drangedal1_ub<-tree_hulls(drangedal1_ub,type='convex',field='treeID')
+plot(canopy_diff_drangedal1_ub)
+plot(treeout_drangedal1_ub,add=T) 
+
+bigtrees_drangedal1_ub<-which(extract(canopy_diff_drangedal1_ub,treeout_drangedal1_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+drangedal1_ub_clip<-lasclip(drangedal1_ub,treeout_drangedal1_ub@polygons[[bigtrees_drangedal1_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_drangedal1_ub)){
+  print(i)
+  drangedal1_ub_clip<-lasclip(drangedal1_ub_clip,treeout_drangedal1_ub@polygons[[bigtrees_drangedal1_ub[i]]]@Polygons[[1]],inside=F)}
+plot(drangedal1_ub_clip) 
+
+canopy_diff_drangedal1_ub_clip <- (as.raster(grid_canopy(drangedal1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal1_ub_clip,res=0.5)))))
+plot(canopy_diff_drangedal1_ub_clip)
+
+writeRaster(canopy_diff_drangedal1_ub_clip,'Trondelag/canopy_height_clipped_raster/drangedal1_ub_canopyheight')
+
+
+
+# Drangedal3 --------------------------------------------------------------
+
+
+#Drangedal3_b
 terrainmod_drangedal3_b  <-grid_terrain(drangedal3_b, method='knnidw',res=1)
-terrainmod_drangedal3_ub <-grid_terrain(drangedal3_ub,method='knnidw',res=1)
 canopymod_drangedal3_b   <-grid_canopy(drangedal3_b,res=1)
-canopymod_drangedal3_ub  <-grid_canopy(drangedal3_ub,res=1)
 
 terrainmod_drangedal3_b_resampled <-resample(as.raster(terrainmod_drangedal3_b), as.raster(canopymod_drangedal3_b), method='bilinear')
 canopy_diff_drangedal3_b<-(as.raster(canopymod_drangedal3_b)-terrainmod_drangedal3_b_resampled)
 plot(canopy_diff_drangedal3_b)
 
+trees_drangedal3_b<-tree_detection(drangedal3_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_drangedal3_b<-extract(canopy_diff_drangedal3_b,trees_drangedal3_b[,1:2])
+
+lastrees_dalponte(drangedal3_b,canopy_diff_drangedal3_b,trees_drangedal3_b[treeheight_drangedal3_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_drangedal3_b<-tree_hulls(drangedal3_b,type='convex',field='treeID')
+plot(canopy_diff_drangedal3_b)
+plot(treeout_drangedal3_b,add=T) 
+
+bigtrees_drangedal3_b<-which(extract(canopy_diff_drangedal3_b,treeout_drangedal3_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+drangedal3_b_clip<-lasclip(drangedal3_b,treeout_drangedal3_b@polygons[[bigtrees_drangedal3_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_drangedal3_b)){
+  print(i)
+  drangedal3_b_clip<-lasclip(drangedal3_b_clip,treeout_drangedal3_b@polygons[[bigtrees_drangedal3_b[i]]]@Polygons[[1]],inside=F)}
+plot(drangedal3_b_clip) 
+
+canopy_diff_drangedal3_b_clip <- (as.raster(grid_canopy(drangedal3_b_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal3_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal3_b_clip,res=0.5)))))
+plot(canopy_diff_drangedal3_b_clip)
+
+writeRaster(canopy_diff_drangedal3_b_clip,'Trondelag/canopy_height_clipped_raster/drangedal3_b_canopyheight')
+
+
+
+#Drangedal3_ub
+terrainmod_drangedal3_ub <-grid_terrain(drangedal3_ub,method='knnidw',res=1)
+canopymod_drangedal3_ub  <-grid_canopy(drangedal3_ub,res=1)
+
 terrainmod_drangedal3_ub_resampeled <- resample(as.raster(terrainmod_drangedal3_ub), as.raster(canopymod_drangedal3_ub, method='bilinear'))
 canopy_diff_drangedal3_ub <- (as.raster(canopymod_drangedal3_ub)-terrainmod_drangedal3_ub_resampeled)
 plot(canopy_diff_drangedal3_ub)
+
+trees_drangedal3_ub<-tree_detection(drangedal3_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_drangedal3_ub<-extract(canopy_diff_drangedal3_ub,trees_drangedal3_ub[,1:2])
+
+lastrees_dalponte(drangedal3_ub,canopy_diff_drangedal3_ub,trees_drangedal3_ub[treeheight_drangedal3_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_drangedal3_ub<-tree_hulls(drangedal3_ub,type='convex',field='treeID')
+plot(canopy_diff_drangedal3_ub)
+plot(treeout_drangedal3_ub,add=T) 
+
+bigtrees_drangedal3_ub<-which(extract(canopy_diff_drangedal3_ub,treeout_drangedal3_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+drangedal3_ub_clip<-lasclip(drangedal3_ub,treeout_drangedal3_ub@polygons[[bigtrees_drangedal3_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_drangedal3_ub)){
+  print(i)
+  drangedal3_ub_clip<-lasclip(drangedal3_ub_clip,treeout_drangedal3_ub@polygons[[bigtrees_drangedal3_ub[i]]]@Polygons[[1]],inside=F)}
+plot(drangedal3_ub_clip) 
+
+canopy_diff_drangedal3_ub_clip <- (as.raster(grid_canopy(drangedal3_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal3_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal3_ub_clip,res=0.5)))))
+plot(canopy_diff_drangedal3_ub_clip)
+
+writeRaster(canopy_diff_drangedal3_ub_clip,'Trondelag/canopy_height_clipped_raster/drangedal3_ub_canopyheight')
+
 
 
 #Drangedal4
