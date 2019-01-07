@@ -1601,19 +1601,31 @@ plot(canopy_diff_stangesk_eidskog_ub_clip)
 writeRaster(canopy_diff_stangesk_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_ub_canopyheight')
 
 
-# stig_dahlen
+# Stig Dahlen -------------------------------------------------------------
+
+
+# stig_dahlen_b
 terrainmod_stig_dahlen_b  <-grid_terrain(stig_dahlen_b, method='knnidw',res=1)
-terrainmod_stig_dahlen_ub <-grid_terrain(stig_dahlen_ub,method='knnidw',res=1)
 canopymod_stig_dahlen_b   <-grid_canopy(stig_dahlen_b,res=1)
-canopymod_stig_dahlen_ub  <-grid_canopy(stig_dahlen_ub,res=1)
 
 terrainmod_stig_dahlen_b_resampled <-resample(as.raster(terrainmod_stig_dahlen_b), as.raster(canopymod_stig_dahlen_b), method='bilinear')
 canopy_diff_stig_dahlen_b<-(as.raster(canopymod_stig_dahlen_b)-terrainmod_stig_dahlen_b_resampled)
 plot(canopy_diff_stig_dahlen_b)
+#max2,9
+
+writeRaster(canopy_diff_stig_dahlen_b,'Hedmark_Akershus/canopy_height_clipped_raster/stig_dahlen_b_canopyheight')
+
+# stig_dahlen_ub
+terrainmod_stig_dahlen_ub <-grid_terrain(stig_dahlen_ub,method='knnidw',res=1)
+canopymod_stig_dahlen_ub  <-grid_canopy(stig_dahlen_ub,res=1)
 
 terrainmod_stig_dahlen_ub_resampeled <- resample(as.raster(terrainmod_stig_dahlen_ub), as.raster(canopymod_stig_dahlen_ub, method='bilinear'))
 canopy_diff_stig_dahlen_ub <- (as.raster(canopymod_stig_dahlen_ub)-terrainmod_stig_dahlen_ub_resampeled)
 plot(canopy_diff_stig_dahlen_ub)
+#max 6,6
+
+writeRaster(canopy_diff_stig_dahlen_ub,'Hedmark_Akershus/canopy_height_clipped_raster/stig_dahlen_ub_canopyheight')
+
 
 
 # truls_holm
