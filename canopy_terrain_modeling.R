@@ -1508,34 +1508,97 @@ plot(canopy_diff_h_pramhus_ub)
 writeRaster(canopy_diff_h_pramhus_ub,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_ub_canopyheight')
 
 
-# stangeskovene aurskog
+# Stangeskovene Aurskog ---------------------------------------------------
+
+
+# stangeskovene aurskog_b
 terrainmod_stangesk_aurskog_b  <-grid_terrain(stangesk_aurskog_b, method='knnidw',res=1)
-terrainmod_stangesk_aurskog_ub <-grid_terrain(stangesk_aurskog_ub,method='knnidw',res=1)
 canopymod_stangesk_aurskog_b   <-grid_canopy(stangesk_aurskog_b,res=1)
-canopymod_stangesk_aurskog_ub  <-grid_canopy(stangesk_aurskog_ub,res=1)
 
 terrainmod_stangesk_aurskog_b_resampled <-resample(as.raster(terrainmod_stangesk_aurskog_b), as.raster(canopymod_stangesk_aurskog_b), method='bilinear')
 canopy_diff_stangesk_aurskog_b<-(as.raster(canopymod_stangesk_aurskog_b)-terrainmod_stangesk_aurskog_b_resampled)
 plot(canopy_diff_stangesk_aurskog_b)
 
+trees_stangesk_aurskog_b<-tree_detection(stangesk_aurskog_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_stangesk_aurskog_b<-extract(canopy_diff_stangesk_aurskog_b,trees_stangesk_aurskog_b[,1:2])
+
+lastrees_dalponte(stangesk_aurskog_b,canopy_diff_stangesk_aurskog_b,trees_stangesk_aurskog_b[treeheight_stangesk_aurskog_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_stangesk_aurskog_b<-tree_hulls(stangesk_aurskog_b,type='convex',field='treeID')
+plot(canopy_diff_stangesk_aurskog_b)
+plot(treeout_stangesk_aurskog_b,add=T) 
+
+bigtrees_stangesk_aurskog_b<-which(extract(canopy_diff_stangesk_aurskog_b,treeout_stangesk_aurskog_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+stangesk_aurskog_b_clip<-lasclip(stangesk_aurskog_b,treeout_stangesk_aurskog_b@polygons[[bigtrees_stangesk_aurskog_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_stangesk_aurskog_b)){
+  print(i)
+  stangesk_aurskog_b_clip<-lasclip(stangesk_aurskog_b_clip,treeout_stangesk_aurskog_b@polygons[[bigtrees_stangesk_aurskog_b[i]]]@Polygons[[1]],inside=F)}
+plot(stangesk_aurskog_b_clip) 
+
+canopy_diff_stangesk_aurskog_b_clip <- (as.raster(grid_canopy(stangesk_aurskog_b_clip,res=0.5))-(crop(as.raster(grid_terrain(stangesk_aurskog_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(stangesk_aurskog_b_clip,res=0.5)))))
+plot(canopy_diff_stangesk_aurskog_b_clip)
+
+writeRaster(canopy_diff_stangesk_aurskog_b_clip,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_b_canopyheight')
+
+
+# stangeskovene aurskog_ub
+terrainmod_stangesk_aurskog_ub <-grid_terrain(stangesk_aurskog_ub,method='knnidw',res=1)
+canopymod_stangesk_aurskog_ub  <-grid_canopy(stangesk_aurskog_ub,res=1)
+
 terrainmod_stangesk_aurskog_ub_resampeled <- resample(as.raster(terrainmod_stangesk_aurskog_ub), as.raster(canopymod_stangesk_aurskog_ub, method='bilinear'))
 canopy_diff_stangesk_aurskog_ub <- (as.raster(canopymod_stangesk_aurskog_ub)-terrainmod_stangesk_aurskog_ub_resampeled)
 plot(canopy_diff_stangesk_aurskog_ub)
+#max 5
+
+writeRaster(canopy_diff_stangesk_aurskog_ub,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_ub_canopyheight')
 
 
-# stangeskovene eidskog
+
+# Stangeskovene eidskog ---------------------------------------------------
+
+
+# stangeskovene eidskog_b
 terrainmod_stangesk_eidskog_b  <-grid_terrain(stangesk_eidskog_b, method='knnidw',res=1)
-terrainmod_stangesk_eidskog_ub <-grid_terrain(stangesk_eidskog_ub,method='knnidw',res=1)
 canopymod_stangesk_eidskog_b   <-grid_canopy(stangesk_eidskog_b,res=1)
-canopymod_stangesk_eidskog_ub  <-grid_canopy(stangesk_eidskog_ub,res=1)
 
 terrainmod_stangesk_eidskog_b_resampled <-resample(as.raster(terrainmod_stangesk_eidskog_b), as.raster(canopymod_stangesk_eidskog_b), method='bilinear')
 canopy_diff_stangesk_eidskog_b<-(as.raster(canopymod_stangesk_eidskog_b)-terrainmod_stangesk_eidskog_b_resampled)
 plot(canopy_diff_stangesk_eidskog_b)
+#Max 3
+
+writeRaster(canopy_diff_stangesk_eidskog_b,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_b_canopyheight')
+
+
+# stangeskovene eidskog_ub
+terrainmod_stangesk_eidskog_ub <-grid_terrain(stangesk_eidskog_ub,method='knnidw',res=1)
+canopymod_stangesk_eidskog_ub  <-grid_canopy(stangesk_eidskog_ub,res=1)
 
 terrainmod_stangesk_eidskog_ub_resampeled <- resample(as.raster(terrainmod_stangesk_eidskog_ub), as.raster(canopymod_stangesk_eidskog_ub, method='bilinear'))
 canopy_diff_stangesk_eidskog_ub <- (as.raster(canopymod_stangesk_eidskog_ub)-terrainmod_stangesk_eidskog_ub_resampeled)
 plot(canopy_diff_stangesk_eidskog_ub)
+
+trees_stangesk_eidskog_ub<-tree_detection(stangesk_eidskog_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_stangesk_eidskog_ub<-extract(canopy_diff_stangesk_eidskog_ub,trees_stangesk_eidskog_ub[,1:2])
+
+lastrees_dalponte(stangesk_eidskog_ub,canopy_diff_stangesk_eidskog_ub,trees_stangesk_eidskog_ub[treeheight_stangesk_eidskog_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_stangesk_eidskog_ub<-tree_hulls(stangesk_eidskog_ub,type='convex',field='treeID')
+plot(canopy_diff_stangesk_eidskog_ub)
+plot(treeout_stangesk_eidskog_ub,add=T) 
+
+bigtrees_stangesk_eidskog_ub<-which(extract(canopy_diff_stangesk_eidskog_ub,treeout_stangesk_eidskog_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+stangesk_eidskog_ub_clip<-lasclip(stangesk_eidskog_ub,treeout_stangesk_eidskog_ub@polygons[[bigtrees_stangesk_eidskog_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_stangesk_eidskog_ub)){
+  print(i)
+  stangesk_eidskog_ub_clip<-lasclip(stangesk_eidskog_ub_clip,treeout_stangesk_eidskog_ub@polygons[[bigtrees_stangesk_eidskog_ub[i]]]@Polygons[[1]],inside=F)}
+plot(stangesk_eidskog_ub_clip) 
+
+canopy_diff_stangesk_eidskog_ub_clip <- (as.raster(grid_canopy(stangesk_eidskog_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(stangesk_eidskog_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(stangesk_eidskog_ub_clip,res=0.5)))))
+plot(canopy_diff_stangesk_eidskog_ub_clip)
+
+writeRaster(canopy_diff_stangesk_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_ub_canopyheight')
 
 
 # stig_dahlen
