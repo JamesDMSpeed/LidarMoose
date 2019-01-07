@@ -912,7 +912,7 @@ plot(drangedal1_b_clip)
 canopy_diff_drangedal1_b_clip <- (as.raster(grid_canopy(drangedal1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal1_b_clip,res=0.5)))))
 plot(canopy_diff_drangedal1_b_clip)
 
-writeRaster(canopy_diff_drangedal1_b_clip,'Trondelag/canopy_height_clipped_raster/drangedal1_b_canopyheight')
+writeRaster(canopy_diff_drangedal1_b_clip,'Telemark/canopy_height_clipped_raster/drangedal1_b_canopyheight')
 
 
 
@@ -944,7 +944,7 @@ plot(drangedal1_ub_clip)
 canopy_diff_drangedal1_ub_clip <- (as.raster(grid_canopy(drangedal1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal1_ub_clip,res=0.5)))))
 plot(canopy_diff_drangedal1_ub_clip)
 
-writeRaster(canopy_diff_drangedal1_ub_clip,'Trondelag/canopy_height_clipped_raster/drangedal1_ub_canopyheight')
+writeRaster(canopy_diff_drangedal1_ub_clip,'Telemark/canopy_height_clipped_raster/drangedal1_ub_canopyheight')
 
 
 
@@ -979,7 +979,7 @@ plot(drangedal3_b_clip)
 canopy_diff_drangedal3_b_clip <- (as.raster(grid_canopy(drangedal3_b_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal3_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal3_b_clip,res=0.5)))))
 plot(canopy_diff_drangedal3_b_clip)
 
-writeRaster(canopy_diff_drangedal3_b_clip,'Trondelag/canopy_height_clipped_raster/drangedal3_b_canopyheight')
+writeRaster(canopy_diff_drangedal3_b_clip,'Telemark/canopy_height_clipped_raster/drangedal3_b_canopyheight')
 
 
 
@@ -1011,7 +1011,7 @@ plot(drangedal3_ub_clip)
 canopy_diff_drangedal3_ub_clip <- (as.raster(grid_canopy(drangedal3_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(drangedal3_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(drangedal3_ub_clip,res=0.5)))))
 plot(canopy_diff_drangedal3_ub_clip)
 
-writeRaster(canopy_diff_drangedal3_ub_clip,'Trondelag/canopy_height_clipped_raster/drangedal3_ub_canopyheight')
+writeRaster(canopy_diff_drangedal3_ub_clip,'Telemark/canopy_height_clipped_raster/drangedal3_ub_canopyheight')
 
 
 
