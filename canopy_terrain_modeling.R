@@ -1628,19 +1628,32 @@ writeRaster(canopy_diff_stig_dahlen_ub,'Hedmark_Akershus/canopy_height_clipped_r
 
 
 
-# truls_holm
+# Truls Holm --------------------------------------------------------------
+
+
+# truls_holm_b
 terrainmod_truls_holm_b  <-grid_terrain(truls_holm_b, method='knnidw',res=1)
-terrainmod_truls_holm_ub <-grid_terrain(truls_holm_ub,method='knnidw',res=1)
 canopymod_truls_holm_b   <-grid_canopy(truls_holm_b,res=1)
-canopymod_truls_holm_ub  <-grid_canopy(truls_holm_ub,res=1)
 
 terrainmod_truls_holm_b_resampled <-resample(as.raster(terrainmod_truls_holm_b), as.raster(canopymod_truls_holm_b), method='bilinear')
 canopy_diff_truls_holm_b<-(as.raster(canopymod_truls_holm_b)-terrainmod_truls_holm_b_resampled)
 plot(canopy_diff_truls_holm_b)
+#max 3,3
+
+writeRaster(canopy_diff_truls_holm_b,'Hedmark_Akershus/canopy_height_clipped_raster/truls_holm_b_canopyheight')
+
+
+# truls_holm_ub
+terrainmod_truls_holm_ub <-grid_terrain(truls_holm_ub,method='knnidw',res=1)
+canopymod_truls_holm_ub  <-grid_canopy(truls_holm_ub,res=1)
+
 
 terrainmod_truls_holm_ub_resampeled <- resample(as.raster(terrainmod_truls_holm_ub), as.raster(canopymod_truls_holm_ub, method='bilinear'))
 canopy_diff_truls_holm_ub <- (as.raster(canopymod_truls_holm_ub)-terrainmod_truls_holm_ub_resampeled)
 plot(canopy_diff_truls_holm_ub)
+#max 4,028
+
+writeRaster(canopy_diff_truls_holm_ub,'Hedmark_Akershus/canopy_height_clipped_raster/truls_holm_ub_canopyheight')
 
 
 
