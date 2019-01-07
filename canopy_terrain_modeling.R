@@ -1477,15 +1477,23 @@ writeRaster(canopy_diff_fet3_ub,'Hedmark_Akershus/canopy_height_clipped_raster/f
 
 
 
-# h_pramhus Noe galt i clipping script enda, derfor blir ub plot rart her og
+# h_pramhus ---------------------------------------------------------------
+
+
+# h_pramhus_b
 terrainmod_h_pramhus_b  <-grid_terrain(h_pramhus_b, method='knnidw',res=1)
-terrainmod_h_pramhus_ub <-grid_terrain(h_pramhus_ub,method='knnidw',res=1)
 canopymod_h_pramhus_b   <-grid_canopy(h_pramhus_b,res=1)
-canopymod_h_pramhus_ub  <-grid_canopy(h_pramhus_ub,res=1)
 
 terrainmod_h_pramhus_b_resampled <-resample(as.raster(terrainmod_h_pramhus_b), as.raster(canopymod_h_pramhus_b), method='bilinear')
 canopy_diff_h_pramhus_b<-(as.raster(canopymod_h_pramhus_b)-terrainmod_h_pramhus_b_resampled)
 plot(canopy_diff_h_pramhus_b)
+#max 4,5
+writeRaster(canopy_diff_h_pramhus_b,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_b_canopyheight')
+
+
+# h_pramhus_ub
+terrainmod_h_pramhus_ub <-grid_terrain(h_pramhus_ub,method='knnidw',res=1)
+canopymod_h_pramhus_ub  <-grid_canopy(h_pramhus_ub,res=1)
 
 terrainmod_h_pramhus_ub_resampeled <- resample(as.raster(terrainmod_h_pramhus_ub), as.raster(canopymod_h_pramhus_ub, method='bilinear'))
 canopy_diff_h_pramhus_ub <- (as.raster(canopymod_h_pramhus_ub)-terrainmod_h_pramhus_ub_resampeled)
@@ -1494,8 +1502,10 @@ plot(canopy_diff_h_pramhus_ub)
 #1 outlying very high point (like a bird?)
 cellStats(canopy_diff_h_pramhus_ub,stat='max')
 canopy_diff_h_pramhus_ub[canopy_diff_h_pramhus_ub>300] <- NA
-canopy_diff_h_pramhus_ub
+canopy_diff_h_pramhus_ub #max 6,3
 plot(canopy_diff_h_pramhus_ub)
+
+writeRaster(canopy_diff_h_pramhus_ub,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_ub_canopyheight')
 
 
 # stangeskovene aurskog
