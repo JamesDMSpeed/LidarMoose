@@ -1352,19 +1352,32 @@ plot(canopy_diff_notodden6_ub)
 # Hedmark og Akershus -----------------------------------------------------
 
 
-# Didrik Holmsen
+# Didrik Holmsen ----------------------------------------------------------
+
+
+# Didrik Holmsen_b
 terrainmod_didrik_holmsen_b  <-grid_terrain(didrik_holmsen_b, method='knnidw',res=1)
-terrainmod_didrik_holmsen_ub <-grid_terrain(didrik_holmsen_ub,method='knnidw',res=1)
 canopymod_didrik_holmsen_b   <-grid_canopy(didrik_holmsen_b,res=1)
-canopymod_didrik_holmsen_ub  <-grid_canopy(didrik_holmsen_ub,res=1)
 
 terrainmod_didrik_holmsen_b_resampled <-resample(as.raster(terrainmod_didrik_holmsen_b), as.raster(canopymod_didrik_holmsen_b), method='bilinear')
 canopy_diff_didrik_holmsen_b<-(as.raster(canopymod_didrik_holmsen_b)-terrainmod_didrik_holmsen_b_resampled)
 plot(canopy_diff_didrik_holmsen_b)
+canopy_diff_didrik_holmsen_b #max 3
+
+writeRaster(canopy_diff_didrik_holmsen_b,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_b_canopyheight')
+
+
+# Didrik Holmsen_ub
+terrainmod_didrik_holmsen_ub <-grid_terrain(didrik_holmsen_ub,method='knnidw',res=1)
+canopymod_didrik_holmsen_ub  <-grid_canopy(didrik_holmsen_ub,res=1)
+
 
 terrainmod_didrik_holmsen_ub_resampeled <- resample(as.raster(terrainmod_didrik_holmsen_ub), as.raster(canopymod_didrik_holmsen_ub, method='bilinear'))
 canopy_diff_didrik_holmsen_ub <- (as.raster(canopymod_didrik_holmsen_ub)-terrainmod_didrik_holmsen_ub_resampeled)
 plot(canopy_diff_didrik_holmsen_ub)
+canopy_diff_didrik_holmsen_ub #max 4,7
+
+writeRaster(canopy_diff_didrik_holmsen_ub,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_ub_canopyheight')
 
 
 #Eidskog
