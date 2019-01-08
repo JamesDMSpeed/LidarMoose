@@ -4,6 +4,7 @@ require(lidR)
 require(raster)
 require(rasterVis)
 
+plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 
 # Import clipped files ----------------------------------------------------
 #Trondelag
@@ -272,7 +273,7 @@ plot(canopy_diff_namdalseid_1kub_b)
 trees_namdalseid_1kub_b<-tree_detection(namdalseid_1kub_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight_namdalseid_1kub_b<-extract(canopy_diff_namdalseid_1kub_b,trees_namdalseid_1kub_b[,1:2])
 
-lastrees_dalponte(namdalseid_1kub_b,canopy_diff_namdalseid_1kub_b,trees_namdalseid_1kub_b[treeheight_namdalseid_1kub_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+lastrees_dalponte(namdalseid_1kub_b,canopy_diff_namdalseid_1kub_b,trees_namdalseid_1kub_b[treeheight_namdalseid_1kub_b>=threshold,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
 
 treeout_namdalseid_1kub_b<-tree_hulls(namdalseid_1kub_b,type='convex',field='treeID')
 plot(canopy_diff_namdalseid_1kub_b)
@@ -288,6 +289,24 @@ plot(namdalseid_1kub_b_clip)
 
 canopy_diff_namdalseid_1kub_b_clip <- (as.raster(grid_canopy(namdalseid_1kub_b_clip,res=0.5))-(crop(as.raster(grid_terrain(namdalseid_1kub_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(namdalseid_1kub_b_clip,res=0.5)))))
 plot(canopy_diff_namdalseid_1kub_b_clip)
+
+#Cutting it so it is 20x20 m
+
+namdalseid_1kub_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Kb',4:5]))
+namdalseid_1kub_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Kb',4:5][namdalseid_1kub_b_order,]))
+namdalseid_1kub_b_cut<-lasclip(namdalseid_1kub_b_clip,namdalseid_1kub_b_poly)
+plot(namdalseid_1kub_b_cut) #20x20 m area as point cloud
+
+terrainmod_namdalseid_1kub_b_20x20 <-grid_terrain(namdalseid_1kub_b_cut,method='knnidw',res=1)
+canopymod_namdalseid_1kub_b_20x20  <-grid_canopy(namdalseid_1kub_b_cut,res=1)
+
+terrainmod_namdalseid_1kub_b_resampeled_20x20 <- resample(as.raster(terrainmod_namdalseid_1kub_b_20x20), as.raster(canopymod_namdalseid_1kub_b_20x20, method='bilinear'))
+canopy_diff_namdalseid_1kub_b_20x20 <- (as.raster(canopymod_namdalseid_1kub_b_20x20)-terrainmod_namdalseid_1kub_b_resampeled_20x20)
+plot(canopy_diff_namdalseid_1kub_b_20x20)
+
+writeRaster(canopy_diff_namdalseid_1kub_b_20x20,'Trondelag/canopy_height_clipped_raster/namdalseid_1kub_b_canopyheight', overwrite=TRUE)
+
+
 
 writeRaster(canopy_diff_namdalseid_1kub_b_clip,'Trondelag/canopy_height_clipped_raster/namdalseid_1kub_b_canopyheight')
 
@@ -318,12 +337,30 @@ namdalseid_1kub_ub_clip<-lasclip(namdalseid_1kub_ub,treeout_namdalseid_1kub_ub@p
 for(i in 2:length(bigtrees_namdalseid_1kub_ub)){
   print(i)
   namdalseid_1kub_ub_clip<-lasclip(namdalseid_1kub_ub_clip,treeout_namdalseid_1kub_ub@polygons[[bigtrees_namdalseid_1kub_ub[i]]]@Polygons[[1]],inside=F)}
-plot(namdalseid_1kub_ub_clip) 
+plot(namdalseid_1kub_ub_clip) #32x32 m area as point cloud
 
 canopy_diff_namdalseid_1kub_ub_clip <- (as.raster(grid_canopy(namdalseid_1kub_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(namdalseid_1kub_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(namdalseid_1kub_ub_clip,res=0.5)))))
 plot(canopy_diff_namdalseid_1kub_ub_clip)
 
-writeRaster(canopy_diff_namdalseid_1kub_ub_clip,'Trondelag/canopy_height_clipped_raster/namdalseid_1kub_ub_canopyheight')
+#Cutting it so it is 20x20 m
+#Importing the big LAS file
+namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/namdalseid_1kub.las')
+#Import coordinates
+plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+
+namdalseid_1kub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5]))
+namdalseid_1kub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5][namdalseid_1kub_ub_order,]))
+namdalseid_1kub_ub_cut<-lasclip(namdalseid_1kub_ub_clip,namdalseid_1kub_ub_poly)
+plot(namdalseid_1kub_ub_cut) #20x20 m area as point cloud
+
+terrainmod_namdalseid_1kub_ub_20x20 <-grid_terrain(namdalseid_1kub_ub_cut,method='knnidw',res=1)
+canopymod_namdalseid_1kub_ub_20x20  <-grid_canopy(namdalseid_1kub_ub_cut,res=1)
+
+terrainmod_namdalseid_1kub_ub_resampeled_20x20 <- resample(as.raster(terrainmod_namdalseid_1kub_ub_20x20), as.raster(canopymod_namdalseid_1kub_ub_20x20, method='bilinear'))
+canopy_diff_namdalseid_1kub_ub_20x20 <- (as.raster(canopymod_namdalseid_1kub_ub_20x20)-terrainmod_namdalseid_1kub_ub_resampeled_20x20)
+plot(canopy_diff_namdalseid_1kub_ub_20x20)
+
+writeRaster(canopy_diff_namdalseid_1kub_ub_20x20,'Trondelag/canopy_height_clipped_raster/namdalseid_1kub_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -430,13 +467,25 @@ selbu_kl_b_clip<-lasclip(selbu_kl_b,treeout_selbu_kl_b@polygons[[bigtrees_selbu_
 for(i in 2:length(bigtrees_selbu_kl_b)){
   print(i)
   selbu_kl_b_clip<-lasclip(selbu_kl_b_clip,treeout_selbu_kl_b@polygons[[bigtrees_selbu_kl_b[i]]]@Polygons[[1]],inside=F)}
-plot(selbu_kl_b_clip) #point cloud without large trees
+plot(selbu_kl_b_clip) #point cloud without large trees, 32x32m
 
 canopy_diff_selbu_kl_b_clip <- (as.raster(grid_canopy(selbu_kl_b_clip,res=0.5))-(crop(as.raster(grid_terrain(selbu_kl_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(selbu_kl_b_clip,res=0.5)))))
 plot(canopy_diff_selbu_kl_b_clip)
 
-writeRaster(canopy_diff_selbu_kl_b_clip,'Trondelag/canopy_height_clipped_raster/selbu_kl_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+selbu_kl_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5]))
+selbu_kl_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5][selbu_kl_b_order,]))
+selbu_kl_b_cut<-lasclip(selbu_kl_b_clip,selbu_kl_b_poly)
+plot(selbu_kl_b_cut) #20x20 m area as point cloud
 
+terrainmod_selbu_kl_b_20x20 <-grid_terrain(selbu_kl_b_cut,method='knnidw',res=1)
+canopymod_selbu_kl_b_20x20  <-grid_canopy(selbu_kl_b_cut,res=1)
+
+terrainmod_selbu_kl_b_resampeled_20x20 <- resample(as.raster(terrainmod_selbu_kl_b_20x20), as.raster(canopymod_selbu_kl_b_20x20, method='bilinear'))
+canopy_diff_selbu_kl_b_20x20 <- (as.raster(canopymod_selbu_kl_b_20x20)-terrainmod_selbu_kl_b_resampeled_20x20)
+plot(canopy_diff_selbu_kl_b_20x20)
+
+writeRaster(canopy_diff_selbu_kl_b_20x20,'Trondelag/canopy_height_clipped_raster/selbu_kl_b_canopyheight', overwrite=TRUE)
 
 
 

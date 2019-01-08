@@ -26,7 +26,7 @@ bbpl<-Polygons(list(bratsberg_b_poly),1)
 bbpsp<-SpatialPolygons(list(bbpl))
 bratsberg_b_outerpoly<-gBuffer(bbpsp,width=6)
 
-plot(bratsberg_b_poly)
+plot(bratsberg_b_outerpoly)
 
 
 #This one clips the las to the polygon
@@ -102,12 +102,24 @@ plot(namdalseid_1kub_b_cut)
 
 namdalseid_1kub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5]))
 namdalseid_1kub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Kub',4:5][namdalseid_1kub_ub_order,]))
-namdalseid_1kub_ub_cut<-lasclip(namdalseid_1kub_las,namdalseid_1kub_ub_poly)
-namdalseid_1kub_ub_cut
-plot(malvik_ub_cut)
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+namdalseid_1kub_ub_pl <- Polygons(list(namdalseid_1kub_ub_poly),1)
+namdalseid_1kub_ub_sp <- SpatialPolygons(list(namdalseid_1kub_ub_pl))
+namdalseid_1kub_ub_polybuf <- gBuffer(namdalseid_1kub_ub_sp, width=6)
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1<-data.frame(ID=1)
+rownames(df1)<-'buffer'
+namdalseid_1kub_ub_spdf <- SpatialPolygonsDataFrame(namdalseid_1kub_ub_polybuf,data=df1,match.ID = TRUE)
+#test <-  (namdalseid_1kub_ub_outerpoly)
+
+namdalseid_1kub_ub_outerpoly<-lasclip(namdalseid_1kub_las,namdalseid_1kub_ub_spdf)
+namdalseid_1kub_ub_outerpoly<-namdalseid_1kub_ub_outerpoly$`1`
+plot(namdalseid_1kub_ub_outerpoly)
+
 
 writeLAS(namdalseid_1kub_b_cut,'Trondelag/clipped_las/namdalseid_1kub_b.las')
-writeLAS(namdalseid_1kub_ub_cut,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
+writeLAS(namdalseid_1kub_ub_outerpoly,'Trondelag/clipped_las/namdalseid_1kub_ub.las')
 ###################################################################################
 #Nsb_Verdal 
 
@@ -158,9 +170,24 @@ plot(selbu_kl_las)
 
 selbu_kl_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5]))
 selbu_kl_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Klb',4:5][selbu_kl_b_order,]))
-selbu_kl_b_cut<-lasclip(selbu_kl_las,selbu_kl_b_poly)
-selbu_kl_b_cut
-plot(selbu_kl_b_cut)
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+selbu_kl_b_pl <- Polygons(list(selbu_kl_b_poly),1)
+selbu_kl_b_sp <- SpatialPolygons(list(selbu_kl_b_pl))
+selbu_kl_b_polybuf <- gBuffer(selbu_kl_b_sp, width=6)
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_klb<-data.frame(ID=1)
+rownames(df1_klb)<-'buffer'
+selbu_kl_b_spdf <- SpatialPolygonsDataFrame(selbu_kl_b_polybuf,data=df1,match.ID = TRUE)
+#test <-  (namdalseid_1kub_ub_outerpoly)
+
+#selbu_kl_b_cut<-lasclip(selbu_kl_las,selbu_kl_b_poly)
+#selbu_kl_b_cut
+#plot(selbu_kl_b_cut)
+
+selbu_kl_b_outerpoly<-lasclip(selbu_kl_las,selbu_kl_b_spdf)
+selbu_kl_b_outerpoly<-selbu_kl_b_outerpoly$`1`
+plot(selbu_kl_b_outerpoly)
+
 
 selbu_kl_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Klub',4:5]))
 selbu_kl_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Klub',4:5][selbu_kl_ub_order,]))
@@ -168,7 +195,7 @@ selbu_kl_ub_cut<-lasclip(selbu_kl_las,selbu_kl_ub_poly)
 selbu_kl_ub_cut
 plot(selbu_kl_ub_cut)
 
-writeLAS(selbu_kl_b_cut,'Trondelag/clipped_las/selbu_kl_b.las')
+writeLAS(selbu_kl_b_outerpoly,'Trondelag/clipped_las/selbu_kl_b.las')
 writeLAS(selbu_kl_ub_cut,'Trondelag/clipped_las/selbu_kl_ub.las')
 ############################################################################
 #Selbu_sl
