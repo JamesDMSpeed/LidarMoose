@@ -3,6 +3,7 @@
 require(lidR)
 require(raster)
 require(rasterVis)
+require(rgeos)
 
 ############TRONDELAG##################################################################
 #BRATSBERG
@@ -17,6 +18,17 @@ plot(bratsberglas)
 bratsberg_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
 #This function makes a polygon using the bratsberg_b coordinates, ordered by the convex hull
 bratsberg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][bratsberg_b_order,]))
+#Making the polygon bigger to identify large trees on the edge - 10m
+
+#Expand plot by Xm to include overhanging trees
+#Make it a spatial polygon
+bbpl<-Polygons(list(bratsberg_b_poly),1)
+bbpsp<-SpatialPolygons(list(bbpl))
+bratsberg_b_outerpoly<-gBuffer(bbpsp,width=6)
+
+plot(bratsberg_b_poly)
+
+
 #This one clips the las to the polygon
 bratsberg_b_plot<-lasclip(bratsberglas,bratsberg_b_poly)
 plot(bratsberg_b_plot)

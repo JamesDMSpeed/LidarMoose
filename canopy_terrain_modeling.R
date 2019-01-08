@@ -169,8 +169,18 @@ plot(canopy_diff_bratsberg_ub_clip)
 
 
 writeRaster(canopy_diff_bratsberg_ub_clip,'Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
+testub <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
+testb <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
 
+summary(testub)
 
+histub<-graphics::hist(getValues(testub),plot=F)
+plot(histub$mids,histub$density,type='l')
+
+dub<-density(testub)
+db<-density(testb)
+plot(dub)
+lines(db,add=T)
 # Hi_tydal ----------------------------------------------------------------
 
 #Hi_tydal_b
@@ -1087,9 +1097,9 @@ treeout_fritsoe2_b<-tree_hulls(fritsoe2_b,type='convex',field='treeID')
 plot(canopy_diff_fritsoe2_b)
 plot(treeout_fritsoe2_b,add=T) 
 
-bigtrees_fritsoe2_b<-which(extract(canopy_diff_fritsoe2_b,treeout_fritsoe2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+bigtrees_fritsoe2_b<-which(extract(canopy_diff_fritsoe2_b,treeout_fritsoe2_b,fun=max,na.rm=T)>6) #identify trees larger than 7m
 
-#ERROR!!
+#ERROR!! bigtrees empty... >5 - not empty
 fritsoe2_b_clip<-lasclip(fritsoe2_b,treeout_fritsoe2_b@polygons[[bigtrees_fritsoe2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_fritsoe2_b)){
   print(i)
