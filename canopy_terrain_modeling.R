@@ -224,7 +224,21 @@ plot(canopy_diff_hi_tydal_b)
 #see that the largest trees are 3,5m high,
 #unlikely that they left so small trees standing when clear cutting. Conclude: no old trees standing
 
-writeRaster(canopy_diff_hi_tydal_b,'Trondelag/canopy_height_clipped_raster/hi_tydal_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+hi_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5]))
+hi_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5][hi_tydal_b_order,]))
+hi_tydal_b_cut<-lasclip(hi_tydal_las,hi_tydal_b_poly)
+plot(hi_tydal_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_hi_tydal_b_20x20 <-grid_terrain(hi_tydal_b_cut,method='knnidw',res=1)
+canopymod_hi_tydal_b_20x20  <-grid_canopy(hi_tydal_b_cut,res=1)
+
+terrainmod_hi_tydal_b_resampeled_20x20 <- resample(as.raster(terrainmod_hi_tydal_b_20x20), as.raster(canopymod_hi_tydal_b_20x20, method='bilinear'))
+canopy_diff_hi_tydal_b_20x20 <- (as.raster(canopymod_hi_tydal_b_20x20)-terrainmod_hi_tydal_b_resampeled_20x20)
+plot(canopy_diff_hi_tydal_b_20x20)
+
+writeRaster(canopy_diff_hi_tydal_b_20x20,'Trondelag/canopy_height_clipped_raster/hi_tydal_b_canopyheight', overwrite=TRUE)
 
 
 #Hi_tydal_ub
@@ -255,7 +269,20 @@ plot(hi_tydal_ub_clip) #point cloud without large trees
 canopy_diff_hi_tydal_ub_clip <- (as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(hi_tydal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(hi_tydal_ub_clip,res=0.5)))))
 plot(canopy_diff_hi_tydal_ub_clip)
 
-writeRaster(canopy_diff_hi_tydal_ub_clip,'Trondelag/canopy_height_clipped_raster/hi_tydal_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+hi_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5]))
+hi_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5][hi_tydal_ub_order,]))
+hi_tydal_ub_cut<-lasclip(hi_tydal_ub_clip,hi_tydal_ub_poly)
+plot(hi_tydal_ub_cut) #20x20 m area as point cloud
+
+terrainmod_hi_tydal_ub_20x20 <-grid_terrain(hi_tydal_ub_cut,method='knnidw',res=1)
+canopymod_hi_tydal_ub_20x20  <-grid_canopy(hi_tydal_ub_cut,res=1)
+
+terrainmod_hi_tydal_ub_resampeled_20x20 <- resample(as.raster(terrainmod_hi_tydal_ub_20x20), as.raster(canopymod_hi_tydal_ub_20x20, method='bilinear'))
+canopy_diff_hi_tydal_ub_20x20 <- (as.raster(canopymod_hi_tydal_ub_20x20)-terrainmod_hi_tydal_ub_resampeled_20x20)
+plot(canopy_diff_hi_tydal_ub_20x20)
+
+writeRaster(canopy_diff_hi_tydal_ub_20x20,'Trondelag/canopy_height_clipped_raster/hi_tydal_ub_canopyheight', overwrite=TRUE)
 
 
 # Malvik ------------------------------------------------------------------

@@ -60,6 +60,54 @@ writeLAS(bratsberg_ub_outerpoly,'Trondelag/clipped_las/bratsberg_ub.las')
 
 
 
+
+
+# Hi_Tydal ----------------------------------------------------------------
+
+hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Hi_tydal.las')
+hi_tydal_las 
+plot(hi_tydal_las)
+
+#hi_tydal_b
+
+hi_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5]))
+hi_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5][hi_tydal_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+hi_tydal_b_pl <- Polygons(list(hi_tydal_b_poly),1)
+hi_tydal_b_sp <- SpatialPolygons(list(hi_tydal_b_pl))
+hi_tydal_b_polybuf <- gBuffer(hi_tydal_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_hi_tydal_b<-data.frame(ID=1)
+rownames(df1_hi_tydal_b)<-'buffer' 
+hi_tydal_b_spdf <- SpatialPolygonsDataFrame(hi_tydal_b_polybuf,data=df1_hi_tydal_b,match.ID = TRUE)
+
+hi_tydal_b_outerpoly<-lasclip(hi_tydal_las,hi_tydal_b_spdf)
+hi_tydal_b_outerpoly<-hi_tydal_b_outerpoly$`1`
+plot(hi_tydal_b_outerpoly)
+
+writeLAS(hi_tydal_b_outerpoly,'Trondelag/clipped_las/hi_tydal_b.las')
+
+#hi_tydal_ub
+hi_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5]))
+hi_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hiub',4:5][hi_tydal_ub_order,]))
+
+hi_tydal_ub_pl <- Polygons(list(hi_tydal_ub_poly),1)
+hi_tydal_ub_sp <- SpatialPolygons(list(hi_tydal_ub_pl))
+hi_tydal_ub_polybuf <- gBuffer(hi_tydal_ub_sp, width=6)
+
+df1_hi_tydal_ub<-data.frame(ID=1)
+rownames(df1_hi_tydal_ub)<-'buffer'
+hi_tydal_ub_spdf <- SpatialPolygonsDataFrame(hi_tydal_ub_polybuf,data=df1_hi_tydal_ub,match.ID = TRUE)
+
+hi_tydal_ub_outerpoly<-lasclip(hi_tydal_las,hi_tydal_ub_spdf)
+hi_tydal_ub_outerpoly<-hi_tydal_ub_outerpoly$`1`
+plot(hi_tydal_ub_outerpoly)
+
+writeLAS(hi_tydal_ub_outerpoly,'Trondelag/clipped_las/hi_tydal_ub.las')
+
+
 # Namdalseid 1kub ---------------------------------------------------------
 
 namdalseid_1kub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/namdalseid_1kub.las')
