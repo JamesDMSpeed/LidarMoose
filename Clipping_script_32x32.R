@@ -13,6 +13,51 @@ plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',
 # Trondelag ---------------------------------------------------------------
 
 
+# Bratsberg ---------------------------------------------------------------
+
+bratsberg_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/bratsberg.las')
+bratsberg_las 
+plot(bratsberglas)
+
+#bratsberg_b
+
+bratsberg_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
+bratsberg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][bratsberg_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+bratsberg_b_pl <- Polygons(list(bratsberg_b_poly),1)
+bratsberg_b_sp <- SpatialPolygons(list(bratsberg_b_pl))
+bratsberg_b_polybuf <- gBuffer(bratsberg_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_bratsberg_b<-data.frame(ID=1)
+rownames(df1_bratsberg_b)<-'buffer' 
+bratsberg_b_spdf <- SpatialPolygonsDataFrame(bratsberg_b_polybuf,data=df1_bratsberg_b,match.ID = TRUE)
+
+bratsberg_b_outerpoly<-lasclip(bratsberg_las,bratsberg_b_spdf)
+bratsberg_b_outerpoly<-bratsberg_b_outerpoly$`1`
+plot(bratsberg_b_outerpoly)
+
+writeLAS(bratsberg_b_outerpoly,'Trondelag/clipped_las/bratsberg_b.las')
+
+#bratsberg_ub
+bratsberg_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5]))
+bratsberg_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5][bratsberg_ub_order,]))
+
+bratsberg_ub_pl <- Polygons(list(bratsberg_ub_poly),1)
+bratsberg_ub_sp <- SpatialPolygons(list(bratsberg_ub_pl))
+bratsberg_ub_polybuf <- gBuffer(bratsberg_ub_sp, width=6)
+
+df1_bratsberg_ub<-data.frame(ID=1)
+rownames(df1_bratsberg_ub)<-'buffer'
+bratsberg_ub_spdf <- SpatialPolygonsDataFrame(bratsberg_ub_polybuf,data=df1_bratsberg_ub,match.ID = TRUE)
+
+bratsberg_ub_outerpoly<-lasclip(bratsberg_las,bratsberg_ub_spdf)
+bratsberg_ub_outerpoly<-bratsberg_ub_outerpoly$`1`
+plot(bratsberg_ub_outerpoly)
+
+writeLAS(bratsberg_ub_outerpoly,'Trondelag/clipped_las/bratsberg_ub.las')
+
 
 
 # Namdalseid 1kub ---------------------------------------------------------

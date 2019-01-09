@@ -133,7 +133,22 @@ plot(bratsberg_b_clip) #point cloud without large trees
 canopy_diff_bratsberg_b_clip <- (as.raster(grid_canopy(bratsberg_b_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(bratsberg_b_clip,res=0.5)))))
 plot(canopy_diff_bratsberg_b_clip)
 
-writeRaster(canopy_diff_bratsberg_b_clip,'Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+bratsberg_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
+bratsberg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][bratsberg_b_order,]))
+bratsberg_b_cut<-lasclip(bratsberg_b_clip,bratsberg_b_poly)
+plot(bratsberg_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_bratsberg_b_20x20 <-grid_terrain(bratsberg_b_cut,method='knnidw',res=1)
+canopymod_bratsberg_b_20x20  <-grid_canopy(bratsberg_b_cut,res=1)
+
+terrainmod_bratsberg_b_resampeled_20x20 <- resample(as.raster(terrainmod_bratsberg_b_20x20), as.raster(canopymod_bratsberg_b_20x20, method='bilinear'))
+canopy_diff_bratsberg_b_20x20 <- (as.raster(canopymod_bratsberg_b_20x20)-terrainmod_bratsberg_b_resampeled_20x20)
+plot(canopy_diff_bratsberg_b_20x20)
+
+writeRaster(canopy_diff_bratsberg_b_20x20,'Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight', overwrite=TRUE)
+
 
  #Bratsberg_ub
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
@@ -162,26 +177,41 @@ for(i in 2:length(bigtrees_bratsberg_ub)){
   bratsberg_ub_clip<-lasclip(bratsberg_ub_clip,treeout_bratsberg_ub@polygons[[bigtrees_bratsberg_ub[i]]]@Polygons[[1]],inside=F)}
 plot(bratsberg_ub_clip) #point cloud without large trees
 
-#error when running the for loop here: in is(geometry, "Polygon") : 
-#trying to get slot "Polygons" from an object of a basic class ("NULL") with no slots -BUT it looks correct
-
 canopy_diff_bratsberg_ub_clip <- (as.raster(grid_canopy(bratsberg_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(bratsberg_ub_clip,res=0.5)))))
 plot(canopy_diff_bratsberg_ub_clip)
 
 
-writeRaster(canopy_diff_bratsberg_ub_clip,'Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
-testub <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
-testb <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+bratsberg_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5]))
+bratsberg_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5][bratsberg_ub_order,]))
+bratsberg_ub_cut<-lasclip(bratsberg_ub_clip,bratsberg_ub_poly)
+plot(bratsberg_ub_cut) #20x20 m area as point cloud
 
-summary(testub)
+#Make new canopy height model for 20x20 m square
+terrainmod_bratsberg_ub_20x20 <-grid_terrain(bratsberg_ub_cut,method='knnidw',res=1)
+canopymod_bratsberg_ub_20x20  <-grid_canopy(bratsberg_ub_cut,res=1)
 
-histub<-graphics::hist(getValues(testub),plot=F)
-plot(histub$mids,histub$density,type='l')
+terrainmod_bratsberg_ub_resampeled_20x20 <- resample(as.raster(terrainmod_bratsberg_ub_20x20), as.raster(canopymod_bratsberg_ub_20x20, method='bilinear'))
+canopy_diff_bratsberg_ub_20x20 <- (as.raster(canopymod_bratsberg_ub_20x20)-terrainmod_bratsberg_ub_resampeled_20x20)
+plot(canopy_diff_bratsberg_ub_20x20)
 
-dub<-density(testub)
-db<-density(testb)
-plot(dub)
-lines(db,add=T)
+writeRaster(canopy_diff_bratsberg_ub_20x20,'Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight', overwrite=TRUE)
+
+
+#testub <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_ub_canopyheight')
+#testb <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
+
+#summary(testub)
+
+#histub<-graphics::hist(getValues(testub),plot=F)
+#plot(histub$mids,histub$density,type='l')
+
+#dub<-density(testub)
+#db<-density(testb)
+#plot(dub)
+#lines(db,add=T)
+
+
 # Hi_tydal ----------------------------------------------------------------
 
 #Hi_tydal_b
