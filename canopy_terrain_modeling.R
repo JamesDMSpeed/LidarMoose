@@ -1596,7 +1596,22 @@ plot(n_cappelen1_b_clip)
 canopy_diff_n_cappelen1_b_clip <- (as.raster(grid_canopy(n_cappelen1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen1_b_clip,res=0.5)))))
 plot(canopy_diff_n_cappelen1_b_clip)
 
-writeRaster(canopy_diff_n_cappelen1_b_clip,'Telemark/canopy_height_clipped_raster/n_cappelen1_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+n_cappelen1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 B',10:9]))
+n_cappelen1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 B',10:9][n_cappelen1_b_order,]))
+n_cappelen1_b_cut<-lasclip(n_cappelen1_b_clip,n_cappelen1_b_poly)
+plot(n_cappelen1_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_n_cappelen1_b_20x20 <-grid_terrain(n_cappelen1_b_cut,method='knnidw',res=1)
+canopymod_n_cappelen1_b_20x20  <-grid_canopy(n_cappelen1_b_cut,res=1)
+
+terrainmod_n_cappelen1_b_resampeled_20x20 <- resample(as.raster(terrainmod_n_cappelen1_b_20x20), as.raster(canopymod_n_cappelen1_b_20x20, method='bilinear'))
+canopy_diff_n_cappelen1_b_20x20 <- (as.raster(canopymod_n_cappelen1_b_20x20)-terrainmod_n_cappelen1_b_resampeled_20x20)
+plot(canopy_diff_n_cappelen1_b_20x20)
+
+writeRaster(canopy_diff_n_cappelen1_b_20x20,'Telemark/canopy_height_clipped_raster/n_cappelen1_b_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -1628,7 +1643,21 @@ plot(n_cappelen1_ub_clip)
 canopy_diff_n_cappelen1_ub_clip <- (as.raster(grid_canopy(n_cappelen1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen1_ub_clip,res=0.5)))))
 plot(canopy_diff_n_cappelen1_ub_clip)
 
-writeRaster(canopy_diff_n_cappelen1_ub_clip,'Telemark/canopy_height_clipped_raster/n_cappelen1_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+n_cappelen1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 UB',10:9]))
+n_cappelen1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 1 UB',10:9][n_cappelen1_ub_order,]))
+n_cappelen1_ub_cut<-lasclip(n_cappelen1_ub_clip,n_cappelen1_ub_poly)
+plot(n_cappelen1_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_n_cappelen1_ub_20x20 <-grid_terrain(n_cappelen1_ub_cut,method='knnidw',res=1)
+canopymod_n_cappelen1_ub_20x20  <-grid_canopy(n_cappelen1_ub_cut,res=1)
+
+terrainmod_n_cappelen1_ub_resampeled_20x20 <- resample(as.raster(terrainmod_n_cappelen1_ub_20x20), as.raster(canopymod_n_cappelen1_ub_20x20, method='bilinear'))
+canopy_diff_n_cappelen1_ub_20x20 <- (as.raster(canopymod_n_cappelen1_ub_20x20)-terrainmod_n_cappelen1_ub_resampeled_20x20)
+plot(canopy_diff_n_cappelen1_ub_20x20)
+
+writeRaster(canopy_diff_n_cappelen1_ub_20x20,'Telemark/canopy_height_clipped_raster/n_cappelen1_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -1663,7 +1692,21 @@ plot(n_cappelen2_b_clip)
 canopy_diff_n_cappelen2_b_clip <- (as.raster(grid_canopy(n_cappelen2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen2_b_clip,res=0.5)))))
 plot(canopy_diff_n_cappelen2_b_clip)
 
-writeRaster(canopy_diff_n_cappelen2_b_clip,'Telemark/canopy_height_clipped_raster/n_cappelen2_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+n_cappelen2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9]))
+n_cappelen2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9][n_cappelen2_b_order,]))
+n_cappelen2_b_cut<-lasclip(n_cappelen2_b_clip,n_cappelen2_b_poly)
+plot(n_cappelen2_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_n_cappelen2_b_20x20 <-grid_terrain(n_cappelen2_b_cut,method='knnidw',res=1)
+canopymod_n_cappelen2_b_20x20  <-grid_canopy(n_cappelen2_b_cut,res=1)
+
+terrainmod_n_cappelen2_b_resampeled_20x20 <- resample(as.raster(terrainmod_n_cappelen2_b_20x20), as.raster(canopymod_n_cappelen2_b_20x20, method='bilinear'))
+canopy_diff_n_cappelen2_b_20x20 <- (as.raster(canopymod_n_cappelen2_b_20x20)-terrainmod_n_cappelen2_b_resampeled_20x20)
+plot(canopy_diff_n_cappelen2_b_20x20)
+
+writeRaster(canopy_diff_n_cappelen2_b_20x20,'Telemark/canopy_height_clipped_raster/n_cappelen2_b_canopyheight', overwrite=TRUE)
 
 
 # n_cappelen2_ub
@@ -1695,7 +1738,21 @@ plot(n_cappelen2_ub_clip)
 canopy_diff_n_cappelen2_ub_clip <- (as.raster(grid_canopy(n_cappelen2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(n_cappelen2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(n_cappelen2_ub_clip,res=0.5)))))
 plot(canopy_diff_n_cappelen2_ub_clip)
 
-writeRaster(canopy_diff_n_cappelen2_ub_clip,'Telemark/canopy_height_clipped_raster/n_cappelen2_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+n_cappelen2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9]))
+n_cappelen2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9][n_cappelen2_ub_order,]))
+n_cappelen2_ub_cut<-lasclip(n_cappelen2_ub_clip,n_cappelen2_ub_poly)
+plot(n_cappelen2_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_n_cappelen2_ub_20x20 <-grid_terrain(n_cappelen2_ub_cut,method='knnidw',res=1)
+canopymod_n_cappelen2_ub_20x20  <-grid_canopy(n_cappelen2_ub_cut,res=1)
+
+terrainmod_n_cappelen2_ub_resampeled_20x20 <- resample(as.raster(terrainmod_n_cappelen2_ub_20x20), as.raster(canopymod_n_cappelen2_ub_20x20, method='bilinear'))
+canopy_diff_n_cappelen2_ub_20x20 <- (as.raster(canopymod_n_cappelen2_ub_20x20)-terrainmod_n_cappelen2_ub_resampeled_20x20)
+plot(canopy_diff_n_cappelen2_ub_20x20)
+
+writeRaster(canopy_diff_n_cappelen2_ub_20x20,'Telemark/canopy_height_clipped_raster/n_cappelen2_ub_canopyheight', overwrite=TRUE)
 
 
 # Notodden 3 --------------------------------------------------------------
