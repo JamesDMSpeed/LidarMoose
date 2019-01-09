@@ -1178,9 +1178,23 @@ canopymod_verdal_1vb_b   <-grid_canopy(verdal_1vb_b,res=1)
 terrainmod_verdal_1vb_b_resampled <-resample(as.raster(terrainmod_verdal_1vb_b), as.raster(canopymod_verdal_1vb_b), method='bilinear')
 canopy_diff_verdal_1vb_b<-(as.raster(canopymod_verdal_1vb_b)-terrainmod_verdal_1vb_b_resampled)
 plot(canopy_diff_verdal_1vb_b)
-canopy_diff_verdal_1vb_b #max 6,5
+canopy_diff_verdal_1vb_b #the 20x20 square has max value 6,5
 
-writeRaster(canopy_diff_verdal_1vb_b,'Trondelag/canopy_height_clipped_raster/verdal_1vb_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+verdal_1vb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Vbb',4:5]))
+verdal_1vb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Vbb',4:5][verdal_1vb_b_order,]))
+verdal_1vb_b_cut<-lasclip(verdal_1vb_las,verdal_1vb_b_poly)
+plot(verdal_1vb_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_verdal_1vb_b_20x20 <-grid_terrain(verdal_1vb_b_cut,method='knnidw',res=1)
+canopymod_verdal_1vb_b_20x20  <-grid_canopy(verdal_1vb_b_cut,res=1)
+
+terrainmod_verdal_1vb_b_resampeled_20x20 <- resample(as.raster(terrainmod_verdal_1vb_b_20x20), as.raster(canopymod_verdal_1vb_b_20x20, method='bilinear'))
+canopy_diff_verdal_1vb_b_20x20 <- (as.raster(canopymod_verdal_1vb_b_20x20)-terrainmod_verdal_1vb_b_resampeled_20x20)
+plot(canopy_diff_verdal_1vb_b_20x20)
+
+writeRaster(canopy_diff_verdal_1vb_b_20x20,'Trondelag/canopy_height_clipped_raster/verdal_1vb_b_canopyheight', overwrite=TRUE)
 
 
 # verdal_1vb_ub
@@ -1212,7 +1226,22 @@ plot(verdal_1vb_ub_clip)
 canopy_diff_verdal_1vb_ub_clip <- (as.raster(grid_canopy(verdal_1vb_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(verdal_1vb_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(verdal_1vb_ub_clip,res=0.5)))))
 plot(canopy_diff_verdal_1vb_ub_clip)
 
-writeRaster(canopy_diff_verdal_1vb_ub_clip,'Trondelag/canopy_height_clipped_raster/verdal_1vb_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+verdal_1vb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5]))
+verdal_1vb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Vbub',4:5][verdal_1vb_ub_order,]))
+verdal_1vb_ub_cut<-lasclip(verdal_1vb_ub_clip,verdal_1vb_ub_poly)
+plot(verdal_1vb_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_verdal_1vb_ub_20x20 <-grid_terrain(verdal_1vb_ub_cut,method='knnidw',res=1)
+canopymod_verdal_1vb_ub_20x20  <-grid_canopy(verdal_1vb_ub_cut,res=1)
+
+terrainmod_verdal_1vb_ub_resampeled_20x20 <- resample(as.raster(terrainmod_verdal_1vb_ub_20x20), as.raster(canopymod_verdal_1vb_ub_20x20, method='bilinear'))
+canopy_diff_verdal_1vb_ub_20x20 <- (as.raster(canopymod_verdal_1vb_ub_20x20)-terrainmod_verdal_1vb_ub_resampeled_20x20)
+plot(canopy_diff_verdal_1vb_ub_20x20)
+
+writeRaster(canopy_diff_verdal_1vb_ub_20x20,'Trondelag/canopy_height_clipped_raster/verdal_1vb_ub_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -1229,7 +1258,21 @@ canopy_diff_verdal_2vb_b<-(as.raster(canopymod_verdal_2vb_b)-terrainmod_verdal_2
 plot(canopy_diff_verdal_2vb_b)
 canopy_diff_verdal_2vb_b #max 3,26
 
-writeRaster(canopy_diff_verdal_2vb_b ,'Trondelag/canopy_height_clipped_raster/verdal_2vb_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+verdal_2vb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5]))
+verdal_2vb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5][verdal_2vb_b_order,]))
+verdal_2vb_b_cut<-lasclip(verdal_2vb_las,verdal_2vb_b_poly)
+plot(verdal_2vb_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_verdal_2vb_b_20x20 <-grid_terrain(verdal_2vb_b_cut,method='knnidw',res=1)
+canopymod_verdal_2vb_b_20x20  <-grid_canopy(verdal_2vb_b_cut,res=1)
+
+terrainmod_verdal_2vb_b_resampeled_20x20 <- resample(as.raster(terrainmod_verdal_2vb_b_20x20), as.raster(canopymod_verdal_2vb_b_20x20, method='bilinear'))
+canopy_diff_verdal_2vb_b_20x20 <- (as.raster(canopymod_verdal_2vb_b_20x20)-terrainmod_verdal_2vb_b_resampeled_20x20)
+plot(canopy_diff_verdal_2vb_b_20x20)
+
+writeRaster(canopy_diff_verdal_2vb_b_20x20,'Trondelag/canopy_height_clipped_raster/verdal_2vb_b_canopyheight', overwrite=TRUE)
 
 # Verdal_2vb_ub
 terrainmod_verdal_2vb_ub <-grid_terrain(verdal_2vb_ub,method='knnidw',res=1)
@@ -1259,7 +1302,21 @@ plot(verdal_2vb_ub_clip)
 canopy_diff_verdal_2vb_ub_clip <- (as.raster(grid_canopy(verdal_2vb_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(verdal_2vb_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(verdal_2vb_ub_clip,res=0.5)))))
 plot(canopy_diff_verdal_2vb_ub_clip)
 
-writeRaster(canopy_diff_verdal_2vb_ub_clip,'Trondelag/canopy_height_clipped_raster/verdal_2vb_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+verdal_2vb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Vbub',4:5]))
+verdal_2vb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Vbub',4:5][verdal_2vb_ub_order,]))
+verdal_2vb_ub_cut<-lasclip(verdal_2vb_ub_clip,verdal_2vb_ub_poly)
+plot(verdal_2vb_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_verdal_2vb_ub_20x20 <-grid_terrain(verdal_2vb_ub_cut,method='knnidw',res=1)
+canopymod_verdal_2vb_ub_20x20  <-grid_canopy(verdal_2vb_ub_cut,res=1)
+
+terrainmod_verdal_2vb_ub_resampeled_20x20 <- resample(as.raster(terrainmod_verdal_2vb_ub_20x20), as.raster(canopymod_verdal_2vb_ub_20x20, method='bilinear'))
+canopy_diff_verdal_2vb_ub_20x20 <- (as.raster(canopymod_verdal_2vb_ub_20x20)-terrainmod_verdal_2vb_ub_resampeled_20x20)
+plot(canopy_diff_verdal_2vb_ub_20x20)
+
+writeRaster(canopy_diff_verdal_2vb_ub_20x20,'Trondelag/canopy_height_clipped_raster/verdal_2vb_ub_canopyheight', overwrite=TRUE)
 
 
 
