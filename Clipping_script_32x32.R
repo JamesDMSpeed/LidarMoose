@@ -7,6 +7,7 @@ require(rasterVis)
 require(rgeos)
 
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
 
 
 # Trondelag ---------------------------------------------------------------
@@ -153,4 +154,107 @@ plot(singsaas_ub_outerpoly)
 writeLAS(singsaas_ub_outerpoly,'Trondelag/clipped_las/singsaas_ub.las')
 
 
+# Steinkjer 2BBb ----------------------------------------------------------
+
+steinkjer_2BBb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Steinkjer_2BBb.las')
+steinkjer_2BBb_las 
+plot(steinkjer_2BBb_las)
+
+#steinkjer_2BBb_b
+
+steinkjer_2BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5]))
+steinkjer_2BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbb',4:5][steinkjer_2BBb_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+steinkjer_2BBb_b_pl <- Polygons(list(steinkjer_2BBb_b_poly),1)
+steinkjer_2BBb_b_sp <- SpatialPolygons(list(steinkjer_2BBb_b_pl))
+steinkjer_2BBb_b_polybuf <- gBuffer(steinkjer_2BBb_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_steinkjer_2BBb_b<-data.frame(ID=1)
+rownames(df1_steinkjer_2BBb_b)<-'buffer' 
+steinkjer_2BBb_b_spdf <- SpatialPolygonsDataFrame(steinkjer_2BBb_b_polybuf,data=df1_steinkjer_2BBb_b,match.ID = TRUE)
+
+steinkjer_2BBb_b_outerpoly<-lasclip(steinkjer_2BBb_las,steinkjer_2BBb_b_spdf)
+steinkjer_2BBb_b_outerpoly<-steinkjer_2BBb_b_outerpoly$`1`
+plot(steinkjer_2BBb_b_outerpoly)
+
+writeLAS(steinkjer_2BBb_b_outerpoly,'Trondelag/clipped_las/steinkjer_2BBb_b.las')
+
+#steinkjer_2BBb_ub
+steinkjer_2BBb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Bbub',4:5]))
+steinkjer_2BBb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Bbub',4:5][steinkjer_2BBb_ub_order,]))
+
+steinkjer_2BBb_ub_pl <- Polygons(list(steinkjer_2BBb_ub_poly),1)
+steinkjer_2BBb_ub_sp <- SpatialPolygons(list(steinkjer_2BBb_ub_pl))
+steinkjer_2BBb_ub_polybuf <- gBuffer(steinkjer_2BBb_ub_sp, width=6)
+
+df1_steinkjer_2BBb_ub<-data.frame(ID=1)
+rownames(df1_steinkjer_2BBb_ub)<-'buffer'
+steinkjer_2BBb_ub_spdf <- SpatialPolygonsDataFrame(steinkjer_2BBb_ub_polybuf,data=df1_steinkjer_2BBb_ub,match.ID = TRUE)
+
+steinkjer_2BBb_ub_outerpoly<-lasclip(steinkjer_2BBb_las,steinkjer_2BBb_ub_spdf)
+steinkjer_2BBb_ub_outerpoly<-steinkjer_2BBb_ub_outerpoly$`1`
+plot(steinkjer_2BBb_ub_outerpoly)
+
+writeLAS(steinkjer_2BBb_ub_outerpoly,'Trondelag/clipped_las/steinkjer_2BBb_ub.las')
+
+
+
+
+
+
+
+
+
+
+
+# Telemark ----------------------------------------------------------------
+
+
+
+# Drangedal1 --------------------------------------------------------------
+
+drangedal1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Drangedal1.las')
+drangedal1_las 
+plot(drangedal1_las)
+
+#drangedal1_b
+
+drangedal1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 1 B',10:9]))
+drangedal1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 1 B',10:9][drangedal1_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+drangedal1_b_pl <- Polygons(list(drangedal1_b_poly),1)
+drangedal1_b_sp <- SpatialPolygons(list(drangedal1_b_pl))
+drangedal1_b_polybuf <- gBuffer(drangedal1_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_drangedal1_b<-data.frame(ID=1)
+rownames(df1_drangedal1_b)<-'buffer' 
+drangedal1_b_spdf <- SpatialPolygonsDataFrame(drangedal1_b_polybuf,data=df1_drangedal1_b,match.ID = TRUE)
+
+drangedal1_b_outerpoly<-lasclip(drangedal1_las,drangedal1_b_spdf)
+drangedal1_b_outerpoly<-drangedal1_b_outerpoly$`1`
+plot(drangedal1_b_outerpoly)
+
+writeLAS(drangedal1_b_outerpoly,'Telemark/clipped_las/drangedal1_b.las')
+
+#drangedal1_ub
+drangedal1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 1 UB',10:9]))
+drangedal1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Drangedal 1 UB',10:9][drangedal1_ub_order,]))
+
+drangedal1_ub_pl <- Polygons(list(drangedal1_ub_poly),1)
+drangedal1_ub_sp <- SpatialPolygons(list(drangedal1_ub_pl))
+drangedal1_ub_polybuf <- gBuffer(drangedal1_ub_sp, width=6)
+
+df1_drangedal1_ub<-data.frame(ID=1)
+rownames(df1_drangedal1_ub)<-'buffer'
+drangedal1_ub_spdf <- SpatialPolygonsDataFrame(drangedal1_ub_polybuf,data=df1_drangedal1_ub,match.ID = TRUE)
+
+drangedal1_ub_outerpoly<-lasclip(drangedal1_las,drangedal1_ub_spdf)
+drangedal1_ub_outerpoly<-drangedal1_ub_outerpoly$`1`
+plot(drangedal1_ub_outerpoly)
+
+writeLAS(drangedal1_ub_outerpoly,'Telemark/clipped_las/drangedal1_ub.las')
 
