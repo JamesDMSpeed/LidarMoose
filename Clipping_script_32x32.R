@@ -209,6 +209,10 @@ writeLAS(steinkjer_2BBb_ub_outerpoly,'Trondelag/clipped_las/steinkjer_2BBb_ub.la
 
 
 
+
+
+
+
 # Telemark ----------------------------------------------------------------
 
 
@@ -257,4 +261,56 @@ drangedal1_ub_outerpoly<-drangedal1_ub_outerpoly$`1`
 plot(drangedal1_ub_outerpoly)
 
 writeLAS(drangedal1_ub_outerpoly,'Telemark/clipped_las/drangedal1_ub.las')
+
+
+
+
+# Nome_Cappelen2 ----------------------------------------------------------
+
+nome_cappelen_2_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Nome_Cappelen2.las')
+nome_cappelen_2_las 
+plot(nome_cappelen_2_las)
+
+#nome_cappelen_2_b
+
+nome_cappelen_2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9]))
+nome_cappelen_2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 B',10:9][nome_cappelen_2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+nome_cappelen_2_b_pl <- Polygons(list(nome_cappelen_2_b_poly),1)
+nome_cappelen_2_b_sp <- SpatialPolygons(list(nome_cappelen_2_b_pl))
+nome_cappelen_2_b_polybuf <- gBuffer(nome_cappelen_2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_nome_cappelen_2_b<-data.frame(ID=1)
+rownames(df1_nome_cappelen_2_b)<-'buffer' 
+nome_cappelen_2_b_spdf <- SpatialPolygonsDataFrame(nome_cappelen_2_b_polybuf,data=df1_nome_cappelen_2_b,match.ID = TRUE)
+
+nome_cappelen_2_b_outerpoly<-lasclip(nome_cappelen_2_las,nome_cappelen_2_b_spdf)
+nome_cappelen_2_b_outerpoly<-nome_cappelen_2_b_outerpoly$`1`
+plot(nome_cappelen_2_b_outerpoly)
+
+writeLAS(nome_cappelen_2_b_outerpoly,'Telemark/clipped_las/nome_cappelen_2_b.las')
+
+#nome_cappelen_2_ub
+nome_cappelen_2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9]))
+nome_cappelen_2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Cappelen 2 UB',10:9][nome_cappelen_2_ub_order,]))
+
+nome_cappelen_2_ub_pl <- Polygons(list(nome_cappelen_2_ub_poly),1)
+nome_cappelen_2_ub_sp <- SpatialPolygons(list(nome_cappelen_2_ub_pl))
+nome_cappelen_2_ub_polybuf <- gBuffer(nome_cappelen_2_ub_sp, width=6)
+
+df1_nome_cappelen_2_ub<-data.frame(ID=1)
+rownames(df1_nome_cappelen_2_ub)<-'buffer'
+nome_cappelen_2_ub_spdf <- SpatialPolygonsDataFrame(nome_cappelen_2_ub_polybuf,data=df1_nome_cappelen_2_ub,match.ID = TRUE)
+
+nome_cappelen_2_ub_outerpoly<-lasclip(nome_cappelen_2_las,nome_cappelen_2_ub_spdf)
+nome_cappelen_2_ub_outerpoly<-nome_cappelen_2_ub_outerpoly$`1`
+plot(nome_cappelen_2_ub_outerpoly)
+
+writeLAS(nome_cappelen_2_ub_outerpoly,'Telemark/clipped_las/nome_cappelen_2_ub.las')
+
+
+
+
 
