@@ -299,7 +299,21 @@ plot(canopy_diff_malvik_b)
 cellStats(canopy_diff_malvik_b,'max') #no trees over 7 m, so no need remove trees 
 
 
-writeRaster(canopy_diff_malvik_b,'Trondelag/canopy_height_clipped_raster/malvik_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+malvik_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5]))
+malvik_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5][malvik_b_order,]))
+malvik_b_cut<-lasclip(malvik_las,malvik_b_poly)
+plot(malvik_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_malvik_b_20x20 <-grid_terrain(malvik_b_cut,method='knnidw',res=1)
+canopymod_malvik_b_20x20  <-grid_canopy(malvik_b_cut,res=1)
+
+terrainmod_malvik_b_resampeled_20x20 <- resample(as.raster(terrainmod_malvik_b_20x20), as.raster(canopymod_malvik_b_20x20, method='bilinear'))
+canopy_diff_malvik_b_20x20 <- (as.raster(canopymod_malvik_b_20x20)-terrainmod_malvik_b_resampeled_20x20)
+plot(canopy_diff_malvik_b_20x20)
+
+writeRaster(canopy_diff_malvik_b_20x20,'Trondelag/canopy_height_clipped_raster/malvik_b_canopyheight', overwrite=TRUE)
 
 
 
@@ -313,7 +327,21 @@ plot(canopy_diff_malvik_ub)
 
 canopy_diff_malvik_ub # no trees over 7 m
 
-writeRaster(canopy_diff_malvik_ub,'Trondelag/canopy_height_clipped_raster/malvik_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+malvik_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5]))
+malvik_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5][malvik_ub_order,]))
+malvik_ub_cut<-lasclip(malvik_las,malvik_ub_poly)
+plot(malvik_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_malvik_ub_20x20 <-grid_terrain(malvik_ub_cut,method='knnidw',res=1)
+canopymod_malvik_ub_20x20  <-grid_canopy(malvik_ub_cut,res=1)
+
+terrainmod_malvik_ub_resampeled_20x20 <- resample(as.raster(terrainmod_malvik_ub_20x20), as.raster(canopymod_malvik_ub_20x20, method='bilinear'))
+canopy_diff_malvik_ub_20x20 <- (as.raster(canopymod_malvik_ub_20x20)-terrainmod_malvik_ub_resampeled_20x20)
+plot(canopy_diff_malvik_ub_20x20)
+
+writeRaster(canopy_diff_malvik_ub_20x20,'Trondelag/canopy_height_clipped_raster/malvik_ub_canopyheight', overwrite=TRUE)
 
 
 
