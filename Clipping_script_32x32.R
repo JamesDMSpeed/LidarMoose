@@ -105,3 +105,52 @@ selbu_kl_ub_outerpoly<-selbu_kl_ub_outerpoly$`1`
 plot(selbu_kl_ub_outerpoly)
 
 writeLAS(selbu_kl_ub_outerpoly,'Trondelag/clipped_las/selbu_kl_ub.las')
+
+
+# Singsaas ----------------------------------------------------------------
+
+singsaas_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Singsaas.las')
+singsaas_las 
+plot(singsaas_las)
+
+#singsaas_b
+
+singsaas_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Lab',4:5]))
+singsaas_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Lab',4:5][singsaas_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+singsaas_b_pl <- Polygons(list(singsaas_b_poly),1)
+singsaas_b_sp <- SpatialPolygons(list(singsaas_b_pl))
+singsaas_b_polybuf <- gBuffer(singsaas_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_singsaas_b<-data.frame(ID=1)
+rownames(df1_singsaas_b)<-'buffer' 
+singsaas_b_spdf <- SpatialPolygonsDataFrame(singsaas_b_polybuf,data=df1_singsaas_b,match.ID = TRUE)
+
+singsaas_b_outerpoly<-lasclip(singsaas_las,singsaas_b_spdf)
+singsaas_b_outerpoly<-singsaas_b_outerpoly$`1`
+plot(singsaas_b_outerpoly)
+
+writeLAS(singsaas_b_outerpoly,'Trondelag/clipped_las/singsaas_b.las')
+
+#singsaas_ub
+singsaas_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Laub',4:5]))
+singsaas_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Laub',4:5][singsaas_ub_order,]))
+
+singsaas_ub_pl <- Polygons(list(singsaas_ub_poly),1)
+singsaas_ub_sp <- SpatialPolygons(list(singsaas_ub_pl))
+singsaas_ub_polybuf <- gBuffer(singsaas_ub_sp, width=6)
+
+df1_singsaas_ub<-data.frame(ID=1)
+rownames(df1_singsaas_ub)<-'buffer'
+singsaas_ub_spdf <- SpatialPolygonsDataFrame(singsaas_ub_polybuf,data=df1_singsaas_ub,match.ID = TRUE)
+
+singsaas_ub_outerpoly<-lasclip(singsaas_las,singsaas_ub_spdf)
+singsaas_ub_outerpoly<-singsaas_ub_outerpoly$`1`
+plot(singsaas_ub_outerpoly)
+
+writeLAS(singsaas_ub_outerpoly,'Trondelag/clipped_las/singsaas_ub.las')
+
+
+
