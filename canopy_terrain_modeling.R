@@ -935,7 +935,21 @@ canopy_diff_steinkjer_1BBb_b<-(as.raster(canopymod_steinkjer_1BBb_b)-terrainmod_
 plot(canopy_diff_steinkjer_1BBb_b)
 canopy_diff_steinkjer_1BBb_b #max value 0,8
 
-writeRaster(canopy_diff_steinkjer_1BBb_b,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+steinkjer_1BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5]))
+steinkjer_1BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5][steinkjer_1BBb_b_order,]))
+steinkjer_1BBb_b_cut<-lasclip(steinkjer_1BBb_las,steinkjer_1BBb_b_poly)
+plot(steinkjer_1BBb_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_steinkjer_1BBb_b_20x20 <-grid_terrain(steinkjer_1BBb_b_cut,method='knnidw',res=1)
+canopymod_steinkjer_1BBb_b_20x20  <-grid_canopy(steinkjer_1BBb_b_cut,res=1)
+
+terrainmod_steinkjer_1BBb_b_resampeled_20x20 <- resample(as.raster(terrainmod_steinkjer_1BBb_b_20x20), as.raster(canopymod_steinkjer_1BBb_b_20x20, method='bilinear'))
+canopy_diff_steinkjer_1BBb_b_20x20 <- (as.raster(canopymod_steinkjer_1BBb_b_20x20)-terrainmod_steinkjer_1BBb_b_resampeled_20x20)
+plot(canopy_diff_steinkjer_1BBb_b_20x20)
+
+writeRaster(canopy_diff_steinkjer_1BBb_b_20x20,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_b_canopyheight', overwrite=TRUE)
 
 
 # Steinkjer_1BBb_ub
@@ -947,7 +961,22 @@ canopy_diff_steinkjer_1BBb_ub <- (as.raster(canopymod_steinkjer_1BBb_ub)-terrain
 plot(canopy_diff_steinkjer_1BBb_ub)
 canopy_diff_steinkjer_1BBb_ub # max 1.1
 
-writeRaster(canopy_diff_steinkjer_1BBb_ub,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+steinkjer_1BBb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbub',4:5]))
+steinkjer_1BBb_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Bbub',4:5][steinkjer_1BBb_ub_order,]))
+steinkjer_1BBb_ub_cut<-lasclip(steinkjer_1BBb_las,steinkjer_1BBb_ub_poly)
+plot(steinkjer_1BBb_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_steinkjer_1BBb_ub_20x20 <-grid_terrain(steinkjer_1BBb_ub_cut,method='knnidw',res=1)
+canopymod_steinkjer_1BBb_ub_20x20  <-grid_canopy(steinkjer_1BBb_ub_cut,res=1)
+
+terrainmod_steinkjer_1BBb_ub_resampeled_20x20 <- resample(as.raster(terrainmod_steinkjer_1BBb_ub_20x20), as.raster(canopymod_steinkjer_1BBb_ub_20x20, method='bilinear'))
+canopy_diff_steinkjer_1BBb_ub_20x20 <- (as.raster(canopymod_steinkjer_1BBb_ub_20x20)-terrainmod_steinkjer_1BBb_ub_resampeled_20x20)
+plot(canopy_diff_steinkjer_1BBb_ub_20x20)
+
+writeRaster(canopy_diff_steinkjer_1BBb_ub_20x20,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_ub_canopyheight', overwrite=TRUE)
+
 
 
 # Steinkjer_2BBb ----------------------------------------------------------
