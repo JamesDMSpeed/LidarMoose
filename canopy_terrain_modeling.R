@@ -1104,7 +1104,21 @@ plot(sub_namdalseid_b_clip)
 canopy_diff_sub_namdalseid_b_clip <- (as.raster(grid_canopy(sub_namdalseid_b_clip,res=0.5))-(crop(as.raster(grid_terrain(sub_namdalseid_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sub_namdalseid_b_clip,res=0.5)))))
 plot(canopy_diff_sub_namdalseid_b_clip)
 
-writeRaster(canopy_diff_sub_namdalseid_b_clip,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+sub_namdalseid_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Sb',4:5]))
+sub_namdalseid_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Sb',4:5][sub_namdalseid_b_order,]))
+sub_namdalseid_b_cut<-lasclip(sub_namdalseid_b_clip,sub_namdalseid_b_poly)
+plot(sub_namdalseid_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sub_namdalseid_b_20x20 <-grid_terrain(sub_namdalseid_b_cut,method='knnidw',res=1)
+canopymod_sub_namdalseid_b_20x20  <-grid_canopy(sub_namdalseid_b_cut,res=1)
+
+terrainmod_sub_namdalseid_b_resampeled_20x20 <- resample(as.raster(terrainmod_sub_namdalseid_b_20x20), as.raster(canopymod_sub_namdalseid_b_20x20, method='bilinear'))
+canopy_diff_sub_namdalseid_b_20x20 <- (as.raster(canopymod_sub_namdalseid_b_20x20)-terrainmod_sub_namdalseid_b_resampeled_20x20)
+plot(canopy_diff_sub_namdalseid_b_20x20)
+
+writeRaster(canopy_diff_sub_namdalseid_b_20x20,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_b_canopyheight', overwrite=TRUE)
 
 
 # sub_namdalseid_ub
@@ -1136,7 +1150,21 @@ plot(sub_namdalseid_ub_clip)
 canopy_diff_sub_namdalseid_ub_clip <- (as.raster(grid_canopy(sub_namdalseid_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(sub_namdalseid_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sub_namdalseid_ub_clip,res=0.5)))))
 plot(canopy_diff_sub_namdalseid_ub_clip)
 
-writeRaster(canopy_diff_sub_namdalseid_ub_clip,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+sub_namdalseid_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Sub',4:5]))
+sub_namdalseid_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Sub',4:5][sub_namdalseid_ub_order,]))
+sub_namdalseid_ub_cut<-lasclip(sub_namdalseid_ub_clip,sub_namdalseid_ub_poly)
+plot(sub_namdalseid_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sub_namdalseid_ub_20x20 <-grid_terrain(sub_namdalseid_ub_cut,method='knnidw',res=1)
+canopymod_sub_namdalseid_ub_20x20  <-grid_canopy(sub_namdalseid_ub_cut,res=1)
+
+terrainmod_sub_namdalseid_ub_resampeled_20x20 <- resample(as.raster(terrainmod_sub_namdalseid_ub_20x20), as.raster(canopymod_sub_namdalseid_ub_20x20, method='bilinear'))
+canopy_diff_sub_namdalseid_ub_20x20 <- (as.raster(canopymod_sub_namdalseid_ub_20x20)-terrainmod_sub_namdalseid_ub_resampeled_20x20)
+plot(canopy_diff_sub_namdalseid_ub_20x20)
+
+writeRaster(canopy_diff_sub_namdalseid_ub_20x20,'Trondelag/canopy_height_clipped_raster/sub_namdalseid_ub_canopyheight', overwrite=TRUE)
 
 
 
