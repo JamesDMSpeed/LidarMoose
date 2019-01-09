@@ -527,6 +527,7 @@ writeRaster(canopy_diff_nsb_verdal_ub_20x20,'Trondelag/canopy_height_clipped_ras
 
 
 # Selbu flub_b
+
 terrainmod_selbu_flub_b  <-grid_terrain(selbu_flub_b, method='knnidw',res=1)
 canopymod_selbu_flub_b   <-grid_canopy(selbu_flub_b,res=1)
 
@@ -535,7 +536,22 @@ canopy_diff_selbu_flub_b<-(as.raster(canopymod_selbu_flub_b)-terrainmod_selbu_fl
 plot(canopy_diff_selbu_flub_b)
 canopy_diff_selbu_flub_b #max value 5,9
 
-writeRaster(canopy_diff_selbu_flub_b,'Trondelag/canopy_height_clipped_raster/selbu_flub_b_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+selbu_flub_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5]))
+selbu_flub_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5][selbu_flub_b_order,]))
+selbu_flub_b_cut<-lasclip(selbu_flub_las,selbu_flub_b_poly)
+plot(selbu_flub_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_selbu_flub_b_20x20 <-grid_terrain(selbu_flub_b_cut,method='knnidw',res=1)
+canopymod_selbu_flub_b_20x20  <-grid_canopy(selbu_flub_b_cut,res=1)
+
+terrainmod_selbu_flub_b_resampeled_20x20 <- resample(as.raster(terrainmod_selbu_flub_b_20x20), as.raster(canopymod_selbu_flub_b_20x20, method='bilinear'))
+canopy_diff_selbu_flub_b_20x20 <- (as.raster(canopymod_selbu_flub_b_20x20)-terrainmod_selbu_flub_b_resampeled_20x20)
+plot(canopy_diff_selbu_flub_b_20x20)
+
+writeRaster(canopy_diff_selbu_flub_b_20x20,'Trondelag/canopy_height_clipped_raster/selbu_flub_b_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -548,7 +564,21 @@ canopy_diff_selbu_flub_ub <- (as.raster(canopymod_selbu_flub_ub)-terrainmod_selb
 plot(canopy_diff_selbu_flub_ub)
 canopy_diff_selbu_flub_ub # max value 5,5 m
 
-writeRaster(canopy_diff_selbu_flub_ub,'Trondelag/canopy_height_clipped_raster/selbu_flub_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+selbu_flub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5]))
+selbu_flub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5][selbu_flub_ub_order,]))
+selbu_flub_ub_cut<-lasclip(selbu_flub_las,selbu_flub_ub_poly)
+plot(selbu_flub_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_selbu_flub_ub_20x20 <-grid_terrain(selbu_flub_ub_cut,method='knnidw',res=1)
+canopymod_selbu_flub_ub_20x20  <-grid_canopy(selbu_flub_ub_cut,res=1)
+
+terrainmod_selbu_flub_ub_resampeled_20x20 <- resample(as.raster(terrainmod_selbu_flub_ub_20x20), as.raster(canopymod_selbu_flub_ub_20x20, method='bilinear'))
+canopy_diff_selbu_flub_ub_20x20 <- (as.raster(canopymod_selbu_flub_ub_20x20)-terrainmod_selbu_flub_ub_resampeled_20x20)
+plot(canopy_diff_selbu_flub_ub_20x20)
+
+writeRaster(canopy_diff_selbu_flub_ub_20x20,'Trondelag/canopy_height_clipped_raster/selbu_flub_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -677,7 +707,21 @@ plot(selbu_sl_b_clip) #point cloud without large trees
 canopy_diff_selbu_sl_b_clip <- (as.raster(grid_canopy(selbu_sl_b_clip,res=0.5))-(crop(as.raster(grid_terrain(selbu_sl_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(selbu_sl_b_clip,res=0.5)))))
 plot(canopy_diff_selbu_sl_b_clip)
 
-writeRaster(canopy_diff_selbu_sl_b_clip,'Trondelag/canopy_height_clipped_raster/selbu_sl_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+selbu_sl_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Slb',4:5]))
+selbu_sl_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Slb',4:5][selbu_sl_b_order,]))
+selbu_sl_b_cut<-lasclip(selbu_sl_b_clip,selbu_sl_b_poly)
+plot(selbu_sl_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_selbu_sl_b_20x20 <-grid_terrain(selbu_sl_b_cut,method='knnidw',res=1)
+canopymod_selbu_sl_b_20x20  <-grid_canopy(selbu_sl_b_cut,res=1)
+
+terrainmod_selbu_sl_b_resampeled_20x20 <- resample(as.raster(terrainmod_selbu_sl_b_20x20), as.raster(canopymod_selbu_sl_b_20x20, method='bilinear'))
+canopy_diff_selbu_sl_b_20x20 <- (as.raster(canopymod_selbu_sl_b_20x20)-terrainmod_selbu_sl_b_resampeled_20x20)
+plot(canopy_diff_selbu_sl_b_20x20)
+
+writeRaster(canopy_diff_selbu_sl_b_20x20,'Trondelag/canopy_height_clipped_raster/selbu_sl_b_canopyheight', overwrite=TRUE)
 
 
 
@@ -690,7 +734,21 @@ canopy_diff_selbu_sl_ub <- (as.raster(canopymod_selbu_sl_ub)-terrainmod_selbu_sl
 plot(canopy_diff_selbu_sl_ub)
 canopy_diff_selbu_sl_ub #max value 3,77 m
 
-writeRaster(canopy_diff_selbu_sl_ub,'Trondelag/canopy_height_clipped_raster/selbu_sl_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+selbu_sl_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Slub',4:5]))
+selbu_sl_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Slub',4:5][selbu_sl_ub_order,]))
+selbu_sl_ub_cut<-lasclip(selbu_sl_las,selbu_sl_ub_poly)
+plot(selbu_sl_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_selbu_sl_ub_20x20 <-grid_terrain(selbu_sl_ub_cut,method='knnidw',res=1)
+canopymod_selbu_sl_ub_20x20  <-grid_canopy(selbu_sl_ub_cut,res=1)
+
+terrainmod_selbu_sl_ub_resampeled_20x20 <- resample(as.raster(terrainmod_selbu_sl_ub_20x20), as.raster(canopymod_selbu_sl_ub_20x20, method='bilinear'))
+canopy_diff_selbu_sl_ub_20x20 <- (as.raster(canopymod_selbu_sl_ub_20x20)-terrainmod_selbu_sl_ub_resampeled_20x20)
+plot(canopy_diff_selbu_sl_ub_20x20)
+
+writeRaster(canopy_diff_selbu_sl_ub_20x20,'Trondelag/canopy_height_clipped_raster/selbu_sl_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -821,7 +879,22 @@ plot(sl_tydal_b_clip)
 canopy_diff_sl_tydal_b_clip <- (as.raster(grid_canopy(sl_tydal_b_clip,res=0.5))-(crop(as.raster(grid_terrain(sl_tydal_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sl_tydal_b_clip,res=0.5)))))
 plot(canopy_diff_sl_tydal_b_clip)
 
-writeRaster(canopy_diff_sl_tydal_b_clip,'Trondelag/canopy_height_clipped_raster/sl_tydal_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+sl_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Seb',4:5]))
+sl_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Seb',4:5][sl_tydal_b_order,]))
+sl_tydal_b_cut<-lasclip(sl_tydal_b_clip,sl_tydal_b_poly)
+plot(sl_tydal_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sl_tydal_b_20x20 <-grid_terrain(sl_tydal_b_cut,method='knnidw',res=1)
+canopymod_sl_tydal_b_20x20  <-grid_canopy(sl_tydal_b_cut,res=1)
+
+terrainmod_sl_tydal_b_resampeled_20x20 <- resample(as.raster(terrainmod_sl_tydal_b_20x20), as.raster(canopymod_sl_tydal_b_20x20, method='bilinear'))
+canopy_diff_sl_tydal_b_20x20 <- (as.raster(canopymod_sl_tydal_b_20x20)-terrainmod_sl_tydal_b_resampeled_20x20)
+plot(canopy_diff_sl_tydal_b_20x20)
+
+writeRaster(canopy_diff_sl_tydal_b_20x20,'Trondelag/canopy_height_clipped_raster/sl_tydal_b_canopyheight', overwrite=TRUE)
+
 
 
 # sl_tydal_ub
@@ -833,7 +906,21 @@ canopy_diff_sl_tydal_ub <- (as.raster(canopymod_sl_tydal_ub)-terrainmod_sl_tydal
 plot(canopy_diff_sl_tydal_ub)
 canopy_diff_sl_tydal_ub #max value 5,8
 
-writeRaster(canopy_diff_sl_tydal_ub,'Trondelag/canopy_height_clipped_raster/sl_tydal_ub_canopyheight')
+#Cutting the 32x32m square to 20x20 m
+sl_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5]))
+sl_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5][sl_tydal_ub_order,]))
+sl_tydal_ub_cut<-lasclip(sl_tydal_las,sl_tydal_ub_poly)
+plot(sl_tydal_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sl_tydal_ub_20x20 <-grid_terrain(sl_tydal_ub_cut,method='knnidw',res=1)
+canopymod_sl_tydal_ub_20x20  <-grid_canopy(sl_tydal_ub_cut,res=1)
+
+terrainmod_sl_tydal_ub_resampeled_20x20 <- resample(as.raster(terrainmod_sl_tydal_ub_20x20), as.raster(canopymod_sl_tydal_ub_20x20, method='bilinear'))
+canopy_diff_sl_tydal_ub_20x20 <- (as.raster(canopymod_sl_tydal_ub_20x20)-terrainmod_sl_tydal_ub_resampeled_20x20)
+plot(canopy_diff_sl_tydal_ub_20x20)
+
+writeRaster(canopy_diff_sl_tydal_ub_20x20,'Trondelag/canopy_height_clipped_raster/sl_tydal_ub_canopyheight', overwrite=TRUE)
 
 
 # steinkjer_1BBb ----------------------------------------------------------
