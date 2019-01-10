@@ -872,6 +872,97 @@ plot(drangedal4_ub_outerpoly)
 writeLAS(drangedal4_ub_outerpoly,'Telemark/clipped_las/drangedal4_ub.las')
 
 
+# Fritsoe1 -----------------------------------------------------------------
+fritsoe1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Fritsoe1.las')
+fritsoe1_las 
+plot(fritsoe1_las)
+
+#fritsoe1_b
+
+fritsoe1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9]))
+fritsoe1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9][fritsoe1_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+fritsoe1_b_pl <- Polygons(list(fritsoe1_b_poly),1)
+fritsoe1_b_sp <- SpatialPolygons(list(fritsoe1_b_pl))
+fritsoe1_b_polybuf <- gBuffer(fritsoe1_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_fritsoe1_b<-data.frame(ID=1)
+rownames(df1_fritsoe1_b)<-'buffer' 
+fritsoe1_b_spdf <- SpatialPolygonsDataFrame(fritsoe1_b_polybuf,data=df1_fritsoe1_b,match.ID = TRUE)
+
+fritsoe1_b_outerpoly<-lasclip(fritsoe1_las,fritsoe1_b_spdf)
+fritsoe1_b_outerpoly<-fritsoe1_b_outerpoly$`1`
+plot(fritsoe1_b_outerpoly)
+
+writeLAS(fritsoe1_b_outerpoly,'Telemark/clipped_las/fritsoe1_b.las')
+
+#fritsoe1_ub
+fritsoe1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9]))
+fritsoe1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9][fritsoe1_ub_order,]))
+
+fritsoe1_ub_pl <- Polygons(list(fritsoe1_ub_poly),1)
+fritsoe1_ub_sp <- SpatialPolygons(list(fritsoe1_ub_pl))
+fritsoe1_ub_polybuf <- gBuffer(fritsoe1_ub_sp, width=6)
+
+df1_fritsoe1_ub<-data.frame(ID=1)
+rownames(df1_fritsoe1_ub)<-'buffer'
+fritsoe1_ub_spdf <- SpatialPolygonsDataFrame(fritsoe1_ub_polybuf,data=df1_fritsoe1_ub,match.ID = TRUE)
+
+fritsoe1_ub_outerpoly<-lasclip(fritsoe1_las,fritsoe1_ub_spdf)
+fritsoe1_ub_outerpoly<-fritsoe1_ub_outerpoly$`1`
+plot(fritsoe1_ub_outerpoly)
+
+writeLAS(fritsoe1_ub_outerpoly,'Telemark/clipped_las/fritsoe1_ub.las')
+
+
+
+# Fritsoe2 ----------------------------------------------------------------
+
+fritsoe2_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Fritsoe2.las')
+fritsoe2_las 
+plot(fritsoe2_las)
+
+
+#fritsoe2_b
+
+fritsoe2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9]))
+fritsoe2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9][fritsoe2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+fritsoe2_b_pl <- Polygons(list(fritsoe2_b_poly),1)
+fritsoe2_b_sp <- SpatialPolygons(list(fritsoe2_b_pl))
+fritsoe2_b_polybuf <- gBuffer(fritsoe2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_fritsoe2_b<-data.frame(ID=1)
+rownames(df1_fritsoe2_b)<-'buffer' 
+fritsoe2_b_spdf <- SpatialPolygonsDataFrame(fritsoe2_b_polybuf,data=df1_fritsoe2_b,match.ID = TRUE)
+
+fritsoe2_b_outerpoly<-lasclip(fritsoe2_las,fritsoe2_b_spdf)
+fritsoe2_b_outerpoly<-fritsoe2_b_outerpoly$`1`
+plot(fritsoe2_b_outerpoly)
+
+writeLAS(fritsoe2_b_outerpoly,'Telemark/clipped_las/fritsoe2_b.las')
+
+#fritsoe2_ub
+fritsoe2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9]))
+fritsoe2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9][fritsoe2_ub_order,]))
+
+fritsoe2_ub_pl <- Polygons(list(fritsoe2_ub_poly),1)
+fritsoe2_ub_sp <- SpatialPolygons(list(fritsoe2_ub_pl))
+fritsoe2_ub_polybuf <- gBuffer(fritsoe2_ub_sp, width=6)
+
+df1_fritsoe2_ub<-data.frame(ID=1)
+rownames(df1_fritsoe2_ub)<-'buffer'
+fritsoe2_ub_spdf <- SpatialPolygonsDataFrame(fritsoe2_ub_polybuf,data=df1_fritsoe2_ub,match.ID = TRUE)
+
+fritsoe2_ub_outerpoly<-lasclip(fritsoe2_las,fritsoe2_ub_spdf)
+fritsoe2_ub_outerpoly<-fritsoe2_ub_outerpoly$`1`
+plot(fritsoe2_ub_outerpoly)
+
+writeLAS(fritsoe2_ub_outerpoly,'Telemark/clipped_las/fritsoe2_ub.las')
 
 # Nome_Cappelen1 ----------------------------------------------------------
 
