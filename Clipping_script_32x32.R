@@ -1200,3 +1200,59 @@ writeLAS(nome_cappelen_2_ub_outerpoly,'Telemark/clipped_las/nome_cappelen_2_ub.l
 
 
 
+
+
+
+# Notodden3 ---------------------------------------------------------------
+notodden3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden3.las')
+notodden3_las 
+plot(notodden3_las)
+
+#notodden3_b
+
+notodden3_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9]))
+notodden3_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9][notodden3_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+notodden3_b_pl <- Polygons(list(notodden3_b_poly),1)
+notodden3_b_sp <- SpatialPolygons(list(notodden3_b_pl))
+notodden3_b_polybuf <- gBuffer(notodden3_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_notodden3_b<-data.frame(ID=1)
+rownames(df1_notodden3_b)<-'buffer' 
+notodden3_b_spdf <- SpatialPolygonsDataFrame(notodden3_b_polybuf,data=df1_notodden3_b,match.ID = TRUE)
+
+notodden3_b_outerpoly<-lasclip(notodden3_las,notodden3_b_spdf)
+notodden3_b_outerpoly<-notodden3_b_outerpoly$`1`
+plot(notodden3_b_outerpoly)
+
+writeLAS(notodden3_b_outerpoly,'Telemark/clipped_las/notodden3_b.las')
+
+#notodden3_ub
+notodden3_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9]))
+notodden3_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9][notodden3_ub_order,]))
+
+notodden3_ub_pl <- Polygons(list(notodden3_ub_poly),1)
+notodden3_ub_sp <- SpatialPolygons(list(notodden3_ub_pl))
+notodden3_ub_polybuf <- gBuffer(notodden3_ub_sp, width=6)
+
+df1_notodden3_ub<-data.frame(ID=1)
+rownames(df1_notodden3_ub)<-'buffer'
+notodden3_ub_spdf <- SpatialPolygonsDataFrame(notodden3_ub_polybuf,data=df1_notodden3_ub,match.ID = TRUE)
+
+notodden3_ub_outerpoly<-lasclip(notodden3_las,notodden3_ub_spdf)
+notodden3_ub_outerpoly<-notodden3_ub_outerpoly$`1`
+plot(notodden3_ub_outerpoly)
+
+writeLAS(notodden3_ub_outerpoly,'Telemark/clipped_las/notodden3_ub.las')
+
+# Notodden5 ---------------------------------------------------------------
+
+
+# Notodden6 --------------------------------------------------------------
+
+
+# Fyresdal ----------------------------------------------------------------
+
+
