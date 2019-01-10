@@ -1662,3 +1662,89 @@ plot(stangeskovene_eidskog_ub_outerpoly)
 writeLAS(stangeskovene_eidskog_ub_outerpoly,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
 
 
+# Stig Dahlen -------------------------------------------------------------
+stig_dahlen_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stig_Dahlen.las') 
+stig_dahlen_las 
+plot(stig_dahlen_las)
+
+
+#stig_dahlen_b
+stig_dahlen_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD2',15:14]))
+stig_dahlen_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD2',15:14][stig_dahlen_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+stig_dahlen_b_pl <- Polygons(list(stig_dahlen_b_poly),1)
+stig_dahlen_b_sp <- SpatialPolygons(list(stig_dahlen_b_pl))
+stig_dahlen_b_polybuf <- gBuffer(stig_dahlen_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_stig_dahlen_b<-data.frame(ID=1)
+rownames(df1_stig_dahlen_b)<-'buffer' 
+stig_dahlen_b_spdf <- SpatialPolygonsDataFrame(stig_dahlen_b_polybuf,data=df1_stig_dahlen_b,match.ID = TRUE)
+
+stig_dahlen_b_outerpoly<-lasclip(stig_dahlen_las,stig_dahlen_b_spdf)
+stig_dahlen_b_outerpoly<-stig_dahlen_b_outerpoly$`1`
+plot(stig_dahlen_b_outerpoly) 
+
+writeLAS(stig_dahlen_b_outerpoly,'Hedmark_Akershus/clipped_las/stig_dahlen_b.las')
+
+#stig_dahlen_ub
+stig_dahlen_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD1',15:14]))
+stig_dahlen_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SD1',15:14][stig_dahlen_ub_order,]))
+
+stig_dahlen_ub_pl <- Polygons(list(stig_dahlen_ub_poly),1)
+stig_dahlen_ub_sp <- SpatialPolygons(list(stig_dahlen_ub_pl))
+stig_dahlen_ub_polybuf <- gBuffer(stig_dahlen_ub_sp, width=6)
+
+df1_stig_dahlen_ub<-data.frame(ID=1)
+rownames(df1_stig_dahlen_ub)<-'buffer'
+stig_dahlen_ub_spdf <- SpatialPolygonsDataFrame(stig_dahlen_ub_polybuf,data=df1_stig_dahlen_ub,match.ID = TRUE)
+
+stig_dahlen_ub_outerpoly<-lasclip(stig_dahlen_las,stig_dahlen_ub_spdf)
+stig_dahlen_ub_outerpoly<-stig_dahlen_ub_outerpoly$`1`
+plot(stig_dahlen_ub_outerpoly) 
+
+writeLAS(stig_dahlen_ub_outerpoly,'Hedmark_Akershus/clipped_las/stig_dahlen_ub.las')
+
+# Truls Holm --------------------------------------------------------------
+truls_holm_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Truls_Holm.las') 
+truls_holm_las 
+plot(truls_holm_las)
+
+#truls_holm_b
+truls_holm_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH1',15:14]))
+truls_holm_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH1',15:14][truls_holm_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+truls_holm_b_pl <- Polygons(list(truls_holm_b_poly),1)
+truls_holm_b_sp <- SpatialPolygons(list(truls_holm_b_pl))
+truls_holm_b_polybuf <- gBuffer(truls_holm_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_truls_holm_b<-data.frame(ID=1)
+rownames(df1_truls_holm_b)<-'buffer' 
+truls_holm_b_spdf <- SpatialPolygonsDataFrame(truls_holm_b_polybuf,data=df1_truls_holm_b,match.ID = TRUE)
+
+truls_holm_b_outerpoly<-lasclip(truls_holm_las,truls_holm_b_spdf)
+truls_holm_b_outerpoly<-truls_holm_b_outerpoly$`1`
+plot(truls_holm_b_outerpoly) 
+
+writeLAS(truls_holm_b_outerpoly,'Hedmark_Akershus/clipped_las/truls_holm_b.las')
+
+#truls_holm_ub
+truls_holm_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH2',15:14]))
+truls_holm_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='TH2',15:14][truls_holm_ub_order,]))
+
+truls_holm_ub_pl <- Polygons(list(truls_holm_ub_poly),1)
+truls_holm_ub_sp <- SpatialPolygons(list(truls_holm_ub_pl))
+truls_holm_ub_polybuf <- gBuffer(truls_holm_ub_sp, width=6)
+
+df1_truls_holm_ub<-data.frame(ID=1)
+rownames(df1_truls_holm_ub)<-'buffer'
+truls_holm_ub_spdf <- SpatialPolygonsDataFrame(truls_holm_ub_polybuf,data=df1_truls_holm_ub,match.ID = TRUE)
+
+truls_holm_ub_outerpoly<-lasclip(truls_holm_las,truls_holm_ub_spdf)
+truls_holm_ub_outerpoly<-truls_holm_ub_outerpoly$`1`
+plot(truls_holm_ub_outerpoly) 
+
+writeLAS(truls_holm_ub_outerpoly,'Hedmark_Akershus/clipped_las/truls_holm_ub.las')
