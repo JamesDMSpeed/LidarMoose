@@ -1482,3 +1482,183 @@ writeLAS(eidskog_ub_outerpoly,'Hedmark_Akershus/clipped_las/eidskog_ub.las')
 fet3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Fet3.las') 
 fet3_las 
 plot(fet3_las) 
+
+#fet3_b
+
+fet3_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14]))
+fet3_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14][fet3_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+fet3_b_pl <- Polygons(list(fet3_b_poly),1)
+fet3_b_sp <- SpatialPolygons(list(fet3_b_pl))
+fet3_b_polybuf <- gBuffer(fet3_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_fet3_b<-data.frame(ID=1)
+rownames(df1_fet3_b)<-'buffer' 
+fet3_b_spdf <- SpatialPolygonsDataFrame(fet3_b_polybuf,data=df1_fet3_b,match.ID = TRUE)
+
+fet3_b_outerpoly<-lasclip(fet3_las,fet3_b_spdf)
+fet3_b_outerpoly<-fet3_b_outerpoly$`1`
+plot(fet3_b_outerpoly)
+
+writeLAS(fet3_b_outerpoly,'Hedmark_Akershus/clipped_las/fet3_b.las')
+
+#fet3_ub
+fet3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14]))
+fet3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14][fet3_ub_order,]))
+
+fet3_ub_pl <- Polygons(list(fet3_ub_poly),1)
+fet3_ub_sp <- SpatialPolygons(list(fet3_ub_pl))
+fet3_ub_polybuf <- gBuffer(fet3_ub_sp, width=6)
+
+df1_fet3_ub<-data.frame(ID=1)
+rownames(df1_fet3_ub)<-'buffer'
+fet3_ub_spdf <- SpatialPolygonsDataFrame(fet3_ub_polybuf,data=df1_fet3_ub,match.ID = TRUE)
+
+fet3_ub_outerpoly<-lasclip(fet3_las,fet3_ub_spdf)
+fet3_ub_outerpoly<-fet3_ub_outerpoly$`1`
+plot(fet3_ub_outerpoly)
+
+writeLAS(fet3_ub_outerpoly,'Hedmark_Akershus/clipped_las/fet3_ub.las')
+
+
+
+# halvard_pramhus ---------------------------------------------------------------
+
+halvard_pramhus_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Halvard_Pramhus.las') 
+halvard_pramhus_las 
+plot(halvard_pramhus_las)
+
+#halvard_pramhus_b
+
+halvard_pramhus_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14]))
+halvard_pramhus_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14][halvard_pramhus_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+halvard_pramhus_b_pl <- Polygons(list(halvard_pramhus_b_poly),1)
+halvard_pramhus_b_sp <- SpatialPolygons(list(halvard_pramhus_b_pl))
+halvard_pramhus_b_polybuf <- gBuffer(halvard_pramhus_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_halvard_pramhus_b<-data.frame(ID=1)
+rownames(df1_halvard_pramhus_b)<-'buffer' 
+halvard_pramhus_b_spdf <- SpatialPolygonsDataFrame(halvard_pramhus_b_polybuf,data=df1_halvard_pramhus_b,match.ID = TRUE)
+
+halvard_pramhus_b_outerpoly<-lasclip(halvard_pramhus_las,halvard_pramhus_b_spdf)
+halvard_pramhus_b_outerpoly<-halvard_pramhus_b_outerpoly$`1`
+plot(halvard_pramhus_b_outerpoly) #noen høytliggende punkter, helt blå flate. 20x20 flatene var fine
+
+writeLAS(halvard_pramhus_b_outerpoly,'Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
+
+#halvard_pramhus_ub
+halvard_pramhus_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14]))
+halvard_pramhus_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14][halvard_pramhus_ub_order,]))
+
+halvard_pramhus_ub_pl <- Polygons(list(halvard_pramhus_ub_poly),1)
+halvard_pramhus_ub_sp <- SpatialPolygons(list(halvard_pramhus_ub_pl))
+halvard_pramhus_ub_polybuf <- gBuffer(halvard_pramhus_ub_sp, width=6)
+
+df1_halvard_pramhus_ub<-data.frame(ID=1)
+rownames(df1_halvard_pramhus_ub)<-'buffer'
+halvard_pramhus_ub_spdf <- SpatialPolygonsDataFrame(halvard_pramhus_ub_polybuf,data=df1_halvard_pramhus_ub,match.ID = TRUE)
+
+halvard_pramhus_ub_outerpoly<-lasclip(halvard_pramhus_las,halvard_pramhus_ub_spdf)
+halvard_pramhus_ub_outerpoly<-halvard_pramhus_ub_outerpoly$`1`
+plot(halvard_pramhus_ub_outerpoly) #helt blå flate. 20x20 flaten var fin
+
+writeLAS(halvard_pramhus_ub_outerpoly,'Hedmark_Akershus/clipped_las/halvard_pramhus_ub.las')
+
+
+
+# Stangeskovene Aurskog ---------------------------------------------------
+
+stangeskovene_aurskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stangeskovene_Aurskog.las') 
+stangeskovene_aurskog_las 
+plot(stangeskovene_aurskog_las)
+
+
+#stangeskovene_aurskog_b
+stangeskovene_aurskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA1',15:14]))
+stangeskovene_aurskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA1',15:14][stangeskovene_aurskog_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+stangeskovene_aurskog_b_pl <- Polygons(list(stangeskovene_aurskog_b_poly),1)
+stangeskovene_aurskog_b_sp <- SpatialPolygons(list(stangeskovene_aurskog_b_pl))
+stangeskovene_aurskog_b_polybuf <- gBuffer(stangeskovene_aurskog_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_stangeskovene_aurskog_b<-data.frame(ID=1)
+rownames(df1_stangeskovene_aurskog_b)<-'buffer' 
+stangeskovene_aurskog_b_spdf <- SpatialPolygonsDataFrame(stangeskovene_aurskog_b_polybuf,data=df1_stangeskovene_aurskog_b,match.ID = TRUE)
+
+stangeskovene_aurskog_b_outerpoly<-lasclip(stangeskovene_aurskog_las,stangeskovene_aurskog_b_spdf)
+stangeskovene_aurskog_b_outerpoly<-stangeskovene_aurskog_b_outerpoly$`1`
+plot(stangeskovene_aurskog_b_outerpoly) 
+
+writeLAS(stangeskovene_aurskog_b_outerpoly,'Hedmark_Akershus/clipped_las/stangeskovene_aurskog_b.las')
+
+#stangeskovene_aurskog_ub
+stangeskovene_aurskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA2',15:14]))
+stangeskovene_aurskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA2',15:14][stangeskovene_aurskog_ub_order,]))
+
+stangeskovene_aurskog_ub_pl <- Polygons(list(stangeskovene_aurskog_ub_poly),1)
+stangeskovene_aurskog_ub_sp <- SpatialPolygons(list(stangeskovene_aurskog_ub_pl))
+stangeskovene_aurskog_ub_polybuf <- gBuffer(stangeskovene_aurskog_ub_sp, width=6)
+
+df1_stangeskovene_aurskog_ub<-data.frame(ID=1)
+rownames(df1_stangeskovene_aurskog_ub)<-'buffer'
+stangeskovene_aurskog_ub_spdf <- SpatialPolygonsDataFrame(stangeskovene_aurskog_ub_polybuf,data=df1_stangeskovene_aurskog_ub,match.ID = TRUE)
+
+stangeskovene_aurskog_ub_outerpoly<-lasclip(stangeskovene_aurskog_las,stangeskovene_aurskog_ub_spdf)
+stangeskovene_aurskog_ub_outerpoly<-stangeskovene_aurskog_ub_outerpoly$`1`
+plot(stangeskovene_aurskog_ub_outerpoly) 
+
+writeLAS(stangeskovene_aurskog_ub_outerpoly,'Hedmark_Akershus/clipped_las/stangeskovene_aurskog_ub.las')
+
+
+# Stangeskovene Eidskog ---------------------------------------------------
+stangeskovene_eidskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stangeskovene_Eidskog.las') 
+stangeskovene_eidskog_las 
+plot(stangeskovene_eidskog_las)
+
+
+#stangeskovene_eidskog_b
+stangeskovene_eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14]))
+stangeskovene_eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14][stangeskovene_eidskog_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+stangeskovene_eidskog_b_pl <- Polygons(list(stangeskovene_eidskog_b_poly),1)
+stangeskovene_eidskog_b_sp <- SpatialPolygons(list(stangeskovene_eidskog_b_pl))
+stangeskovene_eidskog_b_polybuf <- gBuffer(stangeskovene_eidskog_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_stangeskovene_eidskog_b<-data.frame(ID=1)
+rownames(df1_stangeskovene_eidskog_b)<-'buffer' 
+stangeskovene_eidskog_b_spdf <- SpatialPolygonsDataFrame(stangeskovene_eidskog_b_polybuf,data=df1_stangeskovene_eidskog_b,match.ID = TRUE)
+
+stangeskovene_eidskog_b_outerpoly<-lasclip(stangeskovene_eidskog_las,stangeskovene_eidskog_b_spdf)
+stangeskovene_eidskog_b_outerpoly<-stangeskovene_eidskog_b_outerpoly$`1`
+plot(stangeskovene_eidskog_b_outerpoly) 
+
+writeLAS(stangeskovene_eidskog_b_outerpoly,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_b.las')
+
+#stangeskovene_eidskog_ub
+stangeskovene_eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14]))
+stangeskovene_eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14][stangeskovene_eidskog_ub_order,]))
+
+stangeskovene_eidskog_ub_pl <- Polygons(list(stangeskovene_eidskog_ub_poly),1)
+stangeskovene_eidskog_ub_sp <- SpatialPolygons(list(stangeskovene_eidskog_ub_pl))
+stangeskovene_eidskog_ub_polybuf <- gBuffer(stangeskovene_eidskog_ub_sp, width=6)
+
+df1_stangeskovene_eidskog_ub<-data.frame(ID=1)
+rownames(df1_stangeskovene_eidskog_ub)<-'buffer'
+stangeskovene_eidskog_ub_spdf <- SpatialPolygonsDataFrame(stangeskovene_eidskog_ub_polybuf,data=df1_stangeskovene_eidskog_ub,match.ID = TRUE)
+
+stangeskovene_eidskog_ub_outerpoly<-lasclip(stangeskovene_eidskog_las,stangeskovene_eidskog_ub_spdf)
+stangeskovene_eidskog_ub_outerpoly<-stangeskovene_eidskog_ub_outerpoly$`1`
+plot(stangeskovene_eidskog_ub_outerpoly) 
+
+writeLAS(stangeskovene_eidskog_ub_outerpoly,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
+
+
