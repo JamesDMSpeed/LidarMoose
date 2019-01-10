@@ -5,6 +5,8 @@ require(raster)
 require(rasterVis)
 
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
+plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
 
 # Import clipped files ----------------------------------------------------
 #Trondelag
@@ -220,11 +222,11 @@ canopymod_hi_tydal_b   <-grid_canopy(hi_tydal_b,res=1)
 
 terrainmod_hi_tydal_b_resampled <-resample(as.raster(terrainmod_hi_tydal_b), as.raster(canopymod_hi_tydal_b), method='bilinear')
 canopy_diff_hi_tydal_b<-(as.raster(canopymod_hi_tydal_b)-terrainmod_hi_tydal_b_resampled)
-plot(canopy_diff_hi_tydal_b)
-#see that the largest trees are 3,5m high,
-#unlikely that they left so small trees standing when clear cutting. Conclude: no old trees standing
+plot(canopy_diff_hi_tydal_b) #maximum value 4,082 
+#Siden det ikke er noen trær på 7 m å fjerne, kjører jeg ikke trefjerningsalgoritmen på denne 32x32m flaten
 
 #Cutting the 32x32m square to 20x20 m
+hi_tydal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Hi_tydal.las')
 hi_tydal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5]))
 hi_tydal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Hib',4:5][hi_tydal_b_order,]))
 hi_tydal_b_cut<-lasclip(hi_tydal_las,hi_tydal_b_poly)
@@ -296,13 +298,33 @@ terrainmod_malvik_b_resampled <-resample(as.raster(terrainmod_malvik_b), as.rast
 canopy_diff_malvik_b<-(as.raster(canopymod_malvik_b)-terrainmod_malvik_b_resampled)
 plot(canopy_diff_malvik_b)
 
-cellStats(canopy_diff_malvik_b,'max') #no trees over 7 m, so no need remove trees 
 
+#Remove large trees, first detect and create treeID
+trees_malvik_b<-tree_detection(malvik_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_malvik_b<-extract(canopy_diff_malvik_b,trees_malvik_b[,1:2])
 
-#Cutting the 32x32m square to 20x20 m
+lastrees_dalponte(malvik_b,canopy_diff_malvik_b,trees_malvik_b[treeheight_malvik_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+#Make hulls around the trees
+treeout_malvik_b<-tree_hulls(malvik_b,type='convex',field='treeID')
+plot(canopy_diff_malvik_b)
+plot(treeout_malvik_b,add=T) 
+
+bigtrees_malvik_b<-which(extract(canopy_diff_malvik_b,treeout_malvik_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+malvik_b_clip<-lasclip(malvik_b,treeout_malvik_b@polygons[[bigtrees_malvik_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_malvik_b)){
+  print(i)
+  malvik_b_clip<-lasclip(malvik_b_clip,treeout_malvik_b@polygons[[bigtrees_malvik_b[i]]]@Polygons[[1]],inside=F)}
+plot(malvik_b_clip) #point cloud without large trees
+
+canopy_diff_malvik_b_clip <- (as.raster(grid_canopy(malvik_b_clip,res=0.5))-(crop(as.raster(grid_terrain(malvik_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(malvik_b_clip,res=0.5)))))
+plot(canopy_diff_malvik_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
 malvik_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5]))
 malvik_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Mab',4:5][malvik_b_order,]))
-malvik_b_cut<-lasclip(malvik_las,malvik_b_poly)
+malvik_b_cut<-lasclip(malvik_b_clip,malvik_b_poly)
 plot(malvik_b_cut) #20x20 m area as point cloud
 
 #Make new canopy height model for 20x20 m square
@@ -328,6 +350,7 @@ plot(canopy_diff_malvik_ub)
 canopy_diff_malvik_ub # no trees over 7 m
 
 #Cutting the 32x32m square to 20x20 m
+malvik_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Malvik.las')
 malvik_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5]))
 malvik_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Maub',4:5][malvik_ub_order,]))
 malvik_ub_cut<-lasclip(malvik_las,malvik_ub_poly)
