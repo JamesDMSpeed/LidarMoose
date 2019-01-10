@@ -8,6 +8,7 @@ require(rgeos)
 
 plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
+plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
 
 
 # Trondelag ---------------------------------------------------------------
@@ -1201,8 +1202,6 @@ writeLAS(nome_cappelen_2_ub_outerpoly,'Telemark/clipped_las/nome_cappelen_2_ub.l
 
 
 
-
-
 # Notodden3 ---------------------------------------------------------------
 notodden3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden3.las')
 notodden3_las 
@@ -1380,3 +1379,106 @@ fyresdal_ub_outerpoly<-fyresdal_ub_outerpoly$`1`
 plot(fyresdal_ub_outerpoly)
 
 writeLAS(fyresdal_ub_outerpoly,'Telemark/clipped_las/fyresdal_ub.las')
+
+
+
+
+
+
+# Hedmark_Akershus --------------------------------------------------------
+
+# Didrik Holmsen ----------------------------------------------------------
+didrik_holmsen_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Didrik_Holmsen.las') 
+didrik_holmsen_las 
+plot(didrik_holmsen_las)
+
+#didrik_holmsen_b
+
+didrik_holmsen_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14]))
+didrik_holmsen_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14][didrik_holmsen_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+didrik_holmsen_b_pl <- Polygons(list(didrik_holmsen_b_poly),1)
+didrik_holmsen_b_sp <- SpatialPolygons(list(didrik_holmsen_b_pl))
+didrik_holmsen_b_polybuf <- gBuffer(didrik_holmsen_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_didrik_holmsen_b<-data.frame(ID=1)
+rownames(df1_didrik_holmsen_b)<-'buffer' 
+didrik_holmsen_b_spdf <- SpatialPolygonsDataFrame(didrik_holmsen_b_polybuf,data=df1_didrik_holmsen_b,match.ID = TRUE)
+
+didrik_holmsen_b_outerpoly<-lasclip(didrik_holmsen_las,didrik_holmsen_b_spdf)
+didrik_holmsen_b_outerpoly<-didrik_holmsen_b_outerpoly$`1`
+plot(didrik_holmsen_b_outerpoly)
+
+writeLAS(didrik_holmsen_b_outerpoly,'Hedmark_Akershus/clipped_las/didrik_holmsen_b.las')
+
+#didrik_holmsen_ub
+didrik_holmsen_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14]))
+didrik_holmsen_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14][didrik_holmsen_ub_order,]))
+
+didrik_holmsen_ub_pl <- Polygons(list(didrik_holmsen_ub_poly),1)
+didrik_holmsen_ub_sp <- SpatialPolygons(list(didrik_holmsen_ub_pl))
+didrik_holmsen_ub_polybuf <- gBuffer(didrik_holmsen_ub_sp, width=6)
+
+df1_didrik_holmsen_ub<-data.frame(ID=1)
+rownames(df1_didrik_holmsen_ub)<-'buffer'
+didrik_holmsen_ub_spdf <- SpatialPolygonsDataFrame(didrik_holmsen_ub_polybuf,data=df1_didrik_holmsen_ub,match.ID = TRUE)
+
+didrik_holmsen_ub_outerpoly<-lasclip(didrik_holmsen_las,didrik_holmsen_ub_spdf)
+didrik_holmsen_ub_outerpoly<-didrik_holmsen_ub_outerpoly$`1`
+plot(didrik_holmsen_ub_outerpoly)
+
+writeLAS(didrik_holmsen_ub_outerpoly,'Hedmark_Akershus/clipped_las/didrik_holmsen_ub.las')
+
+
+# Eidskog -----------------------------------------------------------------
+eidskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Eidskog.las') 
+eidskog_las 
+plot(eidskog_las)
+
+#eidskog_b
+
+eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14]))
+eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14][eidskog_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+eidskog_b_pl <- Polygons(list(eidskog_b_poly),1)
+eidskog_b_sp <- SpatialPolygons(list(eidskog_b_pl))
+eidskog_b_polybuf <- gBuffer(eidskog_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_eidskog_b<-data.frame(ID=1)
+rownames(df1_eidskog_b)<-'buffer' 
+eidskog_b_spdf <- SpatialPolygonsDataFrame(eidskog_b_polybuf,data=df1_eidskog_b,match.ID = TRUE)
+
+eidskog_b_outerpoly<-lasclip(eidskog_las,eidskog_b_spdf)
+eidskog_b_outerpoly<-eidskog_b_outerpoly$`1`
+plot(eidskog_b_outerpoly)
+
+writeLAS(eidskog_b_outerpoly,'Hedmark_Akershus/clipped_las/eidskog_b.las')
+
+#eidskog_ub
+eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14]))
+eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14][eidskog_ub_order,]))
+
+eidskog_ub_pl <- Polygons(list(eidskog_ub_poly),1)
+eidskog_ub_sp <- SpatialPolygons(list(eidskog_ub_pl))
+eidskog_ub_polybuf <- gBuffer(eidskog_ub_sp, width=6)
+
+df1_eidskog_ub<-data.frame(ID=1)
+rownames(df1_eidskog_ub)<-'buffer'
+eidskog_ub_spdf <- SpatialPolygonsDataFrame(eidskog_ub_polybuf,data=df1_eidskog_ub,match.ID = TRUE)
+
+eidskog_ub_outerpoly<-lasclip(eidskog_las,eidskog_ub_spdf)
+eidskog_ub_outerpoly<-eidskog_ub_outerpoly$`1`
+plot(eidskog_ub_outerpoly)
+
+writeLAS(eidskog_ub_outerpoly,'Hedmark_Akershus/clipped_las/eidskog_ub.las')
+
+
+# Fet3 --------------------------------------------------------------------
+
+fet3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Fet3.las') 
+fet3_las 
+plot(fet3_las) 
