@@ -1248,11 +1248,135 @@ plot(notodden3_ub_outerpoly)
 writeLAS(notodden3_ub_outerpoly,'Telemark/clipped_las/notodden3_ub.las')
 
 # Notodden5 ---------------------------------------------------------------
+notodden5_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden5.las')
+notodden5_las 
+plot(notodden5_las)
 
+#notodden5_b
+
+notodden5_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 B',10:9]))
+notodden5_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 B',10:9][notodden5_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+notodden5_b_pl <- Polygons(list(notodden5_b_poly),1)
+notodden5_b_sp <- SpatialPolygons(list(notodden5_b_pl))
+notodden5_b_polybuf <- gBuffer(notodden5_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_notodden5_b<-data.frame(ID=1)
+rownames(df1_notodden5_b)<-'buffer' 
+notodden5_b_spdf <- SpatialPolygonsDataFrame(notodden5_b_polybuf,data=df1_notodden5_b,match.ID = TRUE)
+
+notodden5_b_outerpoly<-lasclip(notodden5_las,notodden5_b_spdf)
+notodden5_b_outerpoly<-notodden5_b_outerpoly$`1`
+plot(notodden5_b_outerpoly)
+
+writeLAS(notodden5_b_outerpoly,'Telemark/clipped_las/notodden5_b.las')
+
+#notodden5_ub
+notodden5_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 UB',10:9]))
+notodden5_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 UB',10:9][notodden5_ub_order,]))
+
+notodden5_ub_pl <- Polygons(list(notodden5_ub_poly),1)
+notodden5_ub_sp <- SpatialPolygons(list(notodden5_ub_pl))
+notodden5_ub_polybuf <- gBuffer(notodden5_ub_sp, width=6)
+
+df1_notodden5_ub<-data.frame(ID=1)
+rownames(df1_notodden5_ub)<-'buffer'
+notodden5_ub_spdf <- SpatialPolygonsDataFrame(notodden5_ub_polybuf,data=df1_notodden5_ub,match.ID = TRUE)
+
+notodden5_ub_outerpoly<-lasclip(notodden5_las,notodden5_ub_spdf)
+notodden5_ub_outerpoly<-notodden5_ub_outerpoly$`1`
+plot(notodden5_ub_outerpoly)
+
+writeLAS(notodden5_ub_outerpoly,'Telemark/clipped_las/notodden5_ub.las')
 
 # Notodden6 --------------------------------------------------------------
+notodden6_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden6.las')
+notodden6_las 
+plot(notodden6_las)
 
+
+#notodden6_b
+
+notodden6_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9]))
+notodden6_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9][notodden6_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+notodden6_b_pl <- Polygons(list(notodden6_b_poly),1)
+notodden6_b_sp <- SpatialPolygons(list(notodden6_b_pl))
+notodden6_b_polybuf <- gBuffer(notodden6_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_notodden6_b<-data.frame(ID=1)
+rownames(df1_notodden6_b)<-'buffer' 
+notodden6_b_spdf <- SpatialPolygonsDataFrame(notodden6_b_polybuf,data=df1_notodden6_b,match.ID = TRUE)
+
+notodden6_b_outerpoly<-lasclip(notodden6_las,notodden6_b_spdf)
+notodden6_b_outerpoly<-notodden6_b_outerpoly$`1`
+plot(notodden6_b_outerpoly)
+
+writeLAS(notodden6_b_outerpoly,'Telemark/clipped_las/notodden6_b.las')
+
+#notodden6_ub
+notodden6_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9]))
+notodden6_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9][notodden6_ub_order,]))
+
+notodden6_ub_pl <- Polygons(list(notodden6_ub_poly),1)
+notodden6_ub_sp <- SpatialPolygons(list(notodden6_ub_pl))
+notodden6_ub_polybuf <- gBuffer(notodden6_ub_sp, width=6)
+
+df1_notodden6_ub<-data.frame(ID=1)
+rownames(df1_notodden6_ub)<-'buffer'
+notodden6_ub_spdf <- SpatialPolygonsDataFrame(notodden6_ub_polybuf,data=df1_notodden6_ub,match.ID = TRUE)
+
+notodden6_ub_outerpoly<-lasclip(notodden6_las,notodden6_ub_spdf)
+notodden6_ub_outerpoly<-notodden6_ub_outerpoly$`1`
+plot(notodden6_ub_outerpoly)
+
+writeLAS(notodden6_ub_outerpoly,'Telemark/clipped_las/notodden6_ub.las')
 
 # Fyresdal ----------------------------------------------------------------
 
+fyresdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Furesdal.las') 
+fyresdal_las 
+plot(fyresdal_las)
 
+#fyresdal_b
+
+fyresdal_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9]))
+fyresdal_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9][fyresdal_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+fyresdal_b_pl <- Polygons(list(fyresdal_b_poly),1)
+fyresdal_b_sp <- SpatialPolygons(list(fyresdal_b_pl))
+fyresdal_b_polybuf <- gBuffer(fyresdal_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_fyresdal_b<-data.frame(ID=1)
+rownames(df1_fyresdal_b)<-'buffer' 
+fyresdal_b_spdf <- SpatialPolygonsDataFrame(fyresdal_b_polybuf,data=df1_fyresdal_b,match.ID = TRUE)
+
+fyresdal_b_outerpoly<-lasclip(fyresdal_las,fyresdal_b_spdf)
+fyresdal_b_outerpoly<-fyresdal_b_outerpoly$`1`
+plot(fyresdal_b_outerpoly)
+
+writeLAS(fyresdal_b_outerpoly,'Telemark/clipped_las/fyresdal_b.las')
+
+#fyresdal_ub
+fyresdal_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9]))
+fyresdal_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9][fyresdal_ub_order,]))
+
+fyresdal_ub_pl <- Polygons(list(fyresdal_ub_poly),1)
+fyresdal_ub_sp <- SpatialPolygons(list(fyresdal_ub_pl))
+fyresdal_ub_polybuf <- gBuffer(fyresdal_ub_sp, width=6)
+
+df1_fyresdal_ub<-data.frame(ID=1)
+rownames(df1_fyresdal_ub)<-'buffer'
+fyresdal_ub_spdf <- SpatialPolygonsDataFrame(fyresdal_ub_polybuf,data=df1_fyresdal_ub,match.ID = TRUE)
+
+fyresdal_ub_outerpoly<-lasclip(fyresdal_las,fyresdal_ub_spdf)
+fyresdal_ub_outerpoly<-fyresdal_ub_outerpoly$`1`
+plot(fyresdal_ub_outerpoly)
+
+writeLAS(fyresdal_ub_outerpoly,'Telemark/clipped_las/fyresdal_ub.las')
