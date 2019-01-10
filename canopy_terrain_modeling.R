@@ -483,9 +483,10 @@ canopymod_nsb_verdal_b   <-grid_canopy(nsb_verdal_b,res=1)
 terrainmod_nsb_verdal_b_resampled <-resample(as.raster(terrainmod_nsb_verdal_b), as.raster(canopymod_nsb_verdal_b), method='bilinear')
 canopy_diff_nsb_verdal_b<-(as.raster(canopymod_nsb_verdal_b)-terrainmod_nsb_verdal_b_resampled)
 plot(canopy_diff_nsb_verdal_b)
-canopy_diff_nsb_verdal_b #max value 0,56
+canopy_diff_nsb_verdal_b #max value 6
 
 #Cutting the 32x32m square to 20x20 m
+nsb_verdal_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Nsb_Verdal.las')
 nsb_verdal_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5]))
 nsb_verdal_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Nsb',4:5][nsb_verdal_b_order,]))
 nsb_verdal_b_cut<-lasclip(nsb_verdal_las,nsb_verdal_b_poly)
@@ -560,6 +561,7 @@ plot(canopy_diff_selbu_flub_b)
 canopy_diff_selbu_flub_b #max value 5,9
 
 #Cutting the 32x32m square to 20x20 m
+selbu_flub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Selbu_flub.las')
 selbu_flub_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5]))
 selbu_flub_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flb',4:5][selbu_flub_b_order,]))
 selbu_flub_b_cut<-lasclip(selbu_flub_las,selbu_flub_b_poly)
@@ -588,6 +590,7 @@ plot(canopy_diff_selbu_flub_ub)
 canopy_diff_selbu_flub_ub # max value 5,5 m
 
 #Cutting the 32x32m square to 20x20 m
+selbu_flub_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Selbu_flub.las')
 selbu_flub_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5]))
 selbu_flub_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Flub',4:5][selbu_flub_ub_order,]))
 selbu_flub_ub_cut<-lasclip(selbu_flub_las,selbu_flub_ub_poly)
@@ -755,12 +758,32 @@ canopymod_selbu_sl_ub  <-grid_canopy(selbu_sl_ub,res=1)
 terrainmod_selbu_sl_ub_resampeled <- resample(as.raster(terrainmod_selbu_sl_ub), as.raster(canopymod_selbu_sl_ub, method='bilinear'))
 canopy_diff_selbu_sl_ub <- (as.raster(canopymod_selbu_sl_ub)-terrainmod_selbu_sl_ub_resampeled)
 plot(canopy_diff_selbu_sl_ub)
-canopy_diff_selbu_sl_ub #max value 3,77 m
+canopy_diff_selbu_sl_ub 
 
-#Cutting the 32x32m square to 20x20 m
+trees_selbu_sl_ub<-tree_detection(selbu_sl_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_selbu_sl_ub<-extract(canopy_diff_selbu_sl_ub,trees_selbu_sl_ub[,1:2])
+
+lastrees_dalponte(selbu_sl_ub,canopy_diff_selbu_sl_ub,trees_selbu_sl_ub[treeheight_selbu_sl_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_selbu_sl_ub<-tree_hulls(selbu_sl_ub,type='convex',field='treeID')
+plot(canopy_diff_selbu_sl_ub)
+plot(treeout_selbu_sl_ub,add=T) 
+
+bigtrees_selbu_sl_ub<-which(extract(canopy_diff_selbu_sl_ub,treeout_selbu_sl_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+selbu_sl_ub_clip<-lasclip(selbu_sl_ub,treeout_selbu_sl_ub@polygons[[bigtrees_selbu_sl_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_selbu_sl_ub)){
+  print(i)
+  selbu_sl_ub_clip<-lasclip(selbu_sl_ub_clip,treeout_selbu_sl_ub@polygons[[bigtrees_selbu_sl_ub[i]]]@Polygons[[1]],inside=F)}
+plot(selbu_sl_ub_clip) #point cloud without large trees
+
+canopy_diff_selbu_sl_ub_clip <- (as.raster(grid_canopy(selbu_sl_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(selbu_sl_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(selbu_sl_ub_clip,res=0.5)))))
+plot(canopy_diff_selbu_sl_ub_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
 selbu_sl_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Slub',4:5]))
 selbu_sl_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Slub',4:5][selbu_sl_ub_order,]))
-selbu_sl_ub_cut<-lasclip(selbu_sl_las,selbu_sl_ub_poly)
+selbu_sl_ub_cut<-lasclip(selbu_sl_ub_clip,selbu_sl_ub_poly)
 plot(selbu_sl_ub_cut) #20x20 m area as point cloud
 
 #Make new canopy height model for 20x20 m square
@@ -927,12 +950,33 @@ canopymod_sl_tydal_ub  <-grid_canopy(sl_tydal_ub,res=1)
 terrainmod_sl_tydal_ub_resampeled <- resample(as.raster(terrainmod_sl_tydal_ub), as.raster(canopymod_sl_tydal_ub, method='bilinear'))
 canopy_diff_sl_tydal_ub <- (as.raster(canopymod_sl_tydal_ub)-terrainmod_sl_tydal_ub_resampeled)
 plot(canopy_diff_sl_tydal_ub)
-canopy_diff_sl_tydal_ub #max value 5,8
+canopy_diff_sl_tydal_ub
 
-#Cutting the 32x32m square to 20x20 m
+
+trees_sl_tydal_ub<-tree_detection(sl_tydal_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_sl_tydal_ub<-extract(canopy_diff_sl_tydal_ub,trees_sl_tydal_ub[,1:2])
+
+lastrees_dalponte(sl_tydal_ub,canopy_diff_sl_tydal_ub,trees_sl_tydal_ub[treeheight_sl_tydal_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_sl_tydal_ub<-tree_hulls(sl_tydal_ub,type='convex',field='treeID')
+plot(canopy_diff_sl_tydal_ub)
+plot(treeout_sl_tydal_ub,add=T) 
+
+bigtrees_sl_tydal_ub<-which(extract(canopy_diff_sl_tydal_ub,treeout_sl_tydal_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+sl_tydal_ub_clip<-lasclip(sl_tydal_ub,treeout_sl_tydal_ub@polygons[[bigtrees_sl_tydal_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_sl_tydal_ub)){
+  print(i)
+  sl_tydal_ub_clip<-lasclip(sl_tydal_ub_clip,treeout_sl_tydal_ub@polygons[[bigtrees_sl_tydal_ub[i]]]@Polygons[[1]],inside=F)}
+plot(sl_tydal_ub_clip) 
+
+canopy_diff_sl_tydal_ub_clip <- (as.raster(grid_canopy(sl_tydal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(sl_tydal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sl_tydal_ub_clip,res=0.5)))))
+plot(canopy_diff_sl_tydal_ub_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
 sl_tydal_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5]))
 sl_tydal_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Seub',4:5][sl_tydal_ub_order,]))
-sl_tydal_ub_cut<-lasclip(sl_tydal_las,sl_tydal_ub_poly)
+sl_tydal_ub_cut<-lasclip(sl_tydal_ub_clip,sl_tydal_ub_poly)
 plot(sl_tydal_ub_cut) #20x20 m area as point cloud
 
 #Make new canopy height model for 20x20 m square
@@ -956,12 +1000,32 @@ canopymod_steinkjer_1BBb_b   <-grid_canopy(steinkjer_1BBb_b,res=1)
 terrainmod_steinkjer_1BBb_b_resampled <-resample(as.raster(terrainmod_steinkjer_1BBb_b), as.raster(canopymod_steinkjer_1BBb_b), method='bilinear')
 canopy_diff_steinkjer_1BBb_b<-(as.raster(canopymod_steinkjer_1BBb_b)-terrainmod_steinkjer_1BBb_b_resampled)
 plot(canopy_diff_steinkjer_1BBb_b)
-canopy_diff_steinkjer_1BBb_b #max value 0,8
+canopy_diff_steinkjer_1BBb_b 
 
-#Cutting the 32x32m square to 20x20 m
+trees_steinkjer_1BBb_b<-tree_detection(steinkjer_1BBb_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_steinkjer_1BBb_b<-extract(canopy_diff_steinkjer_1BBb_b,trees_steinkjer_1BBb_b[,1:2])
+
+lastrees_dalponte(steinkjer_1BBb_b,canopy_diff_steinkjer_1BBb_b,trees_steinkjer_1BBb_b[treeheight_steinkjer_1BBb_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_steinkjer_1BBb_b<-tree_hulls(steinkjer_1BBb_b,type='convex',field='treeID')
+plot(canopy_diff_steinkjer_1BBb_b)
+plot(treeout_steinkjer_1BBb_b,add=T) 
+
+bigtrees_steinkjer_1BBb_b<-which(extract(canopy_diff_steinkjer_1BBb_b,treeout_steinkjer_1BBb_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+steinkjer_1BBb_b_clip<-lasclip(steinkjer_1BBb_b,treeout_steinkjer_1BBb_b@polygons[[bigtrees_steinkjer_1BBb_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_steinkjer_1BBb_b)){
+  print(i)
+  steinkjer_1BBb_b_clip<-lasclip(steinkjer_1BBb_b_clip,treeout_steinkjer_1BBb_b@polygons[[bigtrees_steinkjer_1BBb_b[i]]]@Polygons[[1]],inside=F)}
+plot(steinkjer_1BBb_b_clip) 
+
+canopy_diff_steinkjer_1BBb_b_clip <- (as.raster(grid_canopy(steinkjer_1BBb_b_clip,res=0.5))-(crop(as.raster(grid_terrain(steinkjer_1BBb_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(steinkjer_1BBb_b_clip,res=0.5)))))
+plot(canopy_diff_steinkjer_1BBb_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
 steinkjer_1BBb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5]))
 steinkjer_1BBb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Bbb',4:5][steinkjer_1BBb_b_order,]))
-steinkjer_1BBb_b_cut<-lasclip(steinkjer_1BBb_las,steinkjer_1BBb_b_poly)
+steinkjer_1BBb_b_cut<-lasclip(steinkjer_1BBb_b_clip,steinkjer_1BBb_b_poly)
 plot(steinkjer_1BBb_b_cut) #20x20 m area as point cloud
 
 #Make new canopy height model for 20x20 m square
@@ -974,7 +1038,6 @@ plot(canopy_diff_steinkjer_1BBb_b_20x20)
 
 writeRaster(canopy_diff_steinkjer_1BBb_b_20x20,'Trondelag/canopy_height_clipped_raster/steinkjer_1BBb_b_canopyheight', overwrite=TRUE)
 
-
 # Steinkjer_1BBb_ub
 terrainmod_steinkjer_1BBb_ub <-grid_terrain(steinkjer_1BBb_ub,method='knnidw',res=1)
 canopymod_steinkjer_1BBb_ub  <-grid_canopy(steinkjer_1BBb_ub,res=1)
@@ -982,7 +1045,8 @@ canopymod_steinkjer_1BBb_ub  <-grid_canopy(steinkjer_1BBb_ub,res=1)
 terrainmod_steinkjer_1BBb_ub_resampeled <- resample(as.raster(terrainmod_steinkjer_1BBb_ub), as.raster(canopymod_steinkjer_1BBb_ub, method='bilinear'))
 canopy_diff_steinkjer_1BBb_ub <- (as.raster(canopymod_steinkjer_1BBb_ub)-terrainmod_steinkjer_1BBb_ub_resampeled)
 plot(canopy_diff_steinkjer_1BBb_ub)
-canopy_diff_steinkjer_1BBb_ub # max 1.1
+canopy_diff_steinkjer_1BBb_ub # max 8,395, but it is only one pixel that will not be included in the 20x20 m plot, and it will not be identified as a tree and cut away
+#no use in running tree identification and cutting
 
 #Cutting the 32x32m square to 20x20 m
 steinkjer_1BBb_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Bbub',4:5]))
@@ -1201,12 +1265,31 @@ canopymod_verdal_1vb_b   <-grid_canopy(verdal_1vb_b,res=1)
 terrainmod_verdal_1vb_b_resampled <-resample(as.raster(terrainmod_verdal_1vb_b), as.raster(canopymod_verdal_1vb_b), method='bilinear')
 canopy_diff_verdal_1vb_b<-(as.raster(canopymod_verdal_1vb_b)-terrainmod_verdal_1vb_b_resampled)
 plot(canopy_diff_verdal_1vb_b)
-canopy_diff_verdal_1vb_b #the 20x20 square has max value 6,5
 
-#Cutting the 32x32m square to 20x20 m
+trees_verdal_1vb_b<-tree_detection(verdal_1vb_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_verdal_1vb_b<-extract(canopy_diff_verdal_1vb_b,trees_verdal_1vb_b[,1:2])
+
+lastrees_dalponte(verdal_1vb_b,canopy_diff_verdal_1vb_b,trees_verdal_1vb_b[treeheight_verdal_1vb_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_verdal_1vb_b<-tree_hulls(verdal_1vb_b,type='convex',field='treeID')
+plot(canopy_diff_verdal_1vb_b)
+plot(treeout_verdal_1vb_b,add=T) 
+
+bigtrees_verdal_1vb_b<-which(extract(canopy_diff_verdal_1vb_b,treeout_verdal_1vb_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+verdal_1vb_b_clip<-lasclip(verdal_1vb_b,treeout_verdal_1vb_b@polygons[[bigtrees_verdal_1vb_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_verdal_1vb_b)){
+  print(i)
+  verdal_1vb_b_clip<-lasclip(verdal_1vb_b_clip,treeout_verdal_1vb_b@polygons[[bigtrees_verdal_1vb_b[i]]]@Polygons[[1]],inside=F)}
+plot(verdal_1vb_b_clip) 
+
+canopy_diff_verdal_1vb_b_clip <- (as.raster(grid_canopy(verdal_1vb_b_clip,res=0.5))-(crop(as.raster(grid_terrain(verdal_1vb_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(verdal_1vb_b_clip,res=0.5)))))
+plot(canopy_diff_verdal_1vb_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
 verdal_1vb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='1Vbb',4:5]))
 verdal_1vb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='1Vbb',4:5][verdal_1vb_b_order,]))
-verdal_1vb_b_cut<-lasclip(verdal_1vb_las,verdal_1vb_b_poly)
+verdal_1vb_b_cut<-lasclip(verdal_1vb_b_clip,verdal_1vb_b_poly)
 plot(verdal_1vb_b_cut) #20x20 m area as point cloud
 
 #Make new canopy height model for 20x20 m square
@@ -1218,6 +1301,7 @@ canopy_diff_verdal_1vb_b_20x20 <- (as.raster(canopymod_verdal_1vb_b_20x20)-terra
 plot(canopy_diff_verdal_1vb_b_20x20)
 
 writeRaster(canopy_diff_verdal_1vb_b_20x20,'Trondelag/canopy_height_clipped_raster/verdal_1vb_b_canopyheight', overwrite=TRUE)
+
 
 
 # verdal_1vb_ub
@@ -1279,9 +1363,10 @@ canopymod_verdal_2vb_b   <-grid_canopy(verdal_2vb_b,res=1)
 terrainmod_verdal_2vb_b_resampled <-resample(as.raster(terrainmod_verdal_2vb_b), as.raster(canopymod_verdal_2vb_b), method='bilinear')
 canopy_diff_verdal_2vb_b<-(as.raster(canopymod_verdal_2vb_b)-terrainmod_verdal_2vb_b_resampled)
 plot(canopy_diff_verdal_2vb_b)
-canopy_diff_verdal_2vb_b #max 3,26
+canopy_diff_verdal_2vb_b #max 3,257
 
 #Cutting the 32x32m square to 20x20 m
+verdal_2vb_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/Verdal_2vb.las')
 verdal_2vb_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5]))
 verdal_2vb_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='2Vbb',4:5][verdal_2vb_b_order,]))
 verdal_2vb_b_cut<-lasclip(verdal_2vb_las,verdal_2vb_b_poly)
