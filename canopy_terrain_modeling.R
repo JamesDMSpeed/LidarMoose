@@ -1432,6 +1432,9 @@ writeRaster(canopy_diff_verdal_2vb_ub_20x20,'Trondelag/canopy_height_clipped_ras
 
 
 
+
+
+
 # Telemark ----------------------------------------------------------------
 
 
