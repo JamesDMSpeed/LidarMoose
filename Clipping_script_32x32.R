@@ -964,6 +964,146 @@ plot(fritsoe2_ub_outerpoly)
 
 writeLAS(fritsoe2_ub_outerpoly,'Telemark/clipped_las/fritsoe2_ub.las')
 
+
+# Kviteseid1 --------------------------------------------------------------
+kviteseid1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Kviteseid1.las') 
+kviteseid1_las 
+plot(kviteseid1_las)
+
+
+#kviteseid1_b
+
+kviteseid1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 B',10:9]))
+kviteseid1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 B',10:9][kviteseid1_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+kviteseid1_b_pl <- Polygons(list(kviteseid1_b_poly),1)
+kviteseid1_b_sp <- SpatialPolygons(list(kviteseid1_b_pl))
+kviteseid1_b_polybuf <- gBuffer(kviteseid1_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_kviteseid1_b<-data.frame(ID=1)
+rownames(df1_kviteseid1_b)<-'buffer' 
+kviteseid1_b_spdf <- SpatialPolygonsDataFrame(kviteseid1_b_polybuf,data=df1_kviteseid1_b,match.ID = TRUE)
+
+kviteseid1_b_outerpoly<-lasclip(kviteseid1_las,kviteseid1_b_spdf)
+kviteseid1_b_outerpoly<-kviteseid1_b_outerpoly$`1`
+plot(kviteseid1_b_outerpoly)
+
+writeLAS(kviteseid1_b_outerpoly,'Telemark/clipped_las/kviteseid1_b.las')
+
+#kviteseid1_ub
+kviteseid1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 UB',10:9]))
+kviteseid1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 UB',10:9][kviteseid1_ub_order,]))
+
+kviteseid1_ub_pl <- Polygons(list(kviteseid1_ub_poly),1)
+kviteseid1_ub_sp <- SpatialPolygons(list(kviteseid1_ub_pl))
+kviteseid1_ub_polybuf <- gBuffer(kviteseid1_ub_sp, width=6)
+
+df1_kviteseid1_ub<-data.frame(ID=1)
+rownames(df1_kviteseid1_ub)<-'buffer'
+kviteseid1_ub_spdf <- SpatialPolygonsDataFrame(kviteseid1_ub_polybuf,data=df1_kviteseid1_ub,match.ID = TRUE)
+
+kviteseid1_ub_outerpoly<-lasclip(kviteseid1_las,kviteseid1_ub_spdf)
+kviteseid1_ub_outerpoly<-kviteseid1_ub_outerpoly$`1`
+plot(kviteseid1_ub_outerpoly)
+
+writeLAS(kviteseid1_ub_outerpoly,'Telemark/clipped_las/kviteseid1_ub.las')
+
+
+# Kviteseid 2 -------------------------------------------------------------
+kviteseid2_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Kviteseid2.las') 
+kviteseid2_las 
+plot(kviteseid2_las)
+
+
+#kviteseid2_b
+
+kviteseid2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9]))
+kviteseid2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9][kviteseid2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+kviteseid2_b_pl <- Polygons(list(kviteseid2_b_poly),1)
+kviteseid2_b_sp <- SpatialPolygons(list(kviteseid2_b_pl))
+kviteseid2_b_polybuf <- gBuffer(kviteseid2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_kviteseid2_b<-data.frame(ID=1)
+rownames(df1_kviteseid2_b)<-'buffer' 
+kviteseid2_b_spdf <- SpatialPolygonsDataFrame(kviteseid2_b_polybuf,data=df1_kviteseid2_b,match.ID = TRUE)
+
+kviteseid2_b_outerpoly<-lasclip(kviteseid2_las,kviteseid2_b_spdf)
+kviteseid2_b_outerpoly<-kviteseid2_b_outerpoly$`1`
+plot(kviteseid2_b_outerpoly)
+
+writeLAS(kviteseid2_b_outerpoly,'Telemark/clipped_las/kviteseid2_b.las')
+
+#kviteseid2_ub
+kviteseid2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9]))
+kviteseid2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9][kviteseid2_ub_order,]))
+
+kviteseid2_ub_pl <- Polygons(list(kviteseid2_ub_poly),1)
+kviteseid2_ub_sp <- SpatialPolygons(list(kviteseid2_ub_pl))
+kviteseid2_ub_polybuf <- gBuffer(kviteseid2_ub_sp, width=6)
+
+df1_kviteseid2_ub<-data.frame(ID=1)
+rownames(df1_kviteseid2_ub)<-'buffer'
+kviteseid2_ub_spdf <- SpatialPolygonsDataFrame(kviteseid2_ub_polybuf,data=df1_kviteseid2_ub,match.ID = TRUE)
+
+kviteseid2_ub_outerpoly<-lasclip(kviteseid2_las,kviteseid2_ub_spdf)
+kviteseid2_ub_outerpoly<-kviteseid2_ub_outerpoly$`1`
+plot(kviteseid2_ub_outerpoly)
+
+writeLAS(kviteseid2_ub_outerpoly,'Telemark/clipped_las/kviteseid2_ub.las')
+
+
+
+# Kviteseid 3 -------------------------------------------------------------
+kviteseid3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Kviteseid3.las') 
+kviteseid3_las 
+plot(kviteseid3_las)
+
+
+#kviteseid3_b
+
+kviteseid3_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 B',10:9]))
+kviteseid3_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 B',10:9][kviteseid3_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+kviteseid3_b_pl <- Polygons(list(kviteseid3_b_poly),1)
+kviteseid3_b_sp <- SpatialPolygons(list(kviteseid3_b_pl))
+kviteseid3_b_polybuf <- gBuffer(kviteseid3_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_kviteseid3_b<-data.frame(ID=1)
+rownames(df1_kviteseid3_b)<-'buffer' 
+kviteseid3_b_spdf <- SpatialPolygonsDataFrame(kviteseid3_b_polybuf,data=df1_kviteseid3_b,match.ID = TRUE)
+
+kviteseid3_b_outerpoly<-lasclip(kviteseid3_las,kviteseid3_b_spdf)
+kviteseid3_b_outerpoly<-kviteseid3_b_outerpoly$`1`
+plot(kviteseid3_b_outerpoly)
+
+writeLAS(kviteseid3_b_outerpoly,'Telemark/clipped_las/kviteseid3_b.las')
+
+#kviteseid3_ub
+kviteseid3_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 UB',10:9]))
+kviteseid3_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 UB',10:9][kviteseid3_ub_order,]))
+
+kviteseid3_ub_pl <- Polygons(list(kviteseid3_ub_poly),1)
+kviteseid3_ub_sp <- SpatialPolygons(list(kviteseid3_ub_pl))
+kviteseid3_ub_polybuf <- gBuffer(kviteseid3_ub_sp, width=6)
+
+df1_kviteseid3_ub<-data.frame(ID=1)
+rownames(df1_kviteseid3_ub)<-'buffer'
+kviteseid3_ub_spdf <- SpatialPolygonsDataFrame(kviteseid3_ub_polybuf,data=df1_kviteseid3_ub,match.ID = TRUE)
+
+kviteseid3_ub_outerpoly<-lasclip(kviteseid3_las,kviteseid3_ub_spdf)
+kviteseid3_ub_outerpoly<-kviteseid3_ub_outerpoly$`1`
+plot(kviteseid3_ub_outerpoly)
+
+writeLAS(kviteseid3_ub_outerpoly,'Telemark/clipped_las/kviteseid3_ub.las')
+
+
 # Nome_Cappelen1 ----------------------------------------------------------
 
 nome_cappelen_1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Nome_Cappelen1.las')
