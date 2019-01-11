@@ -2710,6 +2710,8 @@ writeRaster(canopy_diff_notodden6_ub_20x20,'Telemark/canopy_height_clipped_raste
 
 
 
+
+
 # Hedmark og Akershus -----------------------------------------------------
 
 
@@ -2916,7 +2918,23 @@ canopy_diff_fet3_b<-(as.raster(canopymod_fet3_b)-terrainmod_fet3_b_resampled)
 plot(canopy_diff_fet3_b)
 canopy_diff_fet3_b# max 2
 
-writeRaster(canopy_diff_fet3_b,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_b_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fet3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Fet3.las') 
+fet3_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14]))
+fet3_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK2',15:14][fet3_b_order,]))
+fet3_b_cut<-lasclip(fet3_las,fet3_b_poly)
+plot(fet3_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fet3_b_20x20 <-grid_terrain(fet3_b_cut,method='knnidw',res=1)
+canopymod_fet3_b_20x20  <-grid_canopy(fet3_b_cut,res=1)
+
+terrainmod_fet3_b_resampeled_20x20 <- resample(as.raster(terrainmod_fet3_b_20x20), as.raster(canopymod_fet3_b_20x20, method='bilinear'))
+canopy_diff_fet3_b_20x20 <- (as.raster(canopymod_fet3_b_20x20)-terrainmod_fet3_b_resampeled_20x20)
+plot(canopy_diff_fet3_b_20x20)
+
+writeRaster(canopy_diff_fet3_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_b_canopyheight', overwrite=TRUE)
 
 
 
@@ -2928,9 +2946,25 @@ canopymod_fet3_ub  <-grid_canopy(fet3_ub,res=1)
 terrainmod_fet3_ub_resampeled <- resample(as.raster(terrainmod_fet3_ub), as.raster(canopymod_fet3_ub, method='bilinear'))
 canopy_diff_fet3_ub <- (as.raster(canopymod_fet3_ub)-terrainmod_fet3_ub_resampeled)
 plot(canopy_diff_fet3_ub)
+
 canopy_diff_fet3_ub #max 6,6
 
-writeRaster(canopy_diff_fet3_ub,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fet3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Fet3.las') 
+fet3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14]))
+fet3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='FK1',15:14][fet3_ub_order,]))
+fet3_ub_cut<-lasclip(fet3_las,fet3_ub_poly)
+plot(fet3_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fet3_ub_20x20 <-grid_terrain(fet3_ub_cut,method='knnidw',res=1)
+canopymod_fet3_ub_20x20  <-grid_canopy(fet3_ub_cut,res=1)
+
+terrainmod_fet3_ub_resampeled_20x20 <- resample(as.raster(terrainmod_fet3_ub_20x20), as.raster(canopymod_fet3_ub_20x20, method='bilinear'))
+canopy_diff_fet3_ub_20x20 <- (as.raster(canopymod_fet3_ub_20x20)-terrainmod_fet3_ub_resampeled_20x20)
+plot(canopy_diff_fet3_ub_20x20)
+
+writeRaster(canopy_diff_fet3_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/fet3_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -2996,7 +3030,22 @@ plot(stangesk_aurskog_b_clip)
 canopy_diff_stangesk_aurskog_b_clip <- (as.raster(grid_canopy(stangesk_aurskog_b_clip,res=0.5))-(crop(as.raster(grid_terrain(stangesk_aurskog_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(stangesk_aurskog_b_clip,res=0.5)))))
 plot(canopy_diff_stangesk_aurskog_b_clip)
 
-writeRaster(canopy_diff_stangesk_aurskog_b_clip,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+stangesk_aurskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA1',15:14]))
+stangesk_aurskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA1',15:14][stangesk_aurskog_b_order,]))
+stangesk_aurskog_b_cut<-lasclip(stangesk_aurskog_b_clip,stangesk_aurskog_b_poly)
+plot(stangesk_aurskog_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_stangesk_aurskog_b_20x20 <-grid_terrain(stangesk_aurskog_b_cut,method='knnidw',res=1)
+canopymod_stangesk_aurskog_b_20x20  <-grid_canopy(stangesk_aurskog_b_cut,res=1)
+
+terrainmod_stangesk_aurskog_b_resampeled_20x20 <- resample(as.raster(terrainmod_stangesk_aurskog_b_20x20), as.raster(canopymod_stangesk_aurskog_b_20x20, method='bilinear'))
+canopy_diff_stangesk_aurskog_b_20x20 <- (as.raster(canopymod_stangesk_aurskog_b_20x20)-terrainmod_stangesk_aurskog_b_resampeled_20x20)
+plot(canopy_diff_stangesk_aurskog_b_20x20)
+
+writeRaster(canopy_diff_stangesk_aurskog_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_b_canopyheight', overwrite=TRUE)
+
 
 
 # stangeskovene aurskog_ub
@@ -3006,9 +3055,26 @@ canopymod_stangesk_aurskog_ub  <-grid_canopy(stangesk_aurskog_ub,res=1)
 terrainmod_stangesk_aurskog_ub_resampeled <- resample(as.raster(terrainmod_stangesk_aurskog_ub), as.raster(canopymod_stangesk_aurskog_ub, method='bilinear'))
 canopy_diff_stangesk_aurskog_ub <- (as.raster(canopymod_stangesk_aurskog_ub)-terrainmod_stangesk_aurskog_ub_resampeled)
 plot(canopy_diff_stangesk_aurskog_ub)
-#max 5
+#max 5.779
 
-writeRaster(canopy_diff_stangesk_aurskog_ub,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_ub_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+stangeskovene_aurskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stangeskovene_Aurskog.las') 
+stangesk_aurskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA2',15:14]))
+stangesk_aurskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSA2',15:14][stangesk_aurskog_ub_order,]))
+stangesk_aurskog_ub_cut<-lasclip(stangeskovene_aurskog_las,stangesk_aurskog_ub_poly)
+plot(stangesk_aurskog_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_stangesk_aurskog_ub_20x20 <-grid_terrain(stangesk_aurskog_ub_cut,method='knnidw',res=1)
+canopymod_stangesk_aurskog_ub_20x20  <-grid_canopy(stangesk_aurskog_ub_cut,res=1)
+
+terrainmod_stangesk_aurskog_ub_resampeled_20x20 <- resample(as.raster(terrainmod_stangesk_aurskog_ub_20x20), as.raster(canopymod_stangesk_aurskog_ub_20x20, method='bilinear'))
+canopy_diff_stangesk_aurskog_ub_20x20 <- (as.raster(canopymod_stangesk_aurskog_ub_20x20)-terrainmod_stangesk_aurskog_ub_resampeled_20x20)
+plot(canopy_diff_stangesk_aurskog_ub_20x20)
+
+writeRaster(canopy_diff_stangesk_aurskog_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_aurskog_ub_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -3022,9 +3088,25 @@ canopymod_stangesk_eidskog_b   <-grid_canopy(stangesk_eidskog_b,res=1)
 terrainmod_stangesk_eidskog_b_resampled <-resample(as.raster(terrainmod_stangesk_eidskog_b), as.raster(canopymod_stangesk_eidskog_b), method='bilinear')
 canopy_diff_stangesk_eidskog_b<-(as.raster(canopymod_stangesk_eidskog_b)-terrainmod_stangesk_eidskog_b_resampled)
 plot(canopy_diff_stangesk_eidskog_b)
-#Max 3
+#Max 3,085
 
-writeRaster(canopy_diff_stangesk_eidskog_b,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_b_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+stangeskovene_eidskog_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Stangeskovene_Eidskog.las') 
+stangesk_eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14]))
+stangesk_eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB1',15:14][stangesk_eidskog_b_order,]))
+stangesk_eidskog_b_cut<-lasclip(stangeskovene_eidskog_las,stangesk_eidskog_b_poly)
+plot(stangesk_eidskog_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_stangesk_eidskog_b_20x20 <-grid_terrain(stangesk_eidskog_b_cut,method='knnidw',res=1)
+canopymod_stangesk_eidskog_b_20x20  <-grid_canopy(stangesk_eidskog_b_cut,res=1)
+
+terrainmod_stangesk_eidskog_b_resampeled_20x20 <- resample(as.raster(terrainmod_stangesk_eidskog_b_20x20), as.raster(canopymod_stangesk_eidskog_b_20x20, method='bilinear'))
+canopy_diff_stangesk_eidskog_b_20x20 <- (as.raster(canopymod_stangesk_eidskog_b_20x20)-terrainmod_stangesk_eidskog_b_resampeled_20x20)
+plot(canopy_diff_stangesk_eidskog_b_20x20)
+
+writeRaster(canopy_diff_stangesk_eidskog_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_b_canopyheight', overwrite=TRUE)
 
 
 # stangeskovene eidskog_ub
@@ -3055,7 +3137,22 @@ plot(stangesk_eidskog_ub_clip)
 canopy_diff_stangesk_eidskog_ub_clip <- (as.raster(grid_canopy(stangesk_eidskog_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(stangesk_eidskog_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(stangesk_eidskog_ub_clip,res=0.5)))))
 plot(canopy_diff_stangesk_eidskog_ub_clip)
 
-writeRaster(canopy_diff_stangesk_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+stangesk_eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14]))
+stangesk_eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SSB2',15:14][stangesk_eidskog_ub_order,]))
+stangesk_eidskog_ub_cut<-lasclip(stangesk_eidskog_ub_clip,stangesk_eidskog_ub_poly)
+plot(stangesk_eidskog_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_stangesk_eidskog_ub_20x20 <-grid_terrain(stangesk_eidskog_ub_cut,method='knnidw',res=1)
+canopymod_stangesk_eidskog_ub_20x20  <-grid_canopy(stangesk_eidskog_ub_cut,res=1)
+
+terrainmod_stangesk_eidskog_ub_resampeled_20x20 <- resample(as.raster(terrainmod_stangesk_eidskog_ub_20x20), as.raster(canopymod_stangesk_eidskog_ub_20x20, method='bilinear'))
+canopy_diff_stangesk_eidskog_ub_20x20 <- (as.raster(canopymod_stangesk_eidskog_ub_20x20)-terrainmod_stangesk_eidskog_ub_resampeled_20x20)
+plot(canopy_diff_stangesk_eidskog_ub_20x20)
+
+writeRaster(canopy_diff_stangesk_eidskog_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/stangesk_eidskog_ub_canopyheight', overwrite=TRUE)
+
 
 
 # Stig Dahlen -------------------------------------------------------------
