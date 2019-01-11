@@ -1748,3 +1748,5 @@ truls_holm_ub_outerpoly<-truls_holm_ub_outerpoly$`1`
 plot(truls_holm_ub_outerpoly) 
 
 writeLAS(truls_holm_ub_outerpoly,'Hedmark_Akershus/clipped_las/truls_holm_ub.las')
+
+

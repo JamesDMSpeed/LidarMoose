@@ -2618,7 +2618,6 @@ canopymod_notodden6_b   <-grid_canopy(notodden6_b,res=1)
 terrainmod_notodden6_b_resampled <-resample(as.raster(terrainmod_notodden6_b), as.raster(canopymod_notodden6_b), method='bilinear')
 canopy_diff_notodden6_b<-(as.raster(canopymod_notodden6_b)-terrainmod_notodden6_b_resampled)
 plot(canopy_diff_notodden6_b)
-#max 4,725
 
 trees_notodden6_b<-tree_detection(notodden6_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight_notodden6_b<-extract(canopy_diff_notodden6_b,trees_notodden6_b[,1:2])
@@ -2707,6 +2706,10 @@ writeRaster(canopy_diff_notodden6_ub_20x20,'Telemark/canopy_height_clipped_raste
 
 
 
+
+
+
+
 # Hedmark og Akershus -----------------------------------------------------
 
 
@@ -2720,9 +2723,43 @@ canopymod_didrik_holmsen_b   <-grid_canopy(didrik_holmsen_b,res=1)
 terrainmod_didrik_holmsen_b_resampled <-resample(as.raster(terrainmod_didrik_holmsen_b), as.raster(canopymod_didrik_holmsen_b), method='bilinear')
 canopy_diff_didrik_holmsen_b<-(as.raster(canopymod_didrik_holmsen_b)-terrainmod_didrik_holmsen_b_resampled)
 plot(canopy_diff_didrik_holmsen_b)
-canopy_diff_didrik_holmsen_b #max 3
+ 
 
-writeRaster(canopy_diff_didrik_holmsen_b,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_b_canopyheight')
+trees_didrik_holmsen_b<-tree_detection(didrik_holmsen_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_didrik_holmsen_b<-extract(canopy_diff_didrik_holmsen_b,trees_didrik_holmsen_b[,1:2])
+
+lastrees_dalponte(didrik_holmsen_b,canopy_diff_didrik_holmsen_b,trees_didrik_holmsen_b[treeheight_didrik_holmsen_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_didrik_holmsen_b<-tree_hulls(didrik_holmsen_b,type='convex',field='treeID')
+plot(canopy_diff_didrik_holmsen_b)
+plot(treeout_didrik_holmsen_b,add=T) 
+
+bigtrees_didrik_holmsen_b<-which(extract(canopy_diff_didrik_holmsen_b,treeout_didrik_holmsen_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+didrik_holmsen_b_clip<-lasclip(didrik_holmsen_b,treeout_didrik_holmsen_b@polygons[[bigtrees_didrik_holmsen_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_didrik_holmsen_b)){
+  print(i)
+  didrik_holmsen_b_clip<-lasclip(didrik_holmsen_b_clip,treeout_didrik_holmsen_b@polygons[[bigtrees_didrik_holmsen_b[i]]]@Polygons[[1]],inside=F)}
+plot(didrik_holmsen_b_clip) 
+
+canopy_diff_didrik_holmsen_b_clip <- (as.raster(grid_canopy(didrik_holmsen_b_clip,res=0.5))-(crop(as.raster(grid_terrain(didrik_holmsen_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(didrik_holmsen_b_clip,res=0.5)))))
+plot(canopy_diff_didrik_holmsen_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+didrik_holmsen_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14]))
+didrik_holmsen_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH2',15:14][didrik_holmsen_b_order,]))
+didrik_holmsen_b_cut<-lasclip(didrik_holmsen_b_clip,didrik_holmsen_b_poly)
+plot(didrik_holmsen_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_didrik_holmsen_b_20x20 <-grid_terrain(didrik_holmsen_b_cut,method='knnidw',res=1)
+canopymod_didrik_holmsen_b_20x20  <-grid_canopy(didrik_holmsen_b_cut,res=1)
+
+terrainmod_didrik_holmsen_b_resampeled_20x20 <- resample(as.raster(terrainmod_didrik_holmsen_b_20x20), as.raster(canopymod_didrik_holmsen_b_20x20, method='bilinear'))
+canopy_diff_didrik_holmsen_b_20x20 <- (as.raster(canopymod_didrik_holmsen_b_20x20)-terrainmod_didrik_holmsen_b_resampeled_20x20)
+plot(canopy_diff_didrik_holmsen_b_20x20)
+
+writeRaster(canopy_diff_didrik_holmsen_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_b_canopyheight', overwrite=TRUE)
 
 
 # Didrik Holmsen_ub
@@ -2733,9 +2770,42 @@ canopymod_didrik_holmsen_ub  <-grid_canopy(didrik_holmsen_ub,res=1)
 terrainmod_didrik_holmsen_ub_resampeled <- resample(as.raster(terrainmod_didrik_holmsen_ub), as.raster(canopymod_didrik_holmsen_ub, method='bilinear'))
 canopy_diff_didrik_holmsen_ub <- (as.raster(canopymod_didrik_holmsen_ub)-terrainmod_didrik_holmsen_ub_resampeled)
 plot(canopy_diff_didrik_holmsen_ub)
-canopy_diff_didrik_holmsen_ub #max 4,7
 
-writeRaster(canopy_diff_didrik_holmsen_ub,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_ub_canopyheight')
+trees_didrik_holmsen_ub<-tree_detection(didrik_holmsen_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_didrik_holmsen_ub<-extract(canopy_diff_didrik_holmsen_ub,trees_didrik_holmsen_ub[,1:2])
+
+lastrees_dalponte(didrik_holmsen_ub,canopy_diff_didrik_holmsen_ub,trees_didrik_holmsen_ub[treeheight_didrik_holmsen_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_didrik_holmsen_ub<-tree_hulls(didrik_holmsen_ub,type='convex',field='treeID')
+plot(canopy_diff_didrik_holmsen_ub)
+plot(treeout_didrik_holmsen_ub,add=T) 
+
+bigtrees_didrik_holmsen_ub<-which(extract(canopy_diff_didrik_holmsen_ub,treeout_didrik_holmsen_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+didrik_holmsen_ub_clip<-lasclip(didrik_holmsen_ub,treeout_didrik_holmsen_ub@polygons[[bigtrees_didrik_holmsen_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_didrik_holmsen_ub)){
+  print(i)
+  didrik_holmsen_ub_clip<-lasclip(didrik_holmsen_ub_clip,treeout_didrik_holmsen_ub@polygons[[bigtrees_didrik_holmsen_ub[i]]]@Polygons[[1]],inside=F)}
+plot(didrik_holmsen_ub_clip) 
+
+canopy_diff_didrik_holmsen_ub_clip <- (as.raster(grid_canopy(didrik_holmsen_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(didrik_holmsen_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(didrik_holmsen_ub_clip,res=0.5)))))
+plot(canopy_diff_didrik_holmsen_ub_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+didrik_holmsen_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14]))
+didrik_holmsen_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DH1',15:14][didrik_holmsen_ub_order,]))
+didrik_holmsen_ub_cut<-lasclip(didrik_holmsen_ub_clip,didrik_holmsen_ub_poly)
+plot(didrik_holmsen_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_didrik_holmsen_ub_20x20 <-grid_terrain(didrik_holmsen_ub_cut,method='knnidw',res=1)
+canopymod_didrik_holmsen_ub_20x20  <-grid_canopy(didrik_holmsen_ub_cut,res=1)
+
+terrainmod_didrik_holmsen_ub_resampeled_20x20 <- resample(as.raster(terrainmod_didrik_holmsen_ub_20x20), as.raster(canopymod_didrik_holmsen_ub_20x20, method='bilinear'))
+canopy_diff_didrik_holmsen_ub_20x20 <- (as.raster(canopymod_didrik_holmsen_ub_20x20)-terrainmod_didrik_holmsen_ub_resampeled_20x20)
+plot(canopy_diff_didrik_holmsen_ub_20x20)
+
+writeRaster(canopy_diff_didrik_holmsen_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/didrik_holmsen_ub_canopyheight', overwrite=TRUE)
 
 
 # Eidskog -----------------------------------------------------------------
@@ -2769,7 +2839,22 @@ plot(eidskog_b_clip)
 canopy_diff_eidskog_b_clip <- (as.raster(grid_canopy(eidskog_b_clip,res=0.5))-(crop(as.raster(grid_terrain(eidskog_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(eidskog_b_clip,res=0.5)))))
 plot(canopy_diff_eidskog_b_clip)
 
-writeRaster(canopy_diff_eidskog_b_clip,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+eidskog_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14]))
+eidskog_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN2',15:14][eidskog_b_order,]))
+eidskog_b_cut<-lasclip(eidskog_b_clip,eidskog_b_poly)
+plot(eidskog_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_eidskog_b_20x20 <-grid_terrain(eidskog_b_cut,method='knnidw',res=1)
+canopymod_eidskog_b_20x20  <-grid_canopy(eidskog_b_cut,res=1)
+
+terrainmod_eidskog_b_resampeled_20x20 <- resample(as.raster(terrainmod_eidskog_b_20x20), as.raster(canopymod_eidskog_b_20x20, method='bilinear'))
+canopy_diff_eidskog_b_20x20 <- (as.raster(canopymod_eidskog_b_20x20)-terrainmod_eidskog_b_resampeled_20x20)
+plot(canopy_diff_eidskog_b_20x20)
+
+writeRaster(canopy_diff_eidskog_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_b_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -2802,7 +2887,21 @@ plot(eidskog_ub_clip)
 canopy_diff_eidskog_ub_clip <- (as.raster(grid_canopy(eidskog_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(eidskog_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(eidskog_ub_clip,res=0.5)))))
 plot(canopy_diff_eidskog_ub_clip)
 
-writeRaster(canopy_diff_eidskog_ub_clip,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+eidskog_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14]))
+eidskog_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='STSKN1',15:14][eidskog_ub_order,]))
+eidskog_ub_cut<-lasclip(eidskog_ub_clip,eidskog_ub_poly)
+plot(eidskog_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_eidskog_ub_20x20 <-grid_terrain(eidskog_ub_cut,method='knnidw',res=1)
+canopymod_eidskog_ub_20x20  <-grid_canopy(eidskog_ub_cut,res=1)
+
+terrainmod_eidskog_ub_resampeled_20x20 <- resample(as.raster(terrainmod_eidskog_ub_20x20), as.raster(canopymod_eidskog_ub_20x20, method='bilinear'))
+canopy_diff_eidskog_ub_20x20 <- (as.raster(canopymod_eidskog_ub_20x20)-terrainmod_eidskog_ub_resampeled_20x20)
+plot(canopy_diff_eidskog_ub_20x20)
+
+writeRaster(canopy_diff_eidskog_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/eidskog_ub_canopyheight', overwrite=TRUE)
 
 
 # Fet3 --------------------------------------------------------------------
