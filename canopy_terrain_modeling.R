@@ -2978,8 +2978,29 @@ canopymod_h_pramhus_b   <-grid_canopy(h_pramhus_b,res=1)
 terrainmod_h_pramhus_b_resampled <-resample(as.raster(terrainmod_h_pramhus_b), as.raster(canopymod_h_pramhus_b), method='bilinear')
 canopy_diff_h_pramhus_b<-(as.raster(canopymod_h_pramhus_b)-terrainmod_h_pramhus_b_resampled)
 plot(canopy_diff_h_pramhus_b)
-#max 4,5
-writeRaster(canopy_diff_h_pramhus_b,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_b_canopyheight')
+
+#1 outlying very high point (like a bird?)
+cellStats(canopy_diff_h_pramhus_b,stat='max')
+canopy_diff_h_pramhus_b[canopy_diff_h_pramhus_b>300] <- NA
+canopy_diff_h_pramhus_b #max 4.802
+plot(canopy_diff_h_pramhus_b)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+halvard_pramhus_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Halvard_Pramhus.las') 
+h_pramhus_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14]))
+h_pramhus_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP1',15:14][h_pramhus_b_order,]))
+h_pramhus_b_cut<-lasclip(halvard_pramhus_las,h_pramhus_b_poly)
+plot(h_pramhus_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_h_pramhus_b_20x20 <-grid_terrain(h_pramhus_b_cut,method='knnidw',res=1)
+canopymod_h_pramhus_b_20x20  <-grid_canopy(h_pramhus_b_cut,res=1)
+
+terrainmod_h_pramhus_b_resampeled_20x20 <- resample(as.raster(terrainmod_h_pramhus_b_20x20), as.raster(canopymod_h_pramhus_b_20x20, method='bilinear'))
+canopy_diff_h_pramhus_b_20x20 <- (as.raster(canopymod_h_pramhus_b_20x20)-terrainmod_h_pramhus_b_resampeled_20x20)
+plot(canopy_diff_h_pramhus_b_20x20)
+
+writeRaster(canopy_diff_h_pramhus_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_b_canopyheight', overwrite=TRUE)
 
 
 # h_pramhus_ub
@@ -2993,10 +3014,30 @@ plot(canopy_diff_h_pramhus_ub)
 #1 outlying very high point (like a bird?)
 cellStats(canopy_diff_h_pramhus_ub,stat='max')
 canopy_diff_h_pramhus_ub[canopy_diff_h_pramhus_ub>300] <- NA
-canopy_diff_h_pramhus_ub #max 6,3
+canopy_diff_h_pramhus_ub 
 plot(canopy_diff_h_pramhus_ub)
 
-writeRaster(canopy_diff_h_pramhus_ub,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_ub_canopyheight')
+#h_pramhus_ub@data[h_pramhus_ub@data$Z>300] <- NA
+#plot(h_pramhus_ub)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+halvard_pramhus_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Halvard_Pramhus.las') 
+h_pramhus_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14]))
+h_pramhus_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='HP2',15:14][h_pramhus_ub_order,]))
+h_pramhus_ub_cut<-lasclip(halvard_pramhus_las,h_pramhus_ub_poly)
+plot(h_pramhus_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_h_pramhus_ub_20x20 <-grid_terrain(h_pramhus_ub_cut,method='knnidw',res=1)
+canopymod_h_pramhus_ub_20x20  <-grid_canopy(h_pramhus_ub_cut,res=1)
+
+terrainmod_h_pramhus_ub_resampeled_20x20 <- resample(as.raster(terrainmod_h_pramhus_ub_20x20), as.raster(canopymod_h_pramhus_ub_20x20, method='bilinear'))
+canopy_diff_h_pramhus_ub_20x20 <- (as.raster(canopymod_h_pramhus_ub_20x20)-terrainmod_h_pramhus_ub_resampeled_20x20)
+plot(canopy_diff_h_pramhus_ub_20x20)
+
+writeRaster(canopy_diff_h_pramhus_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_ub_canopyheight', overwrite=TRUE)
+
+
 
 
 # Stangeskovene Aurskog ---------------------------------------------------
@@ -3322,7 +3363,17 @@ writeRaster(canopy_diff_truls_holm_ub_20x20,'Hedmark_Akershus/canopy_height_clip
 #}
 #Funker det å lage for loop når trefjerningsalgoritmen tar inn både lasfila b eller ub og canopy difference fila? 
 
-  
+getValues(canopy_diff_h_pramhus_b_20x20)
+summary(canopy_diff_h_pramhus_b_20x20)
+
+
+#Make a table for some summary values
+df1<-data.frame(matrix(nrow=2,ncol=3))
+rownames(df1)<-c('bbub','bbb')
+colnames(df1)<-c('Site name','Treatment','Median canpy height')  
+df1[1,3]<-median(getValues(canopy_diff_h_pramhus_b_20x20),na.rm=T)
+write.csv(df1,'myfunkytable.csv')
+
 #calculate mean canopy height?
 cellStats(canopy_diff_bratsberg_b, stat = 'mean')
 cellStats(canopy_diff_bratsberg_ub, stat = 'mean')
