@@ -51,8 +51,8 @@ fritsoe2_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarM
 fritsoe2_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_ub.las')
 fritsoe1_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_b.las')
 fritsoe1_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_ub.las')
-fyresdal_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_b.las')
-fyresdal_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_ub.las')
+fyresdal_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fyresdal_b.las')
+fyresdal_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fyresdal_ub.las')
 kviteseid1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_b.las')
 kviteseid1_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_ub.las')
 kviteseid2_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid2_b.las')
@@ -1936,7 +1936,22 @@ plot(fyresdal_b_clip)
 canopy_diff_fyresdal_b_clip <- (as.raster(grid_canopy(fyresdal_b_clip,res=0.5))-(crop(as.raster(grid_terrain(fyresdal_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fyresdal_b_clip,res=0.5)))))
 plot(canopy_diff_fyresdal_b_clip)
 
-writeRaster(canopy_diff_fyresdal_b_clip,'Telemark/canopy_height_clipped_raster/fyresdal_b_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fyresdal_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9]))
+fyresdal_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 B',10:9][fyresdal_b_order,]))
+fyresdal_b_cut<-lasclip(fyresdal_b_clip,fyresdal_b_poly)
+plot(fyresdal_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fyresdal_b_20x20 <-grid_terrain(fyresdal_b_cut,method='knnidw',res=1)
+canopymod_fyresdal_b_20x20  <-grid_canopy(fyresdal_b_cut,res=1)
+
+terrainmod_fyresdal_b_resampeled_20x20 <- resample(as.raster(terrainmod_fyresdal_b_20x20), as.raster(canopymod_fyresdal_b_20x20, method='bilinear'))
+canopy_diff_fyresdal_b_20x20 <- (as.raster(canopymod_fyresdal_b_20x20)-terrainmod_fyresdal_b_resampeled_20x20)
+plot(canopy_diff_fyresdal_b_20x20)
+
+writeRaster(canopy_diff_fyresdal_b_20x20,'Telemark/canopy_height_clipped_raster/fyresdal_b_canopyheight', overwrite=TRUE)
 
 
 
@@ -1968,7 +1983,21 @@ plot(fyresdal_ub_clip)
 canopy_diff_fyresdal_ub_clip <- (as.raster(grid_canopy(fyresdal_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(fyresdal_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fyresdal_ub_clip,res=0.5)))))
 plot(canopy_diff_fyresdal_ub_clip)
 
-writeRaster(canopy_diff_fyresdal_ub_clip,'Telemark/canopy_height_clipped_raster/fyresdal_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fyresdal_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9]))
+fyresdal_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fyresdal 1 UB',10:9][fyresdal_ub_order,]))
+fyresdal_ub_cut<-lasclip(fyresdal_ub_clip,fyresdal_ub_poly)
+plot(fyresdal_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fyresdal_ub_20x20 <-grid_terrain(fyresdal_ub_cut,method='knnidw',res=1)
+canopymod_fyresdal_ub_20x20  <-grid_canopy(fyresdal_ub_cut,res=1)
+
+terrainmod_fyresdal_ub_resampeled_20x20 <- resample(as.raster(terrainmod_fyresdal_ub_20x20), as.raster(canopymod_fyresdal_ub_20x20, method='bilinear'))
+canopy_diff_fyresdal_ub_20x20 <- (as.raster(canopymod_fyresdal_ub_20x20)-terrainmod_fyresdal_ub_resampeled_20x20)
+plot(canopy_diff_fyresdal_ub_20x20)
+
+writeRaster(canopy_diff_fyresdal_ub_20x20,'Telemark/canopy_height_clipped_raster/fyresdal_ub_canopyheight', overwrite=TRUE)
 
 
 # Kviteseid1 --------------------------------------------------------------
@@ -2002,7 +2031,21 @@ plot(kviteseid1_b_clip)
 canopy_diff_kviteseid1_b_clip <- (as.raster(grid_canopy(kviteseid1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid1_b_clip,res=0.5)))))
 plot(canopy_diff_kviteseid1_b_clip)
 
-writeRaster(canopy_diff_kviteseid1_b_clip,'Telemark/canopy_height_clipped_raster/kviteseid1_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 B',10:9]))
+kviteseid1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 B',10:9][kviteseid1_b_order,]))
+kviteseid1_b_cut<-lasclip(kviteseid1_b_clip,kviteseid1_b_poly)
+plot(kviteseid1_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid1_b_20x20 <-grid_terrain(kviteseid1_b_cut,method='knnidw',res=1)
+canopymod_kviteseid1_b_20x20  <-grid_canopy(kviteseid1_b_cut,res=1)
+
+terrainmod_kviteseid1_b_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid1_b_20x20), as.raster(canopymod_kviteseid1_b_20x20, method='bilinear'))
+canopy_diff_kviteseid1_b_20x20 <- (as.raster(canopymod_kviteseid1_b_20x20)-terrainmod_kviteseid1_b_resampeled_20x20)
+plot(canopy_diff_kviteseid1_b_20x20)
+
+writeRaster(canopy_diff_kviteseid1_b_20x20,'Telemark/canopy_height_clipped_raster/kviteseid1_b_canopyheight', overwrite=TRUE)
 
 
 
@@ -2013,9 +2056,43 @@ canopymod_kviteseid1_ub  <-grid_canopy(kviteseid1_ub,res=1)
 terrainmod_kviteseid1_ub_resampeled <- resample(as.raster(terrainmod_kviteseid1_ub), as.raster(canopymod_kviteseid1_ub, method='bilinear'))
 canopy_diff_kviteseid1_ub <- (as.raster(canopymod_kviteseid1_ub)-terrainmod_kviteseid1_ub_resampeled)
 plot(canopy_diff_kviteseid1_ub)
-#max 5,525
 
-writeRaster(canopy_diff_kviteseid1_ub,'Telemark/canopy_height_clipped_raster/kviteseid1_ub_canopyheight')
+
+trees_kviteseid1_ub<-tree_detection(kviteseid1_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_kviteseid1_ub<-extract(canopy_diff_kviteseid1_ub,trees_kviteseid1_ub[,1:2])
+
+lastrees_dalponte(kviteseid1_ub,canopy_diff_kviteseid1_ub,trees_kviteseid1_ub[treeheight_kviteseid1_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_kviteseid1_ub<-tree_hulls(kviteseid1_ub,type='convex',field='treeID')
+plot(canopy_diff_kviteseid1_ub)
+plot(treeout_kviteseid1_ub,add=T) 
+
+bigtrees_kviteseid1_ub<-which(extract(canopy_diff_kviteseid1_ub,treeout_kviteseid1_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+kviteseid1_ub_clip<-lasclip(kviteseid1_ub,treeout_kviteseid1_ub@polygons[[bigtrees_kviteseid1_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_kviteseid1_ub)){
+  print(i)
+  kviteseid1_ub_clip<-lasclip(kviteseid1_ub_clip,treeout_kviteseid1_ub@polygons[[bigtrees_kviteseid1_ub[i]]]@Polygons[[1]],inside=F)}
+plot(kviteseid1_ub_clip) 
+
+canopy_diff_kviteseid1_ub_clip <- (as.raster(grid_canopy(kviteseid1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid1_ub_clip,res=0.5)))))
+plot(canopy_diff_kviteseid1_ub_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 UB',10:9]))
+kviteseid1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 1 UB',10:9][kviteseid1_ub_order,]))
+kviteseid1_ub_cut<-lasclip(kviteseid1_ub_clip,kviteseid1_ub_poly)
+plot(kviteseid1_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid1_ub_20x20 <-grid_terrain(kviteseid1_ub_cut,method='knnidw',res=1)
+canopymod_kviteseid1_ub_20x20  <-grid_canopy(kviteseid1_ub_cut,res=1)
+
+terrainmod_kviteseid1_ub_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid1_ub_20x20), as.raster(canopymod_kviteseid1_ub_20x20, method='bilinear'))
+canopy_diff_kviteseid1_ub_20x20 <- (as.raster(canopymod_kviteseid1_ub_20x20)-terrainmod_kviteseid1_ub_resampeled_20x20)
+plot(canopy_diff_kviteseid1_ub_20x20)
+
+writeRaster(canopy_diff_kviteseid1_ub_20x20,'Telemark/canopy_height_clipped_raster/kviteseid1_ub_canopyheight', overwrite=TRUE)
 
 
 # Kviteseid2 --------------------------------------------------------------
@@ -2049,7 +2126,22 @@ plot(kviteseid2_b_clip)
 canopy_diff_kviteseid2_b_clip <- (as.raster(grid_canopy(kviteseid2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid2_b_clip,res=0.5)))))
 plot(canopy_diff_kviteseid2_b_clip)
 
-writeRaster(canopy_diff_kviteseid2_b_clip,'Telemark/canopy_height_clipped_raster/kviteseid2_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9]))
+kviteseid2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 B',10:9][kviteseid2_b_order,]))
+kviteseid2_b_cut<-lasclip(kviteseid2_b_clip,kviteseid2_b_poly)
+plot(kviteseid2_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid2_b_20x20 <-grid_terrain(kviteseid2_b_cut,method='knnidw',res=1)
+canopymod_kviteseid2_b_20x20  <-grid_canopy(kviteseid2_b_cut,res=1)
+
+terrainmod_kviteseid2_b_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid2_b_20x20), as.raster(canopymod_kviteseid2_b_20x20, method='bilinear'))
+canopy_diff_kviteseid2_b_20x20 <- (as.raster(canopymod_kviteseid2_b_20x20)-terrainmod_kviteseid2_b_resampeled_20x20)
+plot(canopy_diff_kviteseid2_b_20x20)
+
+writeRaster(canopy_diff_kviteseid2_b_20x20,'Telemark/canopy_height_clipped_raster/kviteseid2_b_canopyheight', overwrite=TRUE)
+
 
 
 # kviteseid2_ub
@@ -2080,7 +2172,22 @@ plot(kviteseid2_ub_clip)
 canopy_diff_kviteseid2_ub_clip <- (as.raster(grid_canopy(kviteseid2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid2_ub_clip,res=0.5)))))
 plot(canopy_diff_kviteseid2_ub_clip)
 
-writeRaster(canopy_diff_kviteseid2_ub_clip,'Telemark/canopy_height_clipped_raster/kviteseid2_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9]))
+kviteseid2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 2 UB',10:9][kviteseid2_ub_order,]))
+kviteseid2_ub_cut<-lasclip(kviteseid2_ub_clip,kviteseid2_ub_poly)
+plot(kviteseid2_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid2_ub_20x20 <-grid_terrain(kviteseid2_ub_cut,method='knnidw',res=1)
+canopymod_kviteseid2_ub_20x20  <-grid_canopy(kviteseid2_ub_cut,res=1)
+
+terrainmod_kviteseid2_ub_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid2_ub_20x20), as.raster(canopymod_kviteseid2_ub_20x20, method='bilinear'))
+canopy_diff_kviteseid2_ub_20x20 <- (as.raster(canopymod_kviteseid2_ub_20x20)-terrainmod_kviteseid2_ub_resampeled_20x20)
+plot(canopy_diff_kviteseid2_ub_20x20)
+
+writeRaster(canopy_diff_kviteseid2_ub_20x20,'Telemark/canopy_height_clipped_raster/kviteseid2_ub_canopyheight', overwrite=TRUE)
+
 
 
 # Kviteseid3 --------------------------------------------------------------
@@ -2114,7 +2221,22 @@ plot(kviteseid3_b_clip)
 canopy_diff_kviteseid3_b_clip <- (as.raster(grid_canopy(kviteseid3_b_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid3_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid3_b_clip,res=0.5)))))
 plot(canopy_diff_kviteseid3_b_clip)
 
-writeRaster(canopy_diff_kviteseid3_b_clip,'Telemark/canopy_height_clipped_raster/kviteseid3_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid3_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 B',10:9]))
+kviteseid3_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 B',10:9][kviteseid3_b_order,]))
+kviteseid3_b_cut<-lasclip(kviteseid3_b_clip,kviteseid3_b_poly)
+plot(kviteseid3_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid3_b_20x20 <-grid_terrain(kviteseid3_b_cut,method='knnidw',res=1)
+canopymod_kviteseid3_b_20x20  <-grid_canopy(kviteseid3_b_cut,res=1)
+
+terrainmod_kviteseid3_b_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid3_b_20x20), as.raster(canopymod_kviteseid3_b_20x20, method='bilinear'))
+canopy_diff_kviteseid3_b_20x20 <- (as.raster(canopymod_kviteseid3_b_20x20)-terrainmod_kviteseid3_b_resampeled_20x20)
+plot(canopy_diff_kviteseid3_b_20x20)
+
+writeRaster(canopy_diff_kviteseid3_b_20x20,'Telemark/canopy_height_clipped_raster/kviteseid3_b_canopyheight', overwrite=TRUE)
+
 
 # kviteseid3_ub
 terrainmod_kviteseid3_ub <-grid_terrain(kviteseid3_ub,method='knnidw',res=1)
@@ -2145,7 +2267,21 @@ plot(kviteseid3_ub_clip)
 canopy_diff_kviteseid3_ub_clip <- (as.raster(grid_canopy(kviteseid3_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(kviteseid3_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(kviteseid3_ub_clip,res=0.5)))))
 plot(canopy_diff_kviteseid3_ub_clip)
 
-writeRaster(canopy_diff_kviteseid3_ub_clip,'Telemark/canopy_height_clipped_raster/kviteseid3_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+kviteseid3_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 UB',10:9]))
+kviteseid3_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Kviteseid 3 UB',10:9][kviteseid3_ub_order,]))
+kviteseid3_ub_cut<-lasclip(kviteseid3_ub_clip,kviteseid3_ub_poly)
+plot(kviteseid3_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_kviteseid3_ub_20x20 <-grid_terrain(kviteseid3_ub_cut,method='knnidw',res=1)
+canopymod_kviteseid3_ub_20x20  <-grid_canopy(kviteseid3_ub_cut,res=1)
+
+terrainmod_kviteseid3_ub_resampeled_20x20 <- resample(as.raster(terrainmod_kviteseid3_ub_20x20), as.raster(canopymod_kviteseid3_ub_20x20, method='bilinear'))
+canopy_diff_kviteseid3_ub_20x20 <- (as.raster(canopymod_kviteseid3_ub_20x20)-terrainmod_kviteseid3_ub_resampeled_20x20)
+plot(canopy_diff_kviteseid3_ub_20x20)
+
+writeRaster(canopy_diff_kviteseid3_ub_20x20,'Telemark/canopy_height_clipped_raster/kviteseid3_ub_canopyheight', overwrite=TRUE)
 
 
 # Nome Cappelen 1 ---------------------------------------------------------
@@ -2348,12 +2484,27 @@ canopymod_notodden3_b   <-grid_canopy(notodden3_b,res=1)
 terrainmod_notodden3_b_resampled <-resample(as.raster(terrainmod_notodden3_b), as.raster(canopymod_notodden3_b), method='bilinear')
 canopy_diff_notodden3_b<-(as.raster(canopymod_notodden3_b)-terrainmod_notodden3_b_resampled)
 plot(canopy_diff_notodden3_b)
-#max 3,282
+#max 6,363
 
-writeRaster(canopy_diff_notodden3_b,'Telemark/canopy_height_clipped_raster/notodden3_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden3.las')
+notodden3_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9]))
+notodden3_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 B',10:9][notodden3_b_order,]))
+notodden3_b_cut<-lasclip(notodden3_las,notodden3_b_poly)
+plot(notodden3_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden3_b_20x20 <-grid_terrain(notodden3_b_cut,method='knnidw',res=1)
+canopymod_notodden3_b_20x20  <-grid_canopy(notodden3_b_cut,res=1)
+
+terrainmod_notodden3_b_resampeled_20x20 <- resample(as.raster(terrainmod_notodden3_b_20x20), as.raster(canopymod_notodden3_b_20x20, method='bilinear'))
+canopy_diff_notodden3_b_20x20 <- (as.raster(canopymod_notodden3_b_20x20)-terrainmod_notodden3_b_resampeled_20x20)
+plot(canopy_diff_notodden3_b_20x20)
+
+writeRaster(canopy_diff_notodden3_b_20x20,'Telemark/canopy_height_clipped_raster/notodden3_b_canopyheight', overwrite=TRUE)
 
 
-# notodden3_b
+# notodden3_ub
 terrainmod_notodden3_ub <-grid_terrain(notodden3_ub,method='knnidw',res=1)
 canopymod_notodden3_ub  <-grid_canopy(notodden3_ub,res=1)
 
@@ -2361,9 +2512,24 @@ canopymod_notodden3_ub  <-grid_canopy(notodden3_ub,res=1)
 terrainmod_notodden3_ub_resampeled <- resample(as.raster(terrainmod_notodden3_ub), as.raster(canopymod_notodden3_ub, method='bilinear'))
 canopy_diff_notodden3_ub <- (as.raster(canopymod_notodden3_ub)-terrainmod_notodden3_ub_resampeled)
 plot(canopy_diff_notodden3_ub)
-#max 4,091
+#max 4,539
 
-writeRaster(canopy_diff_notodden3_ub,'Telemark/canopy_height_clipped_raster/notodden3_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden3_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden3.las')
+notodden3_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9]))
+notodden3_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 3 UB',10:9][notodden3_ub_order,]))
+notodden3_ub_cut<-lasclip(notodden3_las,notodden3_ub_poly)
+plot(notodden3_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden3_ub_20x20 <-grid_terrain(notodden3_ub_cut,method='knnidw',res=1)
+canopymod_notodden3_ub_20x20  <-grid_canopy(notodden3_ub_cut,res=1)
+
+terrainmod_notodden3_ub_resampeled_20x20 <- resample(as.raster(terrainmod_notodden3_ub_20x20), as.raster(canopymod_notodden3_ub_20x20, method='bilinear'))
+canopy_diff_notodden3_ub_20x20 <- (as.raster(canopymod_notodden3_ub_20x20)-terrainmod_notodden3_ub_resampeled_20x20)
+plot(canopy_diff_notodden3_ub_20x20)
+
+writeRaster(canopy_diff_notodden3_ub_20x20,'Telemark/canopy_height_clipped_raster/notodden3_ub_canopyheight', overwrite=TRUE)
 
 
 # Notodden 5 --------------------------------------------------------------
