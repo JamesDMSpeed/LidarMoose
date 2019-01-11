@@ -2563,7 +2563,21 @@ plot(notodden5_b_clip)
 canopy_diff_notodden5_b_clip <- (as.raster(grid_canopy(notodden5_b_clip,res=0.5))-(crop(as.raster(grid_terrain(notodden5_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(notodden5_b_clip,res=0.5)))))
 plot(canopy_diff_notodden5_b_clip)
 
-writeRaster(canopy_diff_notodden5_b_clip,'Telemark/canopy_height_clipped_raster/notodden5_b_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden5_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 B',10:9]))
+notodden5_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 B',10:9][notodden5_b_order,]))
+notodden5_b_cut<-lasclip(notodden5_b_clip,notodden5_b_poly)
+plot(notodden5_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden5_b_20x20 <-grid_terrain(notodden5_b_cut,method='knnidw',res=1)
+canopymod_notodden5_b_20x20  <-grid_canopy(notodden5_b_cut,res=1)
+
+terrainmod_notodden5_b_resampeled_20x20 <- resample(as.raster(terrainmod_notodden5_b_20x20), as.raster(canopymod_notodden5_b_20x20, method='bilinear'))
+canopy_diff_notodden5_b_20x20 <- (as.raster(canopymod_notodden5_b_20x20)-terrainmod_notodden5_b_resampeled_20x20)
+plot(canopy_diff_notodden5_b_20x20)
+
+writeRaster(canopy_diff_notodden5_b_20x20,'Telemark/canopy_height_clipped_raster/notodden5_b_canopyheight', overwrite=TRUE)
 
 # notodden5_ub
 terrainmod_notodden5_ub <-grid_terrain(notodden5_ub,method='knnidw',res=1)
@@ -2575,7 +2589,22 @@ canopy_diff_notodden5_ub <- (as.raster(canopymod_notodden5_ub)-terrainmod_notodd
 plot(canopy_diff_notodden5_ub)
 #max 3,495
 
-writeRaster(canopy_diff_notodden5_ub,'Telemark/canopy_height_clipped_raster/notodden5_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden5_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Notodden5.las')
+notodden5_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 UB',10:9]))
+notodden5_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 5 UB',10:9][notodden5_ub_order,]))
+notodden5_ub_cut<-lasclip(notodden5_las,notodden5_ub_poly)
+plot(notodden5_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden5_ub_20x20 <-grid_terrain(notodden5_ub_cut,method='knnidw',res=1)
+canopymod_notodden5_ub_20x20  <-grid_canopy(notodden5_ub_cut,res=1)
+
+terrainmod_notodden5_ub_resampeled_20x20 <- resample(as.raster(terrainmod_notodden5_ub_20x20), as.raster(canopymod_notodden5_ub_20x20, method='bilinear'))
+canopy_diff_notodden5_ub_20x20 <- (as.raster(canopymod_notodden5_ub_20x20)-terrainmod_notodden5_ub_resampeled_20x20)
+plot(canopy_diff_notodden5_ub_20x20)
+
+writeRaster(canopy_diff_notodden5_ub_20x20,'Telemark/canopy_height_clipped_raster/notodden5_ub_canopyheight', overwrite=TRUE)
 
 
 
@@ -2591,7 +2620,41 @@ canopy_diff_notodden6_b<-(as.raster(canopymod_notodden6_b)-terrainmod_notodden6_
 plot(canopy_diff_notodden6_b)
 #max 4,725
 
-writeRaster(canopy_diff_notodden6_b,'Telemark/canopy_height_clipped_raster/notodden6_b_canopyheight')
+trees_notodden6_b<-tree_detection(notodden6_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_notodden6_b<-extract(canopy_diff_notodden6_b,trees_notodden6_b[,1:2])
+
+lastrees_dalponte(notodden6_b,canopy_diff_notodden6_b,trees_notodden6_b[treeheight_notodden6_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_notodden6_b<-tree_hulls(notodden6_b,type='convex',field='treeID')
+plot(canopy_diff_notodden6_b)
+plot(treeout_notodden6_b,add=T) 
+
+bigtrees_notodden6_b<-which(extract(canopy_diff_notodden6_b,treeout_notodden6_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+notodden6_b_clip<-lasclip(notodden6_b,treeout_notodden6_b@polygons[[bigtrees_notodden6_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_notodden6_b)){
+  print(i)
+  notodden6_b_clip<-lasclip(notodden6_b_clip,treeout_notodden6_b@polygons[[bigtrees_notodden6_b[i]]]@Polygons[[1]],inside=F)}
+plot(notodden6_b_clip) 
+
+canopy_diff_notodden6_b_clip <- (as.raster(grid_canopy(notodden6_b_clip,res=0.5))-(crop(as.raster(grid_terrain(notodden6_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(notodden6_b_clip,res=0.5)))))
+plot(canopy_diff_notodden6_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden6_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9]))
+notodden6_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 B',10:9][notodden6_b_order,]))
+notodden6_b_cut<-lasclip(notodden6_b_clip,notodden6_b_poly)
+plot(notodden6_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden6_b_20x20 <-grid_terrain(notodden6_b_cut,method='knnidw',res=1)
+canopymod_notodden6_b_20x20  <-grid_canopy(notodden6_b_cut,res=1)
+
+terrainmod_notodden6_b_resampeled_20x20 <- resample(as.raster(terrainmod_notodden6_b_20x20), as.raster(canopymod_notodden6_b_20x20, method='bilinear'))
+canopy_diff_notodden6_b_20x20 <- (as.raster(canopymod_notodden6_b_20x20)-terrainmod_notodden6_b_resampeled_20x20)
+plot(canopy_diff_notodden6_b_20x20)
+
+writeRaster(canopy_diff_notodden6_b_20x20,'Telemark/canopy_height_clipped_raster/notodden6_b_canopyheight', overwrite=TRUE)
 
 
 # notodden6_ub
@@ -2623,7 +2686,21 @@ plot(notodden6_ub_clip)
 canopy_diff_notodden6_ub_clip <- (as.raster(grid_canopy(notodden6_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(notodden6_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(notodden6_ub_clip,res=0.5)))))
 plot(canopy_diff_notodden6_ub_clip)
 
-writeRaster(canopy_diff_notodden6_ub_clip,'Telemark/canopy_height_clipped_raster/notodden6_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+notodden6_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9]))
+notodden6_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Notodden 6 UB',10:9][notodden6_ub_order,]))
+notodden6_ub_cut<-lasclip(notodden6_ub_clip,notodden6_ub_poly)
+plot(notodden6_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_notodden6_ub_20x20 <-grid_terrain(notodden6_ub_cut,method='knnidw',res=1)
+canopymod_notodden6_ub_20x20  <-grid_canopy(notodden6_ub_cut,res=1)
+
+terrainmod_notodden6_ub_resampeled_20x20 <- resample(as.raster(terrainmod_notodden6_ub_20x20), as.raster(canopymod_notodden6_ub_20x20, method='bilinear'))
+canopy_diff_notodden6_ub_20x20 <- (as.raster(canopymod_notodden6_ub_20x20)-terrainmod_notodden6_ub_resampeled_20x20)
+plot(canopy_diff_notodden6_ub_20x20)
+
+writeRaster(canopy_diff_notodden6_ub_20x20,'Telemark/canopy_height_clipped_raster/notodden6_ub_canopyheight', overwrite=TRUE)
 
 
 
