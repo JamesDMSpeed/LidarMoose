@@ -47,10 +47,10 @@ drangedal3_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarM
 drangedal3_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal3_ub.las')
 drangedal4_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_b.las')
 drangedal4_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_ub.las')
-fritsoe2_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_2FR_b.las')
-fritsoe2_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_2FR_ub.las')
-fritsoe1_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoel_1FR_b.las')
-fritsoe1_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoel_1FR_ub.las')
+fritsoe2_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_b.las')
+fritsoe2_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_ub.las')
+fritsoe1_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_b.las')
+fritsoe1_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_ub.las')
 fyresdal_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_b.las')
 fyresdal_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/Furesdal_ub.las')
 kviteseid1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_b.las')
@@ -1746,9 +1746,8 @@ treeout_fritsoe2_b<-tree_hulls(fritsoe2_b,type='convex',field='treeID')
 plot(canopy_diff_fritsoe2_b)
 plot(treeout_fritsoe2_b,add=T) 
 
-bigtrees_fritsoe2_b<-which(extract(canopy_diff_fritsoe2_b,treeout_fritsoe2_b,fun=max,na.rm=T)>6) #identify trees larger than 7m
+bigtrees_fritsoe2_b<-which(extract(canopy_diff_fritsoe2_b,treeout_fritsoe2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
 
-#ERROR!! bigtrees empty... >5 - not empty
 fritsoe2_b_clip<-lasclip(fritsoe2_b,treeout_fritsoe2_b@polygons[[bigtrees_fritsoe2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
 for(i in 2:length(bigtrees_fritsoe2_b)){
   print(i)
@@ -1758,7 +1757,24 @@ plot(fritsoe2_b_clip)
 canopy_diff_fritsoe2_b_clip <- (as.raster(grid_canopy(fritsoe2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(fritsoe2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fritsoe2_b_clip,res=0.5)))))
 plot(canopy_diff_fritsoe2_b_clip)
 
-writeRaster(canopy_diff_fritsoe2_b_clip,'Telemark/canopy_height_clipped_raster/fritsoe2_b_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fritsoe2_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9]))
+fritsoe2_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 B',10:9][fritsoe2_b_order,]))
+fritsoe2_b_cut<-lasclip(fritsoe2_b_clip,fritsoe2_b_poly)
+plot(fritsoe2_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fritsoe2_b_20x20 <-grid_terrain(fritsoe2_b_cut,method='knnidw',res=1)
+canopymod_fritsoe2_b_20x20  <-grid_canopy(fritsoe2_b_cut,res=1)
+
+terrainmod_fritsoe2_b_resampeled_20x20 <- resample(as.raster(terrainmod_fritsoe2_b_20x20), as.raster(canopymod_fritsoe2_b_20x20, method='bilinear'))
+canopy_diff_fritsoe2_b_20x20 <- (as.raster(canopymod_fritsoe2_b_20x20)-terrainmod_fritsoe2_b_resampeled_20x20)
+plot(canopy_diff_fritsoe2_b_20x20)
+
+writeRaster(canopy_diff_fritsoe2_b_20x20,'Telemark/canopy_height_clipped_raster/fritsoe2_b_canopyheight', overwrite=TRUE)
+
+
 
 
 
@@ -1790,7 +1806,23 @@ plot(fritsoe2_ub_clip)
 canopy_diff_fritsoe2_ub_clip <- (as.raster(grid_canopy(fritsoe2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(fritsoe2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fritsoe2_ub_clip,res=0.5)))))
 plot(canopy_diff_fritsoe2_ub_clip)
 
-writeRaster(canopy_diff_fritsoe2_ub_clip,'Telemark/canopy_height_clipped_raster/fritsoe2_ub_canopyheight')
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fritsoe2_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9]))
+fritsoe2_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 2 UB',10:9][fritsoe2_ub_order,]))
+fritsoe2_ub_cut<-lasclip(fritsoe2_ub_clip,fritsoe2_ub_poly)
+plot(fritsoe2_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fritsoe2_ub_20x20 <-grid_terrain(fritsoe2_ub_cut,method='knnidw',res=1)
+canopymod_fritsoe2_ub_20x20  <-grid_canopy(fritsoe2_ub_cut,res=1)
+
+terrainmod_fritsoe2_ub_resampeled_20x20 <- resample(as.raster(terrainmod_fritsoe2_ub_20x20), as.raster(canopymod_fritsoe2_ub_20x20, method='bilinear'))
+canopy_diff_fritsoe2_ub_20x20 <- (as.raster(canopymod_fritsoe2_ub_20x20)-terrainmod_fritsoe2_ub_resampeled_20x20)
+plot(canopy_diff_fritsoe2_ub_20x20)
+
+writeRaster(canopy_diff_fritsoe2_ub_20x20,'Telemark/canopy_height_clipped_raster/fritsoe2_ub_canopyheight', overwrite=TRUE)
+
 
 
 
@@ -1804,9 +1836,44 @@ canopymod_fritsoe1_b   <-grid_canopy(fritsoe1_b,res=1)
 terrainmod_fritsoe1_b_resampled <-resample(as.raster(terrainmod_fritsoe1_b), as.raster(canopymod_fritsoe1_b), method='bilinear')
 canopy_diff_fritsoe1_b<-(as.raster(canopymod_fritsoe1_b)-terrainmod_fritsoe1_b_resampled)
 plot(canopy_diff_fritsoe1_b)
-canopy_diff_fritsoe1_b #max 4
 
-writeRaster(canopy_diff_fritsoe1_b,'Telemark/canopy_height_clipped_raster/fritsoe1_b_canopyheight')
+
+trees_fritsoe1_b<-tree_detection(fritsoe1_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_fritsoe1_b<-extract(canopy_diff_fritsoe1_b,trees_fritsoe1_b[,1:2])
+
+lastrees_dalponte(fritsoe1_b,canopy_diff_fritsoe1_b,trees_fritsoe1_b[treeheight_fritsoe1_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_fritsoe1_b<-tree_hulls(fritsoe1_b,type='convex',field='treeID')
+plot(canopy_diff_fritsoe1_b)
+plot(treeout_fritsoe1_b,add=T) 
+
+bigtrees_fritsoe1_b<-which(extract(canopy_diff_fritsoe1_b,treeout_fritsoe1_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+fritsoe1_b_clip<-lasclip(fritsoe1_b,treeout_fritsoe1_b@polygons[[bigtrees_fritsoe1_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_fritsoe1_b)){
+  print(i)
+  fritsoe1_b_clip<-lasclip(fritsoe1_b_clip,treeout_fritsoe1_b@polygons[[bigtrees_fritsoe1_b[i]]]@Polygons[[1]],inside=F)}
+plot(fritsoe1_b_clip) 
+
+canopy_diff_fritsoe1_b_clip <- (as.raster(grid_canopy(fritsoe1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(fritsoe1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(fritsoe1_b_clip,res=0.5)))))
+plot(canopy_diff_fritsoe1_b_clip)
+
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fritsoe1_b_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9]))
+fritsoe1_b_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 B',10:9][fritsoe1_b_order,]))
+fritsoe1_b_cut<-lasclip(fritsoe1_b_clip,fritsoe1_b_poly)
+plot(fritsoe1_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fritsoe1_b_20x20 <-grid_terrain(fritsoe1_b_cut,method='knnidw',res=1)
+canopymod_fritsoe1_b_20x20  <-grid_canopy(fritsoe1_b_cut,res=1)
+
+terrainmod_fritsoe1_b_resampeled_20x20 <- resample(as.raster(terrainmod_fritsoe1_b_20x20), as.raster(canopymod_fritsoe1_b_20x20, method='bilinear'))
+canopy_diff_fritsoe1_b_20x20 <- (as.raster(canopymod_fritsoe1_b_20x20)-terrainmod_fritsoe1_b_resampeled_20x20)
+plot(canopy_diff_fritsoe1_b_20x20)
+
+writeRaster(canopy_diff_fritsoe1_b_20x20,'Telemark/canopy_height_clipped_raster/fritsoe1_b_canopyheight', overwrite=TRUE)
 
 
 # Fritsoe1_ub
@@ -1819,7 +1886,22 @@ canopy_diff_fritsoe1_ub <- (as.raster(canopymod_fritsoe1_ub)-terrainmod_fritsoe1
 plot(canopy_diff_fritsoe1_ub)
 canopy_diff_fritsoe1_ub #mac 4,8
 
-writeRaster(canopy_diff_fritsoe1_ub,'Telemark/canopy_height_clipped_raster/fritsoe1_ub_canopyheight')
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+fritsoe1_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Telemark/Fritsoe1.las')
+fritsoe1_ub_order<-chull(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9]))
+fritsoe1_ub_poly<-Polygon(as.matrix(plotcoords_telemark[plotcoords_telemark$flatenavn=='Fritzøe 1 UB',10:9][fritsoe1_ub_order,]))
+fritsoe1_ub_cut<-lasclip(fritsoe1_las,fritsoe1_ub_poly)
+plot(fritsoe1_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_fritsoe1_ub_20x20 <-grid_terrain(fritsoe1_ub_cut,method='knnidw',res=1)
+canopymod_fritsoe1_ub_20x20  <-grid_canopy(fritsoe1_ub_cut,res=1)
+
+terrainmod_fritsoe1_ub_resampeled_20x20 <- resample(as.raster(terrainmod_fritsoe1_ub_20x20), as.raster(canopymod_fritsoe1_ub_20x20, method='bilinear'))
+canopy_diff_fritsoe1_ub_20x20 <- (as.raster(canopymod_fritsoe1_ub_20x20)-terrainmod_fritsoe1_ub_resampeled_20x20)
+plot(canopy_diff_fritsoe1_ub_20x20)
+
+writeRaster(canopy_diff_fritsoe1_ub_20x20,'Telemark/canopy_height_clipped_raster/fritsoe1_ub_canopyheight', overwrite=TRUE)
 
 
 
