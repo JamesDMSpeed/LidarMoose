@@ -3003,19 +3003,13 @@ plot(canopy_diff_h_pramhus_b_20x20)
 writeRaster(canopy_diff_h_pramhus_b_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/h_pramhus_b_canopyheight', overwrite=TRUE)
 
 
-# h_pramhus_ub #error!!
+# h_pramhus_ub 
 terrainmod_h_pramhus_ub <-grid_terrain(h_pramhus_ub,method='knnidw',res=1)
 canopymod_h_pramhus_ub  <-grid_canopy(h_pramhus_ub,res=1)
 
 terrainmod_h_pramhus_ub_resampeled <- resample(as.raster(terrainmod_h_pramhus_ub), as.raster(canopymod_h_pramhus_ub, method='bilinear'))
 canopy_diff_h_pramhus_ub <- (as.raster(canopymod_h_pramhus_ub)-terrainmod_h_pramhus_ub_resampeled)
 plot(canopy_diff_h_pramhus_ub)
-
-#1 outlying very high point (like a bird?)
-#cellStats(canopy_diff_h_pramhus_ub,stat='max')
-#canopy_diff_h_pramhus_ub[canopy_diff_h_pramhus_ub>300] <- NA
-#canopy_diff_h_pramhus_ub 
-#plot(canopy_diff_h_pramhus_ub)
 
 #h_pramhus_ub@data[h_pramhus_ub@data$Z>300] <- NA
 #plot(h_pramhus_ub)
