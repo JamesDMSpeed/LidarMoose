@@ -87,3 +87,16 @@ truls_holm_ub_canopyheight         <-  raster('Hedmark_Akershus/canopy_height_cl
 
 
 
+
+#Make a table for some summary values
+df1<-data.frame(matrix(nrow=2,ncol=3))
+rownames(df1)<-c('bratsberg_b','bratsberg_ub','hi_tydal_b','hi_tydal_ub','malvik_b','malvik_ub','namdalseid_1kub_b','namdalseid_1kub_ub','nsb_verdal_b','nsb_verdal_b','selbu_flub_b','selbu_flub_ub','selbu_kl_b','selbu_kl_ub','selbu_sl_b','selbu_sl_ub','singsaas_b','singsaas_ub','sl_tydal_b','sl_tydal_ub','steinkjer_1BBb_b','steinkjer_1BBb_ub','steinkjer_2BBb_b','steinkjer_2BBb_ub','sub_namdalseid_b','sub_namdalseid_ub','verdal1_b','verdal1_ub','verdal2_b','verdal2_ub',  )
+colnames(df1)<-c('Site name','Treatment','Median canopy height')  
+df1[1,3]<-median(getValues(bratsberg_b_canopyheight),na.rm=T)
+write.csv(df1,'mytable.csv')
+
+#calculate mean canopy height?
+cellStats(bratsberg_b_canopyheight, stat = 'mean')
+cellStats(bratsberg_ub_canopyheight, stat = 'mean')
+cellStats(bratsberg_b_canopyheight, stat = 'sd')
+cellStats(bratsberg_ub_canopyheight, stat = 'sd')
