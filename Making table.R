@@ -130,30 +130,60 @@ df1['1BBB', 1:7] <- MySummary(steinkjer_1BBb_b_canopyheight)
 df1['1BBUB', 1:7] <- MySummary(steinkjer_1BBb_ub_canopyheight)
 df1['2BBB', 1:7] <- MySummary(steinkjer_2BBb_b_canopyheight)
 df1['2BBUB', 1:7] <- MySummary(steinkjer_2BBb_ub_canopyheight)
-df1['LAB', 1:7] <- MySummary(singsaas_b_canopyheight)
+df1['1SB', 1:7] <- MySummary(sub_namdalseid_b_canopyheight)
+df1['1SUB', 1:7] <- MySummary(sub_namdalseid_ub_canopyheight)
+df1['1VBB', 1:7] <- MySummary(verdal1_b_canopyheight)
+df1['1VBUB', 1:7] <- MySummary(verdal1_ub_canopyheight)
+df1['2VBB', 1:7] <- MySummary(verdal2_b_canopyheight)
+df1['2VBUB', 1:7] <- MySummary(verdal2_ub_canopyheight)
 
+df1['1DRB', 1:7] <- MySummary(drangedal1_b_canopyheight)
+df1['1DRUB', 1:7] <- MySummary(drangedal1_ub_canopyheight)
+df1['3DRB', 1:7] <- MySummary(drangedal3_b_canopyheight)
+df1['3DRUB', 1:7] <- MySummary(drangedal3_ub_canopyheight)
+df1['4DRB', 1:7] <- MySummary(drangedal4_b_canopyheight)
+df1['4DRUB', 1:7] <- MySummary(drangedal4_ub_canopyheight)
+df1['1FRB', 1:7] <- MySummary(fritsoe1_b_canopyheight)
+df1['1FRUB', 1:7] <- MySummary(fritsoe1_ub_canopyheight)
+df1['2FRB', 1:7] <- MySummary(fritsoe2_b_canopyheight)
+df1['2FRUB', 1:7] <- MySummary(fritsoe2_ub_canopyheight)
+df1['1FYB', 1:7] <- MySummary(fyresdal_b_canopyheight)
+df1['1FYUB', 1:7] <- MySummary(fyresdal_ub_canopyheight)
+df1['1KVB', 1:7] <- MySummary(kviteseid1_b_canopyheight)
+df1['1KVUB', 1:7] <- MySummary(kviteseid1_ub_canopyheight)
+df1['2KVB', 1:7] <- MySummary(kviteseid2_b_canopyheight)
+df1['2KVUB', 1:7] <- MySummary(kviteseid2_ub_canopyheight)
+df1['3KVB', 1:7] <- MySummary(kviteseid3_b_canopyheight)
+df1['3KVUB', 1:7] <- MySummary(kviteseid3_ub_canopyheight)
+df1['1CAB', 1:7] <- MySummary(n_cappelen1_b_canopyheight)
+df1['1CAUB', 1:7] <- MySummary(n_cappelen1_ub_canopyheight)
+df1['2CAB', 1:7] <- MySummary(n_cappelen2_b_canopyheight)
+df1['2CAUB', 1:7] <- MySummary(n_cappelen2_ub_canopyheight)
+df1['3NOB', 1:7] <- MySummary(notodden3_b_canopyheight)
+df1['3NOUB', 1:7] <- MySummary(notodden3_ub_canopyheight)
+df1['5NOB', 1:7] <- MySummary(notodden5_b_canopyheight)
+df1['5NOUB', 1:7] <- MySummary(notodden5_ub_canopyheight)
+df1['6NOB', 1:7] <- MySummary(notodden6_b_canopyheight)
+df1['6NOUB', 1:7] <- MySummary(notodden6_ub_canopyheight)
 
-
-
-
-
+df1['DHB', 1:7] <- MySummary(didrik_holmsen_b_canopyheight)
+df1['DHUB', 1:7] <- MySummary(didrik_holmsen_ub_canopyheight)
+df1['STSKNB', 1:7] <- MySummary(eidskog_b_canopyheight)
+df1['STSKNUB', 1:7] <- MySummary(eidskog_ub_canopyheight)
+df1['FKB', 1:7] <- MySummary(fet3_b_canopyheight)
+df1['FKUB', 1:7] <- MySummary(fet3_ub_canopyheight)
+df1['HPB', 1:7] <- MySummary(h_pramhus_b_canopyheight)
+df1['HPUB', 1:7] <- MySummary(h_pramhus_ub_canopyheight)
+df1['SSAB', 1:7] <- MySummary(stangesk_aurskog_b_canopyheight)
+df1['SSAUB', 1:7] <- MySummary(stangesk_aurskog_ub_canopyheight)
+df1['SSBB', 1:7] <- MySummary(stangesk_eidskog_b_canopyheight)
+df1['SSBUB', 1:7] <- MySummary(stangesk_eidskog_ub_canopyheight)
+df1['SDB', 1:7] <- MySummary(stig_dahlen_b_canopyheight)
+df1['SDUB', 1:7] <- MySummary(stig_dahlen_ub_canopyheight)
+df1['THB', 1:7] <- MySummary(truls_holm_b_canopyheight)
+df1['THUB', 1:7] <- MySummary(truls_holm_ub_canopyheight)
 
 df1
 
+write.csv(df1, file = "Result Table", sep = ",")
 
-summary(bratsberg_ub_canopyheight)
-
-
-
-#MyList <- c(bratsberg_b_canopyheight, bratsberg_ub_canopyheight, hi_tydal_b_canopyheight, hi_tydal_ub_canopyheight)
-
-
-#preallocate the space for the values you want to store.
-#testmat <-  matrix(nrow=37, ncol = 5)
-
-#for(i in MyList) {
-#  testmat[1,] <- MySummary(i)
-#  print(i)
-#}
-
-#still only saves result of last iteration
