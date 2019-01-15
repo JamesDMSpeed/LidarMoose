@@ -1,4 +1,11 @@
 #Making table
+
+require(lidR)
+require(raster)
+require(rasterVis)
+require(rgeos)
+
+
 #First, loading canopy height rasters
 
 # Trondelag ---------------------------------------------------------------
@@ -87,42 +94,66 @@ truls_holm_ub_canopyheight         <-  raster('Hedmark_Akershus/canopy_height_cl
 
 
 
+# Making table ------------------------------------------------------------
+
+
 
 #Make a table for some summary values
-df1<-data.frame(matrix(nrow=74,ncol=6))
+df1<-data.frame(matrix(nrow=74,ncol=7))
 rownames(df1)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
-colnames(df1)<-c('Treatment','Mean','Median','SD','Min','Max')  
-df1[1,2:6] <- MySummary(bratsberg_b_canopyheight)
-df1[2,2:6] <- MySummary(bratsberg_ub_canopyheight)
-df1[3,2:6] <- MySummary(hi_tydal_b_canopyheight)
+colnames(df1)<-c('Mean','Median','SD','Min','Max', '1st Qu.', '3rd Qu.')  
 
-df1
-#Error
-for (dfi(i, 2:6)){
-  MySummary(MyList[i])
-}
-#df1[1,3]<-median(getValues(bratsberg_b_canopyheight),na.rm=T)
-#write.csv(df1,'mytable.csv')
-
-summary(bratsberg_b_canopyheight)
-
-#making a summary function with the values I want
-MySummary <- function(bratsberg_b_canopyheight) c(mn = mean(getValues(bratsberg_b_canopyheight), na.rm=T), md = median(getValues(bratsberg_b_canopyheight), na.rm=T), sd= cellStats(bratsberg_b_canopyheight, stat='sd', na.rm=T), min= min(getValues(bratsberg_b_canopyheight), na.rm=T),max= max(getValues(bratsberg_b_canopyheight), na.rm=T) )
+MySummary <- function(i) c(mn = mean(getValues(i), na.rm=T), md = median(getValues(i), na.rm=T), sd= cellStats(i, stat='sd', na.rm=T), min= min(getValues(i), na.rm=T),max= max(getValues(i), na.rm=T), first_qu= quantile(i, 0.25, na.rm=T), third_qu= quantile(i, 0.75, na.rm=T)  )
 MySummary(bratsberg_b_canopyheight)
 
+df1['BRB', 1:7] <- MySummary(bratsberg_b_canopyheight)
+df1['BRUB', 1:7] <- MySummary(bratsberg_ub_canopyheight)
+df1['HIB', 1:7] <- MySummary(hi_tydal_b_canopyheight)
+df1['HIUB', 1:7] <- MySummary(hi_tydal_ub_canopyheight)
+df1['MAB', 1:7] <- MySummary(malvik_b_canopyheight)
+df1['MAUB', 1:7] <- MySummary(malvik_ub_canopyheight)
+df1['1KB', 1:7] <- MySummary(namdalseid_1kub_b_canopyheight)
+df1['1KUB', 1:7] <- MySummary(namdalseid_1kub_ub_canopyheight)
+df1['1NSB', 1:7] <- MySummary(nsb_verdal_b_canopyheight)
+df1['1NSUB', 1:7] <- MySummary(nsb_verdal_ub_canopyheight)
+df1['FLB', 1:7] <- MySummary(selbu_flub_b_canopyheight)
+df1['FLUB', 1:7] <- MySummary(selbu_flub_ub_canopyheight)
+df1['KLB', 1:7] <- MySummary(selbu_kl_b_canopyheight)
+df1['KLUB', 1:7] <- MySummary(selbu_kl_ub_canopyheight)
+df1['SLB', 1:7] <- MySummary(selbu_sl_b_canopyheight)
+df1['SLUB', 1:7] <- MySummary(selbu_sl_ub_canopyheight)
+df1['LAB', 1:7] <- MySummary(singsaas_b_canopyheight)
+df1['LAUB', 1:7] <- MySummary(singsaas_ub_canopyheight)
+df1['SEB', 1:7] <- MySummary(sl_tydal_b_canopyheight)
+df1['SEUB', 1:7] <- MySummary(sl_tydal_ub_canopyheight)
+df1['1BBB', 1:7] <- MySummary(steinkjer_1BBb_b_canopyheight)
+df1['1BBUB', 1:7] <- MySummary(steinkjer_1BBb_ub_canopyheight)
+df1['2BBB', 1:7] <- MySummary(steinkjer_2BBb_b_canopyheight)
+df1['2BBUB', 1:7] <- MySummary(steinkjer_2BBb_ub_canopyheight)
+df1['LAB', 1:7] <- MySummary(singsaas_b_canopyheight)
 
-MySummary <- function(i) c(mn = mean(getValues(i), na.rm=T), md = median(getValues(i), na.rm=T), sd= cellStats(i, stat='sd', na.rm=T), min= min(getValues(i), na.rm=T),max= max(getValues(i), na.rm=T) )
-x <- MySummary(bratsberg_b_canopyheight)
 
-MyList <- c(bratsberg_b_canopyheight, bratsberg_ub_canopyheight, hi_tydal_b_canopyheight, hi_tydal_ub_canopyheight)
+
+
+
+
+
+df1
+
+
+summary(bratsberg_ub_canopyheight)
+
+
+
+#MyList <- c(bratsberg_b_canopyheight, bratsberg_ub_canopyheight, hi_tydal_b_canopyheight, hi_tydal_ub_canopyheight)
 
 
 #preallocate the space for the values you want to store.
-testmat <-  matrix(nrow=37, ncol = 5)
+#testmat <-  matrix(nrow=37, ncol = 5)
 
-for(i in MyList) {
-  testmat[1,] <- MySummary(i)
-  print(i)
-}
+#for(i in MyList) {
+#  testmat[1,] <- MySummary(i)
+#  print(i)
+#}
 
 #still only saves result of last iteration
