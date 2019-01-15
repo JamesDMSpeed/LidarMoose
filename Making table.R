@@ -185,5 +185,19 @@ df1['THUB', 1:7] <- MySummary(truls_holm_ub_canopyheight)
 
 df1
 
-write.csv(df1, file = "Result Table", sep = ",")
+write.csv(df1, 'Result table.csv')
+Results = read.csv('Result table.csv')
+View(Results)
+
+#Import site info metadata
+library(readr)
+SustHerb_Sites_Info <- read_delim("~/Master - Sustherb/SustHerb Sites Info.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+View(SustHerb_Sites_Info)
+
+#Merge the two tables, the one with the results from the canopy height model and the one with the meta data
+MyData = merge(SustHerb_Sites_Info, Results, by.x = "LocalityCode", by.y="X" )
+View(MyData)
+
+
+
 
