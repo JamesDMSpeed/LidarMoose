@@ -9,3 +9,6 @@ Clipped las files, 32x32 m, are stored in LidarMoose, in the folder clipped_las
 
 
 Canopy height is stored in rasterformat in LidarMoose, folder called canopy_height_clipped raster (20x20m). Clipped because trees over 7 m has been excluded if present, since they most likely have been left standing during the clear cut. 
+
+
+Results derived from the canopy height models are merged with the meta data table, this new table is called MyData. 
