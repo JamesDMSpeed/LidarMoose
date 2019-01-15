@@ -201,3 +201,27 @@ View(MyData)
 write.csv(MyData, 'MyData.csv')
 
 
+#Play data analysis
+
+#IQR -inter quartile range
+MyData$IQR<-MyData$X3rd.Qu.-MyData$X1st.Qu.
+
+#CV - coefficient of variation
+MyData$CV <- MyData$SD/MyData$Mean
+
+#Time since CC'
+MyData$ClearCutToLidar<-MyData$'LiDAR data from year'-MyData$'Clear cut' 
+
+#Median height boxplot
+wilcox.test(MyData$Median[MyData$Treatment=='B'],MyData$Median[MyData$Treatment=='UB'],paired=T)
+boxplot(MyData$Median~MyData$Treatment)
+
+#IQR boxplot
+wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
+boxplot(MyData$IQR~MyData$Treatment)
+
+#Mean - obs, maybe not a good measure, skewed distribution
+wilcox.test(MyData$Mean[MyData$Treatment=='B'],MyData$Mean[MyData$Treatment=='UB'],paired=T)
+boxplot(MyData$Mean~MyData$Treatment)
+
+#Spaghetti plots 
