@@ -198,6 +198,6 @@ View(SustHerb_Sites_Info)
 MyData = merge(SustHerb_Sites_Info, Results, by.x = "LocalityCode", by.y="X" )
 View(MyData)
 
-
+write.csv(MyData, 'MyData.csv')
 
 
