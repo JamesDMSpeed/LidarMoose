@@ -222,6 +222,29 @@ boxplot(MyData$IQR~MyData$Treatment)
 
 #Mean - obs, maybe not a good measure, skewed distribution
 wilcox.test(MyData$Mean[MyData$Treatment=='B'],MyData$Mean[MyData$Treatment=='UB'],paired=T)
+boxplot(MyData$SD~MyData$Treatment)
+
+#SD
+wilcox.test(MyData$SD[MyData$Treatment=='B'],MyData$SD[MyData$Treatment=='UB'],paired=T)
 boxplot(MyData$Mean~MyData$Treatment)
 
 #Spaghetti plots 
+require(ggplot2)
+require(ggvis)
+require(gridExtra)
+
+#Testing, trying to learn qplot and ggplot
+p1<- qplot(MyData$ClearCutToLidar, MyData$Median, color=MyData$Treatment)
+p1
+p2 <- qplot(MyData$Treatment, MyData$Median)
+p2
+p3 <- qplot(MyData$Median, fill=MyData$Treatment)
+p3
+
+#spaghettiplot,treatment and median, colours by region
+p4 <- ggplot(data=MyData, aes(x=Treatment, y=Median, group=LocalityName,color=MyData$Region))+geom_line()
+p4
+print(p4)
+
+p5 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
+p5

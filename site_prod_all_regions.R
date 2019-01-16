@@ -6,7 +6,7 @@ library(plotrix)
 # Harvest dataset ##############
 # These are 131 trees measured and harvested by Anders and Winta in 2016
 
-dat <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/harvested trees trondelag 2016.csv", sep=";")
+dat <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/harvested trees trondelag 2016.csv", sep=";")
 
 colnames(dat)[7] <- "hgt"
 colnames(dat)[8] <- "lth"
@@ -32,6 +32,7 @@ spruce <- dat[dat$species == "spruce",]
 # 2016 dataset #####################
 # Density dataset from 2016 with accurate heights and diameters:
 dat2 <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/trondelag_hgt_dia_2016.csv", sep=";")
+dat2 <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/density.csv", sep=";")
 
 summary(dat2$Treatment) # lots of NA's
 dat3 <- filter(dat2,
