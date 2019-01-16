@@ -198,11 +198,6 @@ View(SustHerb_Sites_Info)
 MyData = merge(SustHerb_Sites_Info, Results, by.x = "LocalityCode", by.y="X" )
 View(MyData)
 
-write.csv(MyData, 'MyData.csv')
-
-
-#Play data analysis
-
 #IQR -inter quartile range
 MyData$IQR<-MyData$X3rd.Qu.-MyData$X1st.Qu.
 
@@ -212,9 +207,26 @@ MyData$CV <- MyData$SD/MyData$Mean
 #Time since CC'
 MyData$ClearCutToLidar<-MyData$'LiDAR data from year'-MyData$'Clear cut' 
 
+write.csv(MyData, 'MyData.csv')
+
+# Play data analysis ------------------------------------------------------
+
+#Importt MyData
+library(readr)
+MyData <- read_csv("~/Master - Sustherb/LidarMoose/MyData.csv")
+View(MyData)
+
+require(ggplot2)
+require(ggvis)
+require(gridExtra)
+
+#Play data analysis
+
+
 #Median height boxplot
 wilcox.test(MyData$Median[MyData$Treatment=='B'],MyData$Median[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$Median~MyData$Treatment)
+boxplot(MyData$Median~MyData$Treatment, xlab="Treatment", ylab="Median Canopy Height")
+#bp <- ggplot(data=MyData, aes(x=Treatment, y=Median))+geom_boxplot()#just wanted to try doing a ggplot
 
 #IQR boxplot
 wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
@@ -224,9 +236,9 @@ boxplot(MyData$IQR~MyData$Treatment)
 wilcox.test(MyData$Mean[MyData$Treatment=='B'],MyData$Mean[MyData$Treatment=='UB'],paired=T)
 boxplot(MyData$SD~MyData$Treatment)
 
-#SD
-wilcox.test(MyData$SD[MyData$Treatment=='B'],MyData$SD[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$Mean~MyData$Treatment)
+#CV
+wilcox.test(MyData$CV[MyData$Treatment=='B'],MyData$CV[MyData$Treatment=='UB'],paired=T)
+boxplot(MyData$CV~MyData$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
 
 #Spaghetti plots 
 require(ggplot2)
