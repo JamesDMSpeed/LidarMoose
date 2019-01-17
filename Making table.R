@@ -260,3 +260,28 @@ print(p4)
 
 p5 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
 p5
+
+p6 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData$Region))+geom_line()
+p6
+
+#boxplot median - treatment
+p7 <- ggplot(data=MyData, aes(x=Treatment, y=Median))+geom_boxplot()
+p7 <- print(p7+labs(y='Median Canopy Height'))
+
+#boxplot IQR -treatment
+p8 <- ggplot(data=MyData, aes(x=Treatment, y=IQR))+geom_boxplot()
+p8 
+wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
+
+#Scatterplot Clearcut to lidar - median canopy height
+p9 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
+p9
+#Trying to get the R-value 
+#m <- lm(Median~ClearCutToLidar, data=MyData)
+#eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+#                 list(        a = format(coef(m)[1], digits = 4), 
+#                              b = format(coef(m)[2], digits = 4), 
+#                             r2 = format(summary(m)$r.squared, digits = 3)))
+
+#dftext <- data.frame(x = 70, y = 50, eq = as.character(as.expression(eq)))
+#p9 + geom_text(aes(label = eq), data = dftext, parse = TRUE)
