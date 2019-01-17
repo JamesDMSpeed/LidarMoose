@@ -8,6 +8,7 @@ library(plotrix)
 
 dat <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/harvested trees trondelag 2016.csv", sep=";")
 
+#Spørsmål: hva betyr forkortelsene
 colnames(dat)[7] <- "hgt"
 colnames(dat)[8] <- "lth"
 colnames(dat)[9] <- "DGL"
@@ -31,7 +32,6 @@ spruce <- dat[dat$species == "spruce",]
 
 # 2016 dataset #####################
 # Density dataset from 2016 with accurate heights and diameters:
-dat2 <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/trondelag_hgt_dia_2016.csv", sep=";")
 dat2 <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/density.csv", sep=";")
 
 summary(dat2$Treatment) # lots of NA's
@@ -43,10 +43,10 @@ dat3$Treatment <- droplevels(dat3$Treatment)
 colnames(dat3)[11:12]<- c("hgt", "DGL")
 dat3 <- dat3[,-c(15:16)]
 
-pine2016 <- dat3[dat3$species=="pine",]
-spruce2016 <- dat3[dat3$species=="spruce",]
-birch2016 <- dat3[dat3$species=="birch",]
-rowan2016 <- dat3[dat3$species=="rowan",]
+pine2016 <- dat3[dat3$Taxa=="Pinus sylvestris (Furu)",]
+spruce2016 <- dat3[dat3$Taxa=="Picea abies (Gran)",]
+birch2016 <- dat3[dat3$Taxa=="Betula pubescens (Bjørk)",]
+rowan2016 <- dat3[dat3$Taxa=="Sorbus aucuparia (Rogn)",]
 
 
 
@@ -96,10 +96,10 @@ pine2016$pp <- predict(M_pine, newdata = pine2016)
 #head(pine2016[,-c(13:16, 1:6)], 20)
 
 #par(mfrow=c(1,1))
-plot(pine2016$hgt[pine2016$Treatment=="unbrowsed"], pine2016$pp[pine2016$Treatment=="unbrowsed"], 
+plot(pine2016$hgt[pine2016$Treatment=="UB"], pine2016$pp[pine2016$Treatment=="UB"], 
      main = "Un-browsed pine", xlab="Measured height (cm)", ylab="Modelled biomass (g)", 
      ylim=c(0,1800), xlim=c(0,350))
-M_pine2 <- lm(pp~I(hgt^2)+hgt-1, data=pine2016[pine2016$Treatment=="unbrowsed",])
+M_pine2 <- lm(pp~I(hgt^2)+hgt-1, data=pine2016[pine2016$Treatment=="UB",])
 M_pine2 <- update(M_pine2, .~. -hgt)
 summary(M_pine2)
 mhgtGrid <- seq(0,350,5)
@@ -248,11 +248,11 @@ birch2016$pp <- predict(M_birch, newdata = birch2016)
 
 par(mfrow=c(1,2))
 
-plot(birch2016$hgt[birch2016$Treatment=="unbrowsed"], birch2016$pp[birch2016$Treatment=="unbrowsed"], 
+plot(birch2016$hgt[birch2016$Treatment=="UB"], birch2016$pp[birch2016$Treatment=="UB"], 
      main = "Un-browsed birch", xlab="Measured height (cm)", ylab="Modelled biomass (g)", 
      ylim=c(0,4000), xlim=c(0,700))
 
-M_birch2 <- lm(pp~I(hgt^2)+hgt-1, data=birch2016[birch2016$Treatment=="unbrowsed",])
+M_birch2 <- lm(pp~I(hgt^2)+hgt-1, data=birch2016[birch2016$Treatment=="UB",])
 summary(M_birch2)
 hgtGridB_UB <- seq(0,600,20)
 birch2016ub_p <- predict(M_birch2, newdata=list(hgt=hgtGridB_UB))
@@ -302,18 +302,18 @@ M_spruce2 <- update(M_spruce2, .~. -hgt)
 ##### Standing Biomass 2016   #################
 
 #summary(dat3$species)
-dat4 <- dat3[dat3$species!="",]
-dat4$species <- droplevels(dat4$species)
-levels(dat4$species)
+dat4 <- dat3[dat3$Taxa!="",]
+dat4$Taxa <- droplevels(dat4$Taxa)
+levels(dat4$Taxa)
 
 
-dat4$biomass <- ifelse(dat4$species=="pine", predict(M_pine, newdata=dat4), "")
-dat4$biomass <- ifelse(dat4$species=="rowan", predict(M_rowan2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$species=="selje", predict(M_rowan2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$species=="birch", predict(M_birch, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$species=="lavlandsbj?rk", predict(M_birch, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$species=="spruce", predict(M_spruce2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$species=="juniper", predict(M_spruce2, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Pinus sylvestris (Furu)", predict(M_pine, newdata=dat4), "")
+dat4$biomass <- ifelse(dat4$Taxa=="Sorbus aucuparia (Rogn)", predict(M_rowan2, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Salix caprea (Selje)", predict(M_rowan2, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Betula pubescens (Bjørk)", predict(M_birch, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Betula pendula (Lavlandbjørk)", predict(M_birch, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Picea abies (Gran)", predict(M_spruce2, newdata=dat4), dat4$biomass)
+dat4$biomass <- ifelse(dat4$Taxa=="Juniperus communis (Einer)", predict(M_spruce2, newdata=dat4), dat4$biomass)
 
 dat4$biomass <- as.numeric(dat4$biomass)
 #summary(dat4$biomass)
