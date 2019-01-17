@@ -254,7 +254,7 @@ p3 <- qplot(MyData$Median, fill=MyData$Treatment)
 p3
 
 #spaghettiplot,treatment and median, colours by region
-p4 <- ggplot(data=MyData, aes(x=Treatment, y=Median, group=LocalityName,color=MyData$Region))+geom_line()
+p4 <- ggplot(data=MyData, aes(x=Treatment, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')
 p4
 print(p4)
 
