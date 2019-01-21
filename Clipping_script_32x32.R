@@ -18,7 +18,7 @@ plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',h
 
 bratsberg_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Trondelag/bratsberg.las')
 bratsberg_las 
-plot(bratsberglas)
+plot(bratsberg_las)
 
 #bratsberg_b
 

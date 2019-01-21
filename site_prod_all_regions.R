@@ -30,24 +30,6 @@ rowan <- dat[dat$species == "rowan",]
 spruce <- dat[dat$species == "spruce",]
 
 
-# 2016 dataset #####################
-# Density dataset from 2016 with accurate heights and diameters:
-dat2 <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/density.csv", sep=";")
-
-summary(dat2$Treatment) # lots of NA's
-dat3 <- filter(dat2,
-               Treatment != "")
-dat3$Treatment <- droplevels(dat3$Treatment)
-
-
-colnames(dat3)[11:12]<- c("hgt", "DGL")
-dat3 <- dat3[,-c(15:16)]
-
-pine2016 <- dat3[dat3$Taxa=="Pinus sylvestris (Furu)",]
-spruce2016 <- dat3[dat3$Taxa=="Picea abies (Gran)",]
-birch2016 <- dat3[dat3$Taxa=="Betula pubescens (Bjørk)",]
-rowan2016 <- dat3[dat3$Taxa=="Sorbus aucuparia (Rogn)",]
-
 
 
 ####  *********************  ######
@@ -297,113 +279,6 @@ M_spruce2 <- update(M_spruce2, .~. -hgt)
 #summary(M_spruce2)
 
 
-################################################
-##########  *************  ####################
-##### Standing Biomass 2016   #################
-
-#summary(dat3$species)
-dat4 <- dat3[dat3$Taxa!="",]
-dat4$Taxa <- droplevels(dat4$Taxa)
-levels(dat4$Taxa)
-
-
-dat4$biomass <- ifelse(dat4$Taxa=="Pinus sylvestris (Furu)", predict(M_pine, newdata=dat4), "")
-dat4$biomass <- ifelse(dat4$Taxa=="Sorbus aucuparia (Rogn)", predict(M_rowan2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$Taxa=="Salix caprea (Selje)", predict(M_rowan2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$Taxa=="Betula pubescens (Bjørk)", predict(M_birch, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$Taxa=="Betula pendula (Lavlandbjørk)", predict(M_birch, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$Taxa=="Picea abies (Gran)", predict(M_spruce2, newdata=dat4), dat4$biomass)
-dat4$biomass <- ifelse(dat4$Taxa=="Juniperus communis (Einer)", predict(M_spruce2, newdata=dat4), dat4$biomass)
-
-dat4$biomass <- as.numeric(dat4$biomass)
-#summary(dat4$biomass)
-hist(dat4$biomass, breaks = 20)
-#plot(dat4$biomass)
-#identify(dat4$biomass)
-#dat4[3373,]
-# there's a large spruce at sings?s. Would be nice to exclude it from all years, cause its hard to estimate growth on such a alarge tree
-dat5 <- dat4[-3373,]
-plot(dat5$biomass)
-#identify(dat5$biomass)
-#dat5[2865,]
-# another large spruce at Borgan
-dat6 <- dat5[-2865,]
-plot(dat6$biomass)
-#max(dat6$biomass) # 18097.42
-#max(dat6$hgt)
-#max(dat5$hgt)
-#max(dat4$hgt)
-hist(dat6$biomass)
-# ** #  PROTOCOL: Excluding trees above 6 meters (one is 6.27 (Borgan) and the nest is 14m (Sings?s))
-
-
-
-#Extract decidious biomass ############
-levels(dat6$Sub_plot)
-dat6$Sub_plot <- droplevels(dat6$Sub_plot)
-dat_dec <- dat6[dat6$species!= "pine" & dat6$species!= "spruce" & dat6$species!= "juniper",]
-
-dat_dec_circle <- aggregate(cbind(Dec_Biomass = dat_dec$biomass), 
-                  by= list(locationID=dat_dec$locationID, #site = dat_dec$site_name, 
-                           Treatment=dat_dec$Treatment, circle=dat_dec$Sub_plot), 
-                  FUN = sum, na.rm = T, drop=F)
-dim(dat_dec_circle) # 115 -> 120 
-dat_dec_plot <- aggregate(cbind(Dec_Biomass = dat_dec_circle$Dec_Biomass), 
-                            by= list(locationID=dat_dec_circle$locationID, 
-                                     Treatment=dat_dec_circle$Treatment),  
-                            FUN = mean, na.rm = F, drop=F)
-dim(dat_dec_plot)
-dat_dec_plot$dec_biomass_kg_m2 <- (dat_dec_plot$Dec_Biomass/1000)/(pi*2^2)
-
-#Extract coniferous biomass
-dat_con <- filter(dat6,
-                  species== "pine" |
-                  species == "spruce" |
-                  species == "juniper")
-dat_con_circle <- aggregate(cbind(Biomass = dat_con$biomass), 
-                        by= list(locationID=dat_con$locationID, #site = dat_con$site_name, 
-                                 Treatment=dat_con$Treatment, circle=dat_con$Sub_plot), 
-                        FUN = sum, na.rm = T, drop=F)
-dim(dat_con_circle) # 107 -> 120 
-dat_con_plot <- aggregate(cbind(Biomass = dat_con_circle$Biomass), 
-                            by= list(locationID=dat_con_circle$locationID, 
-                                     Treatment=dat_con_circle$Treatment), 
-                            FUN = mean, na.rm = F)
-dim(dat_con_plot)
-summary(dat_con_plot$Biomass)
-dat_con_plot$con_biomass_kg_m2 <- (dat_con_plot$Biomass/1000)/(pi*2^2)
-
-DC_data <- dat_dec_plot
-DC_data <- select(DC_data, -Dec_Biomass)
-DC_data$con_biomass_kg_m2 <- dat_con_plot$con_biomass_kg_m2
-DC_data$DC_ratio <- DC_data$dec_biomass_kg_m2/DC_data$con_biomass_kg_m2
-#write.csv(DC_data, file="M:/Anders L Kolstad/systherb data/exported cvs/standing biomass con-dec.csv", row.names = F)
-
-#########################
-
-bio_circle <- aggregate(cbind(Biomass_cirle = dat6$biomass), 
-                            by= list(locationID=dat6$locationID, #site = dat_dec$site_name, 
-                                     Treatment=dat6$Treatment, circle=dat6$Sub_plot), 
-                            FUN = sum, drop=F)
-dim(bio_circle) #  120 
-bio_plot <- aggregate(cbind(Biomass_plot = bio_circle$Biomass_cirle), 
-                          by= list(locationID=bio_circle$locationID, 
-                                   Treatment=bio_circle$Treatment),  
-                          FUN = mean, drop=F)
-dim(bio_plot) #30
-bio_plot$biomass_kg_m2 <- (bio_plot$Biomass_plot/1000)/(pi*2^2)
-
-bio_plot_excl <- filter(bio_plot, Treatment=="unbrowsed" )
-
-bio_plot_excl <- arrange(bio_plot_excl, biomass_kg_m2)                                    #selbu_flub B is way to high for some reason
-par(mar=c(10,5,3,3))
-barplot(bio_plot_excl$biomass_kg_m2, 
-        names.arg = bio_plot_excl$locationID, las=2, ylab="Biomass (kg/m2)", 
-        main="Standing Biomass per 2016 in Exclosures")
-
-# biomass is in g per ~50m2
-(pi*2^2)*4
-# 1kg/m2 = 10 tons(or Mg) per ha
 
 
 #########  **************  ####################
@@ -528,12 +403,12 @@ table(D$LocalityName, D$Taxa)
 table(D$Taxa, D$Region)
 
 D1 <- D
-setwd("M:\\Anders L Kolstad\\R\\R_projects\\succession_paper")
+setwd("C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose")
 #write.csv(D1, file="biomass_per_tree.csv", row.names = F)
 #save(D1, file="biomass_per_tree.RData")
-load("biomass_per_tree.RData")
-D1 <- filter(D1,
-             Region %in% c("Telemark", "Trøndelag"))
+load("biomass_per_tree.RData") #får error
+#D1 <- filter(D1,
+#             Region %in% c("Telemark", "Trøndelag"))
 D1$Taxa <- factor(D1$Taxa) # drop Sambucus
 
 
@@ -552,8 +427,8 @@ D1$biomass <- as.numeric(D1$biomass)
 
 summary(D1$biomass)
 #View(D1[is.na(D1$biomass),])
-#hist(D1$biomass)
-#plot(D1$biomass)
+hist(D1$biomass)
+plot(D1$biomass)
 
 D1 <- D1[D1$year %in% c("2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"),]
 
@@ -629,9 +504,24 @@ Telemark <- c(
 "Notodden5"       ,
 "Notodden6"       )
 
-bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", "Telemark")
+Hedmark <- c(
+  "Didrik Holmsen",
+  "Stangeskovene Aurskog",
+  "Stig Dahlen",
+  "Truls Holm",
+  "Fet3",
+  "Eidskog",
+  "Halvard Pramhus",
+  "Stangeskovene Eidskog")
+
+#bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", "Telemark")
+bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", ifelse(bio_plot2$LocalityName %in% Telemark,"Telemark", "Hedmark"))
+
 bio_plot2$yse <- ""
-bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, as.numeric(bio_plot2$year)-2009)
+bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, ifelse(bio_plot2$Region == "Telemark", as.numeric(bio_plot2$year)-2009, as.numeric(bio_plot2$year)-2010))
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2011, bio_plot2$yse)
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2011, bio_plot2$yse)
+
 table(bio_plot2$year, bio_plot2$yse)
 #View(bio_plot2[bio_plot2$yse==0,])
 bio_plot2 <- bio_plot2[bio_plot2$yse != 0,]
@@ -650,6 +540,20 @@ ggplot(data = bio_plot2)+
 
 # excluding yse 8 due to tree sites becoming destroyed
 bio_plot2 <- bio_plot2[bio_plot2$yse != 8,]
+#excluding sites not included in my project (Ingrid)
+excluded <- c("Kongsvinger 1",
+              "Kongsvinger 2",
+              "Maarud 1",
+              "Maarud 2",
+              "Maarud 3",
+              "Nes 1",
+              "Nes 2",
+              "Sørum 1",
+              "Notodden1",
+              "Notodden4")
+
+bio_plot2 <-  subset.data.frame(bio_plot2, !(bio_plot2$LocalityName %in% excluded))
+#bio_plot2 <- bio_plot2[!(bio_plot2$LocalityName %in% excluded)] #error 
 
 
 bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), 
