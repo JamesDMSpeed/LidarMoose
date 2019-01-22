@@ -99,7 +99,34 @@ threshold <-7
 
 
 # Trøndelag ---------------------------------------------------------------
+#Making canopy models in different colours for poster
+require(rasterVis)
+require(sp)
+levelplot(canopy_diff_bratsberg_b,margin=F,scales=list(draw=F))
+mytheme<-custom.theme(region=(height.colors(50)))
+mytheme$panel.background$col='black'
 
+bratsberg_b_pl <- Polygons(list(bratsberg_b_poly),1)
+bratsberg_b_sp <- SpatialPolygons(list(bratsberg_b_pl))
+bratsberg_ub_pl <- Polygons(list(bratsberg_ub_poly),1)
+bratsberg_ub_sp <- SpatialPolygons(list(bratsberg_ub_pl))
+
+detach(package:ggplot2)
+levelplot(canopy_diff_bratsberg_b,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_b_sp))+
+  layer(sp.polygons(treeout_bratsberg_b,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_ub,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_ub_sp))+
+  layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_b_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_ub_sp))
+  #layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_ub_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))
+  #layer(sp.polygons(bratsberg_ub_sp))
+#layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
 
 # Bratsberg ---------------------------------------------------------------
  

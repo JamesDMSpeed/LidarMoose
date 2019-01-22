@@ -9,7 +9,7 @@ library(plotrix)
 dat <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/harvested trees trondelag 2016.csv", sep=";")
 
 #Spørsmål: hva betyr forkortelsene
-colnames(dat)[7] <- "hgt"
+colnames(dat)[7] <- "hgt" #height
 colnames(dat)[8] <- "lth"
 colnames(dat)[9] <- "DGL"
 colnames(dat)[10] <- "DBH"
@@ -75,11 +75,11 @@ lines(grid_M_pineBhgt, pred_M_pineBhgt)
 # Back-fitted HGT model for UB Pine  #####
 ##############################################
 pine2016$pp <- predict(M_pine, newdata = pine2016)
-#head(pine2016[,-c(13:16, 1:6)], 20)
+head(pine2016[,-c(13:16, 1:6)], 20)
 
-#par(mfrow=c(1,1))
-plot(pine2016$hgt[pine2016$Treatment=="UB"], pine2016$pp[pine2016$Treatment=="UB"], 
-     main = "Un-browsed pine", xlab="Measured height (cm)", ylab="Modelled biomass (g)", 
+par(mfrow=c(1,1))
+plot(pine2016$hgt[pine2016$Treatment=="UB"], pine2016$pp[pine2016$Treatment=="UB"],
+     main = "Un-browsed pine", xlab="Measured height (cm)", ylab="Modelled biomass (g)",
      ylim=c(0,1800), xlim=c(0,350))
 M_pine2 <- lm(pp~I(hgt^2)+hgt-1, data=pine2016[pine2016$Treatment=="UB",])
 M_pine2 <- update(M_pine2, .~. -hgt)
@@ -89,6 +89,8 @@ pine2016ub_p <- predict(M_pine2, newdata=list(hgt=mhgtGrid))
 lines(mhgtGrid, pine2016ub_p)
 text(x=110, y=1500, "y=0.015589*hgt^2\nR-sq = 0.8865", cex=1)
 
+
+#pine
 
 #####  **************  ###############
 ######################################
@@ -225,21 +227,21 @@ lines(hgtGridB3, birch_ppB3)
 ### Back-fitted Birch UB HGT Model #########
 ###########################################
 
-birch2016$pp <- predict(M_birch, newdata = birch2016)
+#birch2016$pp <- predict(M_birch, newdata = birch2016)
 #head(birch2016[,-c(13:16, 1:6)], 20)
 
-par(mfrow=c(1,2))
+#par(mfrow=c(1,2))
 
-plot(birch2016$hgt[birch2016$Treatment=="UB"], birch2016$pp[birch2016$Treatment=="UB"], 
-     main = "Un-browsed birch", xlab="Measured height (cm)", ylab="Modelled biomass (g)", 
-     ylim=c(0,4000), xlim=c(0,700))
+#plot(birch2016$hgt[birch2016$Treatment=="UB"], birch2016$pp[birch2016$Treatment=="UB"], 
+#     main = "Un-browsed birch", xlab="Measured height (cm)", ylab="Modelled biomass (g)", 
+#     ylim=c(0,4000), xlim=c(0,700))
 
-M_birch2 <- lm(pp~I(hgt^2)+hgt-1, data=birch2016[birch2016$Treatment=="UB",])
-summary(M_birch2)
-hgtGridB_UB <- seq(0,600,20)
-birch2016ub_p <- predict(M_birch2, newdata=list(hgt=hgtGridB_UB))
-lines(hgtGridB_UB, birch2016ub_p)
-text(x=200, y=3000, "y=0.1702740*hgt+\n0.0100180*hgt^2\nR-sq = 0.9936", cex=1)
+#M_birch2 <- lm(pp~I(hgt^2)+hgt-1, data=birch2016[birch2016$Treatment=="UB",])
+#summary(M_birch2)
+#hgtGridB_UB <- seq(0,600,20)
+#birch2016ub_p <- predict(M_birch2, newdata=list(hgt=hgtGridB_UB))
+#lines(hgtGridB_UB, birch2016ub_p)
+#text(x=200, y=3000, "y=0.1702740*hgt+\n0.0100180*hgt^2\nR-sq = 0.9936", cex=1)
 
 ### *********************  ###########
 ######################################
@@ -348,14 +350,14 @@ den_ut <- untable(df = den, num = den$Quantity)
 
 # Predict biomass from model above
 # OBS - Models probably not valid for all scenarios at Tingvoll where there are large pine for example
-den_ut$biomass <- ifelse(den_ut$Taxa=="Pinus sylvestris (Furu)"       & den_ut$Treatment=="UB"  , predict(M_pine2, newdata=den_ut), "")
+den_ut$biomass <- ifelse(den_ut$Taxa=="Pinus sylvestris (Furu)"       & den_ut$Treatment=="UB"  , predict(M_pineBhgt, newdata=den_ut), "")
 den_ut$biomass <- ifelse(den_ut$Taxa=="Pinus sylvestris (Furu)"       & den_ut$Treatment=="B"   , predict(M_pineBhgt, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Picea abies (Gran)"                                      , predict(M_spruce, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Sorbus aucuparia (Rogn)"       & den_ut$Treatment=="UB"  , predict(M_rowanUB, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Sorbus aucuparia (Rogn)"       & den_ut$Treatment=="B"   , predict(M_rowanB, newdata=den_ut), den_ut$biomass)
-den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pubescens (Bjørk)"      & den_ut$Treatment=="UB"  , predict(M_birch2, newdata=den_ut), den_ut$biomass)
+den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pubescens (Bjørk)"      & den_ut$Treatment=="UB"  , predict(M_Abirch_B, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pubescens (Bjørk)"      & den_ut$Treatment=="B"   , predict(M_Abirch_B, newdata=den_ut), den_ut$biomass)
-den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pendula (Lavlandbjørk)" & den_ut$Treatment=="UB"  , predict(M_birch2, newdata=den_ut), den_ut$biomass)
+den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pendula (Lavlandbjørk)" & den_ut$Treatment=="UB"  , predict(M_Abirch_B, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Betula pendula (Lavlandbjørk)" & den_ut$Treatment=="B"   , predict(M_Abirch_B, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Juniperus communis (Einer)"    & den_ut$Treatment=="UB"  , predict(M_pine2, newdata=den_ut), den_ut$biomass)
 den_ut$biomass <- ifelse(den_ut$Taxa=="Juniperus communis (Einer)"    & den_ut$Treatment=="B"   , predict(M_pineBhgt, newdata=den_ut), den_ut$biomass)
@@ -602,11 +604,11 @@ combined$max_annual_inc_tonns_ha <- ifelse(combined$Exclosures_annInc_Mg_ha > co
 plot(combined$max_annual_inc_tonns_ha)
 boxplot(combined$max_annual_inc_tonns_ha ~ combined$Region) # similar between regions. Region is a random factor
 # so I dont need to standardise per region. 
-combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/max(combined$max_annual_inc_tonns_ha) 
+combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/max(combined$max_annual_inc_tonns_ha,na.rm=T) 
 summary(combined$max_annual_inc_tonns_ha) # max = 1
 
 
-productivity <- select(combined, 
+productivity <- select(combined,
                        Region, LocalityName, productivity = max_annual_inc_tonns_ha)
 #save(productivity, file="M:\\Anders L Kolstad\\R\\R_projects\\succession_paper\\prod_index_telemark_and_trondelag.RData")
 
