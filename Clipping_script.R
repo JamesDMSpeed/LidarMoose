@@ -36,7 +36,7 @@ bratsberg_b_plot
 
 bratsberg_ub_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5]))
 bratsberg_ub_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brub',4:5][bratsberg_ub_order,]))
-bratsberg_ub_plot<-lasclip(bratsberglas,bratsberg_ub_poly)
+bratsberg_ub_plot<-lasclip(bratsberglas,bratsberg_ub_poly))
 plot(bratsberg_ub_plot)
 bratsberg_ub_plot
 
