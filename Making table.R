@@ -214,19 +214,133 @@ MyData$IQR_med <-  MyData$IQR/MyData$Median
 
 write.csv(MyData, 'MyData.csv')
 
-
-# Play data analysis ------------------------------------------------------
-
-#Importt MyData
+#Import MyData
 library(readr)
 MyData <- read_csv("~/Master - Sustherb/LidarMoose/MyData.csv")
 View(MyData)
 
-require(ggplot2)
-require(ggvis)
-require(gridExtra)
 
-#Play data analysis
+
+# Lager MAD tabell og ny MyData2 med MAD og MAD/median --------------------
+
+df2<-data.frame(matrix(nrow=74,ncol=1))
+rownames(df2)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
+colnames(df2)<-c('MAD')  
+
+df2['BRB', 1] <- mad(bratsberg_b_val, na.rm = T)
+df2['BRUB', 1] <- mad(bratsberg_ub_val, na.rm = T)
+df2['HIB', 1] <- mad(hi_tydal_b_val, na.rm = T)
+df2['HIUB', 1] <- mad(hi_tydal_ub_val, na.rm = T)
+df2['MAB', 1] <- mad(malvik_b_val, na.rm = T)
+df2['MAUB', 1] <- mad(malvik_ub_val, na.rm = T)
+df2['1KB', 1] <- mad(namdalseid_1kub_b_val, na.rm = T)
+df2['1KUB', 1] <- mad(namdalseid_1kub_ub_val, na.rm = T)
+df2['1NSB', 1] <- mad(nsb_verdal_b_val, na.rm = T)
+df2['1NSUB', 1] <- mad(nsb_verdal_ub_val, na.rm = T)
+df2['FLB', 1] <- mad(selbu_flub_b_val, na.rm = T)
+df2['FLUB', 1] <- mad(selbu_flub_ub_val, na.rm = T)
+df2['KLB', 1] <-mad(selbu_kl_b_val, na.rm = T)
+df2['KLUB', 1] <- mad(selbu_kl_ub_val, na.rm = T)
+df2['SLB', 1] <- mad(selbu_sl_b_val, na.rm = T)
+df2['SLUB', 1] <- mad(selbu_sl_ub_val, na.rm = T)
+df2['LAB', 1] <- mad(singsaas_b_val, na.rm = T)
+df2['LAUB', 1] <- mad(singsaas_ub_val, na.rm = T)
+df2['SEB', 1] <- mad(sl_tydal_b_val, na.rm = T)
+df2['SEUB', 1] <- mad(sl_tydal_ub_val, na.rm = T)
+df2['1BBB', 1] <- mad(steinkjer_1BBb_b_val, na.rm = T)
+df2['1BBUB', 1] <- mad(steinkjer_1BBb_ub_val, na.rm = T)
+df2['2BBB', 1] <- mad(steinkjer_2BBb_b_val, na.rm = T)
+df2['2BBUB', 1] <- mad(steinkjer_2BBb_ub_val, na.rm = T)
+df2['1SB', 1] <- mad(sub_namdalseid_b_val, na.rm = T)
+df2['1SUB', 1] <- mad(sub_namdalseid_ub_val, na.rm = T)
+df2['1VBB', 1] <- mad(verdal1_b_val, na.rm = T)
+df2['1VBUB', 1] <- mad(verdal1_ub_val, na.rm = T)
+df2['2VBB', 1] <- mad(verdal2_b_val, na.rm = T)
+df2['2VBUB', 1] <- mad(verdal2_ub_val, na.rm = T)
+
+df2['1DRB', 1] <- mad(drangedal1_b_val, na.rm = T)
+df2['1DRUB', 1] <- mad(drangedal1_ub_val, na.rm = T)
+df2['3DRB', 1] <- mad(drangedal3_b_val, na.rm = T)
+df2['3DRUB', 1] <-mad(drangedal3_ub_val, na.rm = T)
+df2['4DRB', 1] <- mad(drangedal4_b_val, na.rm = T)
+df2['4DRUB', 1] <-mad(drangedal4_ub_val, na.rm = T)
+df2['1FRB', 1] <- mad(fritsoe1_b_val, na.rm = T)
+df2['1FRUB', 1] <- mad(fritsoe1_ub_val, na.rm = T)
+df2['2FRB', 1] <- mad(fritsoe2_b_val, na.rm = T)
+df2['2FRUB', 1] <- mad(fritsoe2_ub_val, na.rm = T)
+df2['1FYB', 1] <-  mad(fyresdal_b_val, na.rm = T)
+df2['1FYUB', 1] <- mad(fyresdal_ub_val, na.rm = T)
+df2['1KVB', 1] <- mad(kviteseid1_b_val, na.rm = T)
+df2['1KVUB', 1] <- mad(kviteseid1_ub_val, na.rm = T)
+df2['2KVB', 1] <- mad(kviteseid2_b_val, na.rm = T)
+df2['2KVUB', 1] <- mad(kviteseid2_ub_val, na.rm = T)
+df2['3KVB', 1] <- mad(kviteseid3_b_val, na.rm = T)
+df2['3KVUB', 1] <- mad(kviteseid3_ub_val, na.rm = T)
+df2['1CAB', 1] <- mad(n_cappelen1_b_val, na.rm = T)
+df2['1CAUB', 1] <- mad(n_cappelen1_ub_val, na.rm = T)
+df2['2CAB', 1] <- mad(n_cappelen2_b_val, na.rm = T)
+df2['2CAUB', 1] <- mad(n_cappelen2_ub_val, na.rm = T)
+df2['3NOB', 1] <- mad(notodden3_b_val, na.rm = T)
+df2['3NOUB', 1] <- mad(notodden3_ub_val, na.rm = T)
+df2['5NOB', 1] <- mad(notodden5_b_val, na.rm = T)
+df2['5NOUB', 1] <- mad(notodden5_ub_val, na.rm = T)
+df2['6NOB', 1] <- mad(notodden6_b_val, na.rm = T)
+df2['6NOUB', 1] <- mad(notodden6_ub_val, na.rm = T)
+
+df2['DHB', 1] <- mad(didrik_holmsen_b_val, na.rm = T)
+df2['DHUB', 1] <- mad(didrik_holmsen_ub_val, na.rm = T)
+df2['STSKNB', 1] <- mad(eidskog_b_val, na.rm = T)
+df2['STSKNUB', 1] <- mad(eidskog_ub_val, na.rm = T)
+df2['FKB', 1] <- mad(fet3_b_val, na.rm = T)
+df2['FKUB', 1] <- mad(fet3_ub_val, na.rm = T)
+df2['HPB', 1] <- mad(h_pramhus_b_val, na.rm = T)
+df2['HPUB', 1] <- mad(h_pramhus_ub_val, na.rm = T)
+df2['SSAB', 1] <- mad(stangesk_aurskog_b_val, na.rm = T)
+df2['SSAUB', 1] <-  mad(stangesk_aurskog_ub_val, na.rm = T)
+df2['SSBB', 1] <-  mad(stangesk_eidskog_b_val, na.rm = T)
+df2['SSBUB', 1] <- mad(stangesk_eidskog_ub_val, na.rm = T)
+df2['SDB', 1] <-mad(stig_dahlen_b_val, na.rm = T)
+df2['SDUB', 1] <- mad(stig_dahlen_ub_val, na.rm = T)
+df2['THB', 1] <- mad(truls_holm_b_val, na.rm = T)
+df2['THUB', 1] <- mad(truls_holm_ub_val, na.rm = T)
+
+
+write.csv(df2, 'MADtable.csv')
+MADtable = read.csv('MADtable.csv')
+View(MADtable)
+
+#Merge MyData and MAD-tabell
+MyData2 = merge(MyData, MADtable, by.x = "LocalityCode", by.y="X" )
+View(MyData2)
+
+#Standardize MAD with median
+MyData2$MAD_med <- MyData2$MAD/MyData2$Median
+
+write.csv(MyData2, 'MyData2.csv')
+write.xlsx(MyData2, 'MyData2.xlsx')
+
+
+# Data analysis -----------------------------------------------------------
+
+
+#Load MyData2
+library(readr)
+MyData2 <- read_csv("~/Master - Sustherb/LidarMoose/MyData2.csv")
+View(MyData2)
+
+require(ggplot2)
+p11 <- ggplot(data=MyData2, aes(x=Treatment, y=IQR))+geom_violin()
+p11
+p12 <- ggplot(data=MyData2, aes(x=Treatment, y=CV))+geom_violin()
+p12
+p13 <- ggplot(data=MyData2, aes(x=Treatment, y=MAD_med))+geom_violin()
+p13
+p14 <- ggplot(data=MyData2, aes(x=Treatment, y=IQR_med))+geom_violin()
+p14
+p15 <- ggplot(data=MyData2, aes(x=Treatment, y=MAD))+geom_violin()
+p15
+
+
 
 
 #Median height boxplot
@@ -293,15 +407,11 @@ p9
 #dftext <- data.frame(x = 70, y = 50, eq = as.character(as.expression(eq)))
 #p9 + geom_text(aes(label = eq), data = dftext, parse = TRUE)
 
-p10 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=Region))+geom_line()
-p10
-
-#Standardized IQR -MADM?
-
 
 # Make violin plots -------------------------------------------------------
-
+detach("ggplot2")
 #First: get values
+
 #Trøndalag
 bratsberg_b_val<-getValues(bratsberg_b_canopyheight)
 bratsberg_ub_val<-getValues(bratsberg_ub_canopyheight)
@@ -381,6 +491,7 @@ h_pramhus_b_val<-getValues(h_pramhus_b_canopyheight)
 h_pramhus_ub_val<-getValues(h_pramhus_ub_canopyheight)
 stangesk_eidskog_b_val<-getValues(stangesk_eidskog_b_canopyheight)
 stangesk_eidskog_ub_val<-getValues(stangesk_eidskog_ub_canopyheight)
+
 
 #Trondelag
 par(mfrow=c(5,4))
@@ -468,99 +579,7 @@ title(main='Halvard Pramhus', ylab = 'Canopy Height')
 vioplot(stangesk_eidskog_b_val[!is.na(stangesk_eidskog_b_val)],stangesk_eidskog_ub_val[!is.na(stangesk_eidskog_ub_val)],names=c('B','UB'), col='firebrick2')
 title(main='Stangeskovene Eidskog')
 
+ggplot(data=MyData2, aes(x=Treatment, y=Median))+geom_violin()
 
-#Lager MAD tabell
-df2<-data.frame(matrix(nrow=74,ncol=1))
-rownames(df2)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
-colnames(df2)<-c('MAD')  
 
-df2['BRB', 1] <- mad(bratsberg_b_val, na.rm = T)
-df2['BRUB', 1] <- mad(bratsberg_ub_val, na.rm = T)
-df2['HIB', 1] <- mad(hi_tydal_b_val, na.rm = T)
-df2['HIUB', 1] <- mad(hi_tydal_ub_val, na.rm = T)
-df2['MAB', 1] <- mad(malvik_b_val, na.rm = T)
-df2['MAUB', 1] <- mad(malvik_ub_val, na.rm = T)
-df2['1KB', 1] <- mad(namdalseid_1kub_b_val, na.rm = T)
-df2['1KUB', 1] <- mad(namdalseid_1kub_ub_val, na.rm = T)
-df2['1NSB', 1] <- mad(nsb_verdal_b_val, na.rm = T)
-df2['1NSUB', 1] <- mad(nsb_verdal_ub_val, na.rm = T)
-df2['FLB', 1] <- mad(selbu_flub_b_val, na.rm = T)
-df2['FLUB', 1] <- mad(selbu_flub_ub_val, na.rm = T)
-df2['KLB', 1] <-mad(selbu_kl_b_val, na.rm = T)
-df2['KLUB', 1] <- mad(selbu_kl_ub_val, na.rm = T)
-df2['SLB', 1] <- mad(selbu_sl_b_val, na.rm = T)
-df2['SLUB', 1] <- mad(selbu_sl_ub_val, na.rm = T)
-df2['LAB', 1] <- mad(singsaas_b_val, na.rm = T)
-df2['LAUB', 1] <- mad(singsaas_ub_val, na.rm = T)
-df2['SEB', 1] <- mad(sl_tydal_b_val, na.rm = T)
-df2['SEUB', 1] <- mad(sl_tydal_ub_val, na.rm = T)
-df2['1BBB', 1] <- mad(steinkjer_1BBb_b_val, na.rm = T)
-df2['1BBUB', 1] <- mad(steinkjer_1BBb_ub_val, na.rm = T)
-df2['2BBB', 1] <- mad(steinkjer_2BBb_b_val, na.rm = T)
-df2['2BBUB', 1] <- mad(steinkjer_2BBb_ub_val, na.rm = T)
-df2['1SB', 1] <- mad(sub_namdalseid_b_val, na.rm = T)
-df2['1SUB', 1] <- mad(sub_namdalseid_ub_val, na.rm = T)
-df2['1VBB', 1] <- mad(verdal1_b_val, na.rm = T)
-df2['1VBUB', 1] <- mad(verdal1_ub_val, na.rm = T)
-df2['2VBB', 1] <- mad(verdal2_b_val, na.rm = T)
-df2['2VBUB', 1] <- mad(verdal2_ub_val, na.rm = T)
 
-df2['1DRB', 1] <- mad(drangedal1_b_val, na.rm = T)
-df2['1DRUB', 1] <- mad(drangedal1_ub_val, na.rm = T)
-df2['3DRB', 1] <- mad(drangedal3_b_val, na.rm = T)
-df2['3DRUB', 1] <-mad(drangedal3_ub_val, na.rm = T)
-df2['4DRB', 1] <- mad(drangedal4_b_val, na.rm = T)
-df2['4DRUB', 1] <-mad(drangedal4_ub_val, na.rm = T)
-df2['1FRB', 1] <- mad(fritsoe1_b_val, na.rm = T)
-df2['1FRUB', 1] <- mad(fritsoe1_ub_val, na.rm = T)
-df2['2FRB', 1] <- mad(fritsoe2_b_val, na.rm = T)
-df2['2FRUB', 1] <- mad(fritsoe2_ub_val, na.rm = T)
-df2['1FYB', 1] <-  mad(fyresdal_b_val, na.rm = T)
-df2['1FYUB', 1] <- mad(fyresdal_ub_val, na.rm = T)
-df2['1KVB', 1] <- mad(kviteseid1_b_val, na.rm = T)
-df2['1KVUB', 1] <- mad(kviteseid1_ub_val, na.rm = T)
-df2['2KVB', 1] <- mad(kviteseid2_b_val, na.rm = T)
-df2['2KVUB', 1] <- mad(kviteseid2_ub_val, na.rm = T)
-df2['3KVB', 1] <- mad(kviteseid3_b_val, na.rm = T)
-df2['3KVUB', 1] <- mad(kviteseid3_ub_val, na.rm = T)
-df2['1CAB', 1] <- mad(n_cappelen1_b_val, na.rm = T)
-df2['1CAUB', 1] <- mad(n_cappelen1_ub_val, na.rm = T)
-df2['2CAB', 1] <- mad(n_cappelen2_b_val, na.rm = T)
-df2['2CAUB', 1] <- mad(n_cappelen2_ub_val, na.rm = T)
-df2['3NOB', 1] <- mad(notodden3_b_val, na.rm = T)
-df2['3NOUB', 1] <- mad(notodden3_ub_val, na.rm = T)
-df2['5NOB', 1] <- mad(notodden5_b_val, na.rm = T)
-df2['5NOUB', 1] <- mad(notodden5_ub_val, na.rm = T)
-df2['6NOB', 1] <- mad(notodden6_b_val, na.rm = T)
-df2['6NOUB', 1] <- mad(notodden6_ub_val, na.rm = T)
-
-df2['DHB', 1] <- mad(didrik_holmsen_b_val, na.rm = T)
-df2['DHUB', 1] <- mad(didrik_holmsen_ub_val, na.rm = T)
-df2['STSKNB', 1] <- mad(eidskog_b_val, na.rm = T)
-df2['STSKNUB', 1] <- mad(eidskog_ub_val, na.rm = T)
-df2['FKB', 1] <- mad(fet3_b_val, na.rm = T)
-df2['FKUB', 1] <- mad(fet3_ub_val, na.rm = T)
-df2['HPB', 1] <- mad(h_pramhus_b_val, na.rm = T)
-df2['HPUB', 1] <- mad(h_pramhus_ub_val, na.rm = T)
-df2['SSAB', 1] <- mad(stangesk_aurskog_b_val, na.rm = T)
-df2['SSAUB', 1] <-  mad(stangesk_aurskog_ub_val, na.rm = T)
-df2['SSBB', 1] <-  mad(stangesk_eidskog_b_val, na.rm = T)
-df2['SSBUB', 1] <- mad(stangesk_eidskog_ub_val, na.rm = T)
-df2['SDB', 1] <-mad(stig_dahlen_b_val, na.rm = T)
-df2['SDUB', 1] <- mad(stig_dahlen_ub_val, na.rm = T)
-df2['THB', 1] <- mad(truls_holm_b_val, na.rm = T)
-df2['THUB', 1] <- mad(truls_holm_ub_val, na.rm = T)
-  
-
-write.csv(df2, 'MADtable.csv')
-MADtable = read.csv('MADtable.csv')
-View(MADtable)
-
-#Merge MyData and MAD-tabell
-MyData2 = merge(MyData, MADtable, by.x = "LocalityCode", by.y="X" )
-View(MyData2)
-
-#Standardize MAD with median
-MyData2$MAD_med <- MyData2$MAD/MyData2$Median
-
-write.csv(MyData2, 'MyData2.csv')
