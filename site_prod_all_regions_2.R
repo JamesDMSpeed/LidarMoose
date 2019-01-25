@@ -6,7 +6,9 @@ library(plotrix)
 # Harvest dataset ##############
 # These are 131 trees measured and harvested by Anders and Winta in 2016
 
-dat <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/harvested trees trondelag 2016.csv", sep=";")
+#dat <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/harvested trees trondelag 2016.csv", sep=";")
+
+dat <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/harvested trees trondelag 2016.csv", sep=";") #Ingrid
 
 colnames(dat)[7] <- "hgt"
 colnames(dat)[8] <- "lth"
@@ -31,7 +33,8 @@ spruce <- dat[dat$species == "spruce",]
 
 # 2016 dataset #####################
 # Density dataset from 2016 with accurate heights and diameters:
-dat2 <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/trondelag_hgt_dia_2016.csv", sep=";")
+#dat2 <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/trondelag_hgt_dia_2016.csv", sep=";")
+dat2 <- read.csv("C:/Users/Ingrid/Documents/Master - Sustherb/trondelag_hgt_dia_2016.csv", sep=";") #Ingrid
 
 summary(dat2$Treatment) # lots of NA's
 dat3 <- filter(dat2,
@@ -527,12 +530,12 @@ table(D$LocalityName, D$Taxa)
 table(D$Taxa, D$Region)
 
 D1 <- D
-setwd("M:\\Anders L Kolstad\\R\\R_projects\\succession_paper")
+#setwd("M:\\Anders L Kolstad\\R\\R_projects\\succession_paper") #Ingrid: valgte å ikke kjøre denne linja. Skjønner ikke helt dens funksjon
 #write.csv(D1, file="biomass_per_tree.csv", row.names = F)
 #save(D1, file="biomass_per_tree.RData")
-load("biomass_per_tree.RData")
-D1 <- filter(D1,
-             Region %in% c("Telemark", "Trøndelag"))
+#load("biomass_per_tree.RData") #Ingrid: jeg har ikke denne fila. Brukes den senere?
+#D1 <- filter(D1,
+#             Region %in% c("Telemark", "Trøndelag")) #Ingrid: ikke filtrer vekk Trøndelag
 D1$Taxa <- factor(D1$Taxa) # drop Sambucus
 
 
@@ -628,13 +631,33 @@ Telemark <- c(
 "Notodden5"       ,
 "Notodden6"       )
 
-bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", "Telemark")
+Hedmark <- c(
+  "Didrik Holmsen",
+  "Stangeskovene Aurskog",
+  "Stig Dahlen",
+  "Truls Holm",
+  "Fet3",
+  "Eidskog",
+  "Halvard Pramhus",
+  "Stangeskovene Eidskog") #Ingrid: lagt til Hedmark_Akershus vektor
+
+#bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", "Telemark")
+bio_plot2$Region <- ifelse(bio_plot2$LocalityName %in% Trondelag, "Trondelag", ifelse(bio_plot2$LocalityName %in% Telemark,"Telemark", "Hedmark")) #Ingrid
+
 bio_plot2$yse <- ""
-bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, as.numeric(bio_plot2$year)-2009)
+
+#bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, as.numeric(bio_plot2$year)-2009)
+bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, ifelse(bio_plot2$Region == "Telemark", as.numeric(bio_plot2$year)-2009, as.numeric(bio_plot2$year)-2010)) #Ingrid
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
+
 table(bio_plot2$year, bio_plot2$yse)
 #View(bio_plot2[bio_plot2$yse==0,])
-bio_plot2 <- bio_plot2[bio_plot2$yse != 0,]
+bio_plot2 <- bio_plot2[bio_plot2$yse != 0,] #Ingrid: Hva skjer her? Fjerner alle som har yse lik 0. Burde jeg fjerne de negative verdiene også?
+bio_plot2 <- bio_plot2[bio_plot2$yse != -1,] #Ingrid  
+bio_plot2 <- bio_plot2[bio_plot2$yse != -2,] #Ingrid
 
+table(bio_plot2$year, bio_plot2$yse)
 ggplot(data = bio_plot2)+
   geom_line(aes(x=yse, y=biomass_tonn_ha, group = Treatment, linetype = Treatment))+
   facet_wrap(~ LocalityName, scales="free")
@@ -651,7 +674,7 @@ ggplot(data = bio_plot2)+
 bio_plot2 <- bio_plot2[bio_plot2$yse != 8,]
 
 
-bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), 
+bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), #bio_trt - her mister vi mye info, skjønner ikke helt hva som skjer
                        by= list(
                          yse=bio_plot2$yse,
                          Treatment=bio_plot2$Treatment,
