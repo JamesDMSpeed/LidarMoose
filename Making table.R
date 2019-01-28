@@ -402,13 +402,17 @@ write.xlsx(MyData2, 'MyData2.xlsx')
 
 
 # Data analysis -----------------------------------------------------------
-
+#Import MyData
+library(readr)
+MyData <- read_csv("~/Master - Sustherb/LidarMoose/MyData.csv")
+View(MyData)
 
 #Load MyData2
 library(readr)
 MyData2 <- read_csv("~/Master - Sustherb/LidarMoose/MyData2.csv")
 View(MyData2)
 
+#violin plots
 require(ggplot2)
 p11 <- ggplot(data=MyData2, aes(x=Treatment, y=IQR))+geom_violin()
 p11
@@ -423,7 +427,7 @@ p15
 
 
 
-
+#Boxplots
 #Median height boxplot
 wilcox.test(MyData$Median[MyData$Treatment=='B'],MyData$Median[MyData$Treatment=='UB'],paired=T)
 boxplot(MyData$Median~MyData$Treatment, xlab="Treatment", ylab="Median Canopy Height")
@@ -447,21 +451,31 @@ require(ggplot2)
 require(ggvis)
 require(gridExtra)
 
-#Testing, trying to learn qplot and ggplot
-p1<- qplot(MyData$ClearCutToLidar, MyData$Median, color=MyData$Treatment)
-p1
-p2 <- qplot(MyData$Treatment, MyData$Median)
-p2
-p3 <- qplot(MyData$Median, fill=MyData$Treatment)
-p3
 
 #spaghettiplot,treatment and median, colours by region
-p4 <- ggplot(data=MyData, aes(x=Treatment, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')
+#Median spaghetti plot
+x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
+p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')
 p4
 print(p4)
 
-p5 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
-p5
+
+#MAD spaghettiplot
+#Reorder x-axis
+x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
+p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation')
+p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
+
+
+#Getting figures side-by side
+
+require(gridExtra)
+plot1 <- p4
+plot2 <- p5
+grid.arrange(plot1, plot2, ncol=2)
+
+#p5 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
+#p5
 
 p6 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData$Region))+geom_line()
 p6
