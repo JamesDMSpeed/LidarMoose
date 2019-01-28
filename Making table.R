@@ -455,7 +455,7 @@ require(gridExtra)
 #spaghettiplot,treatment and median, colours by region
 #Median spaghetti plot
 x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')
+p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')+theme(axis.text=element_text(size=14), axis.title=element_text(size=14))
 p4
 print(p4)
 
@@ -463,8 +463,9 @@ print(p4)
 #MAD spaghettiplot
 #Reorder x-axis
 x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation')
-p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
+p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation')+theme(axis.text=element_text(size=14), axis.title=element_text(size=14))
+p5
+#p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
 
 
 #Getting figures side-by side
