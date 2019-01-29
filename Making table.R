@@ -403,8 +403,7 @@ write.xlsx(MyData2, 'MyData2.xlsx')
 MyData3 <- data.frame(MyData2)
 levels(MyData3$Treatment)[levels(MyData3$Treatment) == "B"] <- "Open plots"
 levels(MyData3$Treatment)[levels(MyData3$Treatment) == "UB"] <- "Exclosures"
-
-
+View(MyData3)
 
 # Data analysis -----------------------------------------------------------
 #Import MyData
@@ -476,17 +475,14 @@ require(gridExtra)
 #Median spaghetti plot
 x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
 p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=16))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
-p4 
+p4
+
 
 
 #MAD spaghettiplot
 #Reorder x-axis
 x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
 p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=16))
-levels(MyData2$Treatment)[levels(MyData2$Treatment) == "B"] <- "Browsed"
-levels(MyData2$Treatment)[levels(MyData2$Treatment) == "UB"] <- "Unbrowsed"
-
-
 p5
 #p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
 
@@ -494,13 +490,29 @@ wilcox.test(MyData2$MAD[MyData2$Treatment=='B'],MyData2$MAD[MyData2$Treatment=='
 
 
 #Getting figures side-by side
+library(egg)
+test3 <- egg::ggarrange(p4+ theme(legend.position="none"),p5, ncol=2) #common.legend = T)
+
+
 require(gridExtra)
+grid.arrange(p4, p5, ncol=2)
+#g_legend<-function(a.gplot){
+#  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+#  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+#  legend <- tmp$grobs[[leg]]
+#  return(legend)}
 
-#grid.arrange(p4, p5, ncol=2)
+#mylegend<-g_legend(p4)
 
-med_mad_plot<- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
-                               p5,
-                               nrow=1))
+#p6 <- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
+#                               p5 + theme(legend.position="none"),
+#                               nrow=1),
+#                   mylegend, nrow=2,heights=c(10, 1))
+#reposition_legend(p6, 'top left', panel = 'panel-3-1')
+
+#panel_plot<- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
+ #                              p5,
+  #                             nrow=1))
 
 
 
