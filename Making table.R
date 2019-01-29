@@ -5,6 +5,7 @@ require(raster)
 require(rasterVis)
 require(rgeos)
 
+setwd("C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose")
 
 #First, loading canopy height rasters
 
@@ -401,9 +402,11 @@ write.csv(MyData2, 'MyData2.csv')
 write.xlsx(MyData2, 'MyData2.xlsx')
 
 MyData3 <- data.frame(MyData2)
-levels(MyData3$Treatment)[levels(MyData3$Treatment) == "B"] <- "Open plots"
-levels(MyData3$Treatment)[levels(MyData3$Treatment) == "UB"] <- "Exclosures"
-View(MyData3)
+#levels(MyData3$Treatment)[levels(MyData3$Treatment) == "B"] <- "Open plots"
+#levels(MyData3$Treatment)[levels(MyData3$Treatment) == "UB"] <- "Exclosures"
+#View(MyData3)
+MyData3$Treatment <- ifelse(MyData3$Treatment=="B", "Open plot", "Exclosure")
+write.csv(MyData3, 'MyData3.csv')
 
 # Data analysis -----------------------------------------------------------
 #Import MyData
@@ -416,17 +419,22 @@ library(readr)
 MyData2 <- read_csv("~/Master - Sustherb/LidarMoose/MyData2.csv")
 View(MyData2)
 
+#Load MyData3
+library(readr)
+MyData3 <- read_csv("~/Master - Sustherb/LidarMoose/MyData3.csv")
+View(MyData3)
+
 #violin plots
 require(ggplot2)
-p11 <- ggplot(data=MyData2, aes(x=Treatment, y=IQR))+geom_violin()
+p11 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_violin()
 p11
-p12 <- ggplot(data=MyData2, aes(x=Treatment, y=CV))+geom_violin()
+p12 <- ggplot(data=MyData3, aes(x=Treatment, y=CV))+geom_violin()
 p12
-p13 <- ggplot(data=MyData2, aes(x=Treatment, y=MAD_med))+geom_violin()
+p13 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_violin()
 p13
-p14 <- ggplot(data=MyData2, aes(x=Treatment, y=IQR_med))+geom_violin()
+p14 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_violin()
 p14
-p15 <- ggplot(data=MyData2, aes(x=Treatment, y=MAD))+geom_violin()
+p15 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD))+geom_violin()
 p15
 
 
@@ -435,31 +443,30 @@ p15
 #################################################
 
 #Median height boxplot
-wilcox.test(MyData$Median[MyData$Treatment=='B'],MyData$Median[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$Median~MyData$Treatment, xlab="Treatment", ylab="Median Canopy Height")
-#bp <- ggplot(data=MyData, aes(x=Treatment, y=Median))+geom_boxplot()#just wanted to try doing a ggplot
+wilcox.test(MyData3$Median[MyData3$Treatment=='Open plot'],MyData3$Median[MyData3$Treatment=='Exclosure'],paired=T)
+boxplot(MyData3$Median~MyData3$Treatment, xlab="Treatment", ylab="Median Canopy Height")
 
 #IQR boxplot
-wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$IQR~MyData$Treatment)
+wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Treatment=='Exclosure'],paired=T)
+boxplot(MyData3$IQR~MyData3$Treatment)
 
 #Mean - obs, maybe not a good measure, skewed distribution
-wilcox.test(MyData$Mean[MyData$Treatment=='B'],MyData$Mean[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$SD~MyData$Treatment)
+wilcox.test(MyData3$Mean[MyData3$Treatment=='Open plot'],MyData3$Mean[MyData3$Treatment=='Exclosure'],paired=T)
+boxplot(MyData3$SD~MyData3$Treatment)
 
 #CV
-wilcox.test(MyData$CV[MyData$Treatment=='B'],MyData$CV[MyData$Treatment=='UB'],paired=T)
-boxplot(MyData$CV~MyData$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
+wilcox.test(MyData3$CV[MyData3$Treatment=='Open plot'],MyData3$CV[MyData3$Treatment=='Exclosure'],paired=T)
+boxplot(MyData3$CV~MyData3$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
 
 
 #boxplot median - treatment
-p7 <- ggplot(data=MyData, aes(x=Treatment, y=Median))+geom_boxplot()
+p7 <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_boxplot()
 p7 <- print(p7+labs(y='Median Canopy Height'))
 
 #boxplot IQR -treatment
-p8 <- ggplot(data=MyData, aes(x=Treatment, y=IQR))+geom_boxplot()
+p8 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_boxplot()
 p8 
-wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
+wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Treatment=='Exclosure'],paired=T)
 
 
 
@@ -473,20 +480,20 @@ require(gridExtra)
 
 #spaghettiplot,treatment and median, colours by region
 #Median spaghetti plot
-x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=16))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+x1<- factor(MyData3$Treatment, levels = c('Exclosure', 'Open plot'))
+p4 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=16))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 p4
 
 
 
 #MAD spaghettiplot
 #Reorder x-axis
-x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=16))
+x1 <- factor(MyData3$Treatment, levels =  c('Exclosure', 'Open plot'))
+p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=16))
 p5
 #p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
 
-wilcox.test(MyData2$MAD[MyData2$Treatment=='B'],MyData2$MAD[MyData2$Treatment=='UB'],paired=T)
+wilcox.test(MyData3$MAD[MyData3$Treatment=='Open plot'],MyData3$MAD[MyData3$Treatment=='Exclosure'],paired=T)
 
 
 #Getting figures side-by side
@@ -515,8 +522,8 @@ grid.arrange(p4, p5, ncol=2)
   #                             nrow=1))
 
 
-
-
+p6 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData3$Region))+geom_line()
+p6
 
 
 
@@ -537,11 +544,9 @@ p9
 #dftext <- data.frame(x = 70, y = 50, eq = as.character(as.expression(eq)))
 #p9 + geom_text(aes(label = eq), data = dftext, parse = TRUE)
 
-p10 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
+p10 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median))+geom_point()
 p10
 
-p6 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData$Region))+geom_line()
-p6
 
 
 
