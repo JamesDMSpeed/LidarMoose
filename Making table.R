@@ -400,6 +400,11 @@ MyData2$MAD_med <- MyData2$MAD/MyData2$Median
 write.csv(MyData2, 'MyData2.csv')
 write.xlsx(MyData2, 'MyData2.xlsx')
 
+MyData3 <- data.frame(MyData2)
+levels(MyData3$Treatment)[levels(MyData3$Treatment) == "B"] <- "Open plots"
+levels(MyData3$Treatment)[levels(MyData3$Treatment) == "UB"] <- "Exclosures"
+
+
 
 # Data analysis -----------------------------------------------------------
 #Import MyData
@@ -426,8 +431,10 @@ p15 <- ggplot(data=MyData2, aes(x=Treatment, y=MAD))+geom_violin()
 p15
 
 
+#################################################
+#Boxplots with wilcox test#######################
+#################################################
 
-#Boxplots
 #Median height boxplot
 wilcox.test(MyData$Median[MyData$Treatment=='B'],MyData$Median[MyData$Treatment=='UB'],paired=T)
 boxplot(MyData$Median~MyData$Treatment, xlab="Treatment", ylab="Median Canopy Height")
@@ -446,41 +453,6 @@ wilcox.test(MyData$CV[MyData$Treatment=='B'],MyData$CV[MyData$Treatment=='UB'],p
 boxplot(MyData$CV~MyData$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
 
 
-#Spaghetti plots 
-require(ggplot2)
-require(ggvis)
-require(gridExtra)
-
-
-#spaghettiplot,treatment and median, colours by region
-#Median spaghetti plot
-x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height')+theme(axis.text=element_text(size=14), axis.title=element_text(size=14))
-p4
-print(p4)
-
-
-#MAD spaghettiplot
-#Reorder x-axis
-x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
-p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation')+theme(axis.text=element_text(size=14), axis.title=element_text(size=14))
-p5
-#p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
-
-
-#Getting figures side-by side
-
-require(gridExtra)
-plot1 <- p4
-plot2 <- p5
-grid.arrange(plot1, plot2, ncol=2)
-
-#p5 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
-#p5
-
-p6 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData$Region))+geom_line()
-p6
-
 #boxplot median - treatment
 p7 <- ggplot(data=MyData, aes(x=Treatment, y=Median))+geom_boxplot()
 p7 <- print(p7+labs(y='Median Canopy Height'))
@@ -490,7 +462,57 @@ p8 <- ggplot(data=MyData, aes(x=Treatment, y=IQR))+geom_boxplot()
 p8 
 wilcox.test(MyData$IQR[MyData$Treatment=='B'],MyData$IQR[MyData$Treatment=='UB'],paired=T)
 
-#Scatterplot Clearcut to lidar - median canopy height
+
+
+##################################################
+#Spaghetti plots##################################
+##################################################
+require(ggplot2)
+require(ggvis)
+require(gridExtra)
+
+
+#spaghettiplot,treatment and median, colours by region
+#Median spaghetti plot
+x1<- factor(MyData2$Treatment, levels = c('UB', 'B'))
+p4 <- ggplot(data=MyData, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=16))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p4 
+
+
+#MAD spaghettiplot
+#Reorder x-axis
+x1 <- factor(MyData2$Treatment, levels = c('UB', 'B'))
+p5 <- ggplot(data=MyData2, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=16))
+levels(MyData2$Treatment)[levels(MyData2$Treatment) == "B"] <- "Browsed"
+levels(MyData2$Treatment)[levels(MyData2$Treatment) == "UB"] <- "Unbrowsed"
+
+
+p5
+#p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
+
+wilcox.test(MyData2$MAD[MyData2$Treatment=='B'],MyData2$MAD[MyData2$Treatment=='UB'],paired=T)
+
+
+#Getting figures side-by side
+require(gridExtra)
+
+#grid.arrange(p4, p5, ncol=2)
+
+med_mad_plot<- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
+                               p5,
+                               nrow=1))
+
+
+
+
+
+
+
+
+
+#########################################################################
+#Scatterplot Clearcut to lidar - median canopy height####################
+#########################################################################
 p9 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
 p9
 #Trying to get the R-value 
@@ -502,6 +524,13 @@ p9
 
 #dftext <- data.frame(x = 70, y = 50, eq = as.character(as.expression(eq)))
 #p9 + geom_text(aes(label = eq), data = dftext, parse = TRUE)
+
+p10 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median))+geom_point()
+p10
+
+p6 <- ggplot(data=MyData, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData$Region))+geom_line()
+p6
+
 
 
 # Make violin plots -------------------------------------------------------
