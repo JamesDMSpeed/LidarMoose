@@ -624,7 +624,6 @@ p2 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))
 p2
 
 
-
 # Median absolute deviation -----------------------------------------------
 
 #Wilcox test
@@ -669,11 +668,11 @@ wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Trea
 #IQR boxplot
 p6 <-  ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_boxplot()
 
-  #IQR violin plot
-p6 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_violin()
+#IQR violin plot
+p7 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_violin()
 
 #Spaghetti plot IQR - treatment
-p7 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData3$Region))+geom_line()
+p8 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR, group=LocalityName,color=Region))+geom_line()
 
 
 
@@ -724,5 +723,6 @@ p12 <- boxplot(MyData3$SD~MyData3$Treatment)
 p13 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
 p13
 
+range(MyData3$Median)
 
 
