@@ -1,9 +1,12 @@
-#Making table
+#Making table + data analysis
 
 require(lidR)
 require(raster)
 require(rasterVis)
 require(rgeos)
+require(ggplot2)
+require(ggvis)
+require(gridExtra)
 
 setwd("C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose")
 
@@ -401,159 +404,14 @@ MyData2$MAD_med <- MyData2$MAD/MyData2$Median
 write.csv(MyData2, 'MyData2.csv')
 write.xlsx(MyData2, 'MyData2.xlsx')
 
+#Making MyData3 - changeing Treatment names from B, UB to exclosure, open plot
 MyData3 <- data.frame(MyData2)
-#levels(MyData3$Treatment)[levels(MyData3$Treatment) == "B"] <- "Open plots"
-#levels(MyData3$Treatment)[levels(MyData3$Treatment) == "UB"] <- "Exclosures"
-#View(MyData3)
 MyData3$Treatment <- ifelse(MyData3$Treatment=="B", "Open plot", "Exclosure")
 write.csv(MyData3, 'MyData3.csv')
 
-# Data analysis -----------------------------------------------------------
-#Import MyData
-library(readr)
-MyData <- read_csv("~/Master - Sustherb/LidarMoose/MyData.csv")
-View(MyData)
-
-#Load MyData2
-library(readr)
-MyData2 <- read_csv("~/Master - Sustherb/LidarMoose/MyData2.csv")
-View(MyData2)
-
-#Load MyData3
-library(readr)
-MyData3 <- read_csv("~/Master - Sustherb/LidarMoose/MyData3.csv")
-View(MyData3)
-
-#violin plots
-require(ggplot2)
-p11 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_violin()
-p11
-p12 <- ggplot(data=MyData3, aes(x=Treatment, y=CV))+geom_violin()
-p12
-p13 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_violin()
-p13
-p14 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_violin()
-p14
-p15 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD))+geom_violin()
-p15
-
-
-#################################################
-#Boxplots with wilcox test#######################
-#################################################
-
-#Median height boxplot
-wilcox.test(MyData3$Median[MyData3$Treatment=='Open plot'],MyData3$Median[MyData3$Treatment=='Exclosure'],paired=T)
-boxplot(MyData3$Median~MyData3$Treatment, xlab="Treatment", ylab="Median Canopy Height")
-
-#IQR boxplot
-wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Treatment=='Exclosure'],paired=T)
-boxplot(MyData3$IQR~MyData3$Treatment)
-
-#Mean - obs, maybe not a good measure, skewed distribution
-wilcox.test(MyData3$Mean[MyData3$Treatment=='Open plot'],MyData3$Mean[MyData3$Treatment=='Exclosure'],paired=T)
-boxplot(MyData3$SD~MyData3$Treatment)
-
-#CV
-wilcox.test(MyData3$CV[MyData3$Treatment=='Open plot'],MyData3$CV[MyData3$Treatment=='Exclosure'],paired=T)
-boxplot(MyData3$CV~MyData3$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
-
-
-#boxplot median - treatment
-p7 <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_boxplot()
-p7 <- print(p7+labs(y='Median Canopy Height'))
-
-#boxplot IQR -treatment
-p8 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_boxplot()
-p8 
-wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Treatment=='Exclosure'],paired=T)
-
-
-
-##################################################
-#Spaghetti plots##################################
-##################################################
-require(ggplot2)
-require(ggvis)
-require(gridExtra)
-
-
-#spaghettiplot,treatment and median, colours by region
-#Median spaghetti plot
-x1<- factor(MyData3$Treatment, levels = c('Exclosure', 'Open plot'))
-p4 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=16))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
-p4
-
-
-
-#MAD spaghettiplot
-#Reorder x-axis
-x1 <- factor(MyData3$Treatment, levels =  c('Exclosure', 'Open plot'))
-p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=16))
-p5
-#p5 + theme(panel.background = element_rect(fill= 'palegreen4', colour='palegreen3'))+theme(plot.background = element_rect(fill = "palegreen4"))
-
-wilcox.test(MyData3$MAD[MyData3$Treatment=='Open plot'],MyData3$MAD[MyData3$Treatment=='Exclosure'],paired=T)
-
-
-#Getting figures side-by side
-library(egg)
-test3 <- egg::ggarrange(p4+ theme(legend.position="none"),p5, ncol=2) #common.legend = T)
-
-
-require(gridExtra)
-grid.arrange(p4, p5, ncol=2)
-#g_legend<-function(a.gplot){
-#  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-#  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-#  legend <- tmp$grobs[[leg]]
-#  return(legend)}
-
-#mylegend<-g_legend(p4)
-
-#p6 <- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
-#                               p5 + theme(legend.position="none"),
-#                               nrow=1),
-#                   mylegend, nrow=2,heights=c(10, 1))
-#reposition_legend(p6, 'top left', panel = 'panel-3-1')
-
-#panel_plot<- grid.arrange(arrangeGrob(p4 + theme(legend.position="none"),
- #                              p5,
-  #                             nrow=1))
-
-
-p6 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData3$Region))+geom_line()
-p6
-
-
-
-
-
-#########################################################################
-#Scatterplot Clearcut to lidar - median canopy height####################
-#########################################################################
-p9 <- ggplot(data=MyData, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
-p9
-#Trying to get the R-value 
-#m <- lm(Median~ClearCutToLidar, data=MyData)
-#eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
-#                 list(        a = format(coef(m)[1], digits = 4), 
-#                              b = format(coef(m)[2], digits = 4), 
-#                             r2 = format(summary(m)$r.squared, digits = 3)))
-
-#dftext <- data.frame(x = 70, y = 50, eq = as.character(as.expression(eq)))
-#p9 + geom_text(aes(label = eq), data = dftext, parse = TRUE)
-
-p10 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median))+geom_point()
-p10
-
-
-
 
 # Make violin plots -------------------------------------------------------
-detach("ggplot2")
 #First: get values
-
 #Trøndalag
 bratsberg_b_val<-getValues(bratsberg_b_canopyheight)
 bratsberg_ub_val<-getValues(bratsberg_ub_canopyheight)
@@ -636,93 +494,235 @@ stangesk_eidskog_ub_val<-getValues(stangesk_eidskog_ub_canopyheight)
 
 require(vioplot)
 #Trondelag
-par(mfrow=c(5,4))
+par(mfrow=c(6,3))
 par(mar=c(1,4,3,1))
-vioplot(bratsberg_b_val[!is.na(bratsberg_b_val)],bratsberg_ub_val[!is.na(bratsberg_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Bratsberg', ylab = 'Canopy Height')
-vioplot(singsaas_b_val[!is.na(singsaas_b_val)],singsaas_ub_val[!is.na(singsaas_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(bratsberg_b_val[!is.na(bratsberg_b_val)],bratsberg_ub_val[!is.na(bratsberg_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Bratsberg', ylab = 'Canopy Height', cex.lab=1)
+vioplot(singsaas_b_val[!is.na(singsaas_b_val)],singsaas_ub_val[!is.na(singsaas_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Singsaas')
-vioplot(malvik_b_val[!is.na(malvik_b_val)],malvik_ub_val[!is.na(malvik_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(malvik_b_val[!is.na(malvik_b_val)],malvik_ub_val[!is.na(malvik_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Malvik')
-vioplot(selbu_flub_b_val[!is.na(selbu_flub_b_val)],selbu_flub_ub_val[!is.na(selbu_flub_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Selbu_flub')
-vioplot(selbu_kl_b_val[!is.na(selbu_kl_b_val)],selbu_kl_ub_val[!is.na(selbu_kl_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Selbu_kl', ylab = 'Canopy Height')
-vioplot(selbu_sl_b_val[!is.na(selbu_sl_b_val)],selbu_sl_ub_val[!is.na(selbu_sl_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(selbu_flub_b_val[!is.na(selbu_flub_b_val)],selbu_flub_ub_val[!is.na(selbu_flub_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Selbu_flub', ylab = 'Canopy Height', cex.lab=1)
+vioplot(selbu_kl_b_val[!is.na(selbu_kl_b_val)],selbu_kl_ub_val[!is.na(selbu_kl_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Selbu_kl')
+vioplot(selbu_sl_b_val[!is.na(selbu_sl_b_val)],selbu_sl_ub_val[!is.na(selbu_sl_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Selbu_sl')
-vioplot(hi_tydal_b_val[!is.na(hi_tydal_b_val)],hi_tydal_ub_val[!is.na(hi_tydal_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Hi_tydal')
-vioplot(sl_tydal_b_val[!is.na(sl_tydal_b_val)],sl_tydal_ub_val[!is.na(sl_tydal_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(hi_tydal_b_val[!is.na(hi_tydal_b_val)],hi_tydal_ub_val[!is.na(hi_tydal_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Hi_tydal', ylab = 'Canopy Height', cex.lab=1)
+vioplot(sl_tydal_b_val[!is.na(sl_tydal_b_val)],sl_tydal_ub_val[!is.na(sl_tydal_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Sl_tydal')
-vioplot(steinkjer_1BBb_b_val[!is.na(steinkjer_1BBb_b_val)],steinkjer_1BBb_ub_val[!is.na(steinkjer_1BBb_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Steinkjer_1BBb', ylab = 'Canopy Height')
-vioplot(steinkjer_2BBb_b_val[!is.na(steinkjer_2BBb_b_val)],steinkjer_2BBb_ub_val[!is.na(steinkjer_2BBb_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Steinkjer_2BBb')
-vioplot(nsb_verdal_b_val[!is.na(nsb_verdal_b_val)],nsb_verdal_ub_val[!is.na(nsb_verdal_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(steinkjer_1BBb_b_val[!is.na(steinkjer_1BBb_b_val)],steinkjer_1BBb_ub_val[!is.na(steinkjer_1BBb_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Steinkjer_1BBb')
+vioplot(steinkjer_2BBb_b_val[!is.na(steinkjer_2BBb_b_val)],steinkjer_2BBb_ub_val[!is.na(steinkjer_2BBb_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Steinkjer_2BBb', ylab = 'Canopy Height', cex.lab=1)
+vioplot(nsb_verdal_b_val[!is.na(nsb_verdal_b_val)],nsb_verdal_ub_val[!is.na(nsb_verdal_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Nsb_verdal')
-vioplot(verdal1_b_val[!is.na(verdal1_b_val)],verdal1_ub_val[!is.na(verdal1_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(verdal1_b_val[!is.na(verdal1_b_val)],verdal1_ub_val[!is.na(verdal1_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Verdal1')
-vioplot(verdal2_b_val[!is.na(verdal2_b_val)],verdal2_ub_val[!is.na(verdal2_ub_val)],names=c('B','UB'), col='dodgerblue3')
-title(main='Verdal2', ylab = 'Canopy Height')
-vioplot(namdalseid_1kub_b_val[!is.na(namdalseid_1kub_b_val)],namdalseid_1kub_ub_val[!is.na(namdalseid_1kub_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(verdal2_b_val[!is.na(verdal2_b_val)],verdal2_ub_val[!is.na(verdal2_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
+title(main='Verdal2', ylab = 'Canopy Height', cex.lab=1)
+vioplot(namdalseid_1kub_b_val[!is.na(namdalseid_1kub_b_val)],namdalseid_1kub_ub_val[!is.na(namdalseid_1kub_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Namdalseid_1kub')
-vioplot(sub_namdalseid_b_val[!is.na(sub_namdalseid_b_val)],sub_namdalseid_ub_val[!is.na(sub_namdalseid_ub_val)],names=c('B','UB'), col='dodgerblue3')
+vioplot(sub_namdalseid_b_val[!is.na(sub_namdalseid_b_val)],sub_namdalseid_ub_val[!is.na(sub_namdalseid_ub_val)],names=c('Open plot','Exclosure'), col='dodgerblue3')
 title(main='Sub_namdalseid')
 
 #Telemark
-par(mfrow=c(5,4))
+par(mfrow=c(6,3))
 par(mar=c(1,4,3,1))
-vioplot(fritsoe1_b_val[!is.na(fritsoe1_b_val)],fritsoe1_ub_val[!is.na(fritsoe1_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(fritsoe1_b_val[!is.na(fritsoe1_b_val)],fritsoe1_ub_val[!is.na(fritsoe1_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Fritsoe1', ylab = 'Canopy Height' )
-vioplot(fritsoe2_b_val[!is.na(fritsoe2_b_val)],fritsoe2_ub_val[!is.na(fritsoe2_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(fritsoe2_b_val[!is.na(fritsoe2_b_val)],fritsoe2_ub_val[!is.na(fritsoe2_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Fritsoe2')
-vioplot(n_cappelen1_b_val[!is.na(n_cappelen1_b_val)],n_cappelen1_ub_val[!is.na(n_cappelen1_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(n_cappelen1_b_val[!is.na(n_cappelen1_b_val)],n_cappelen1_ub_val[!is.na(n_cappelen1_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='N_cappelen1')
-vioplot(n_cappelen2_b_val[!is.na(n_cappelen2_b_val)],n_cappelen2_ub_val[!is.na(n_cappelen2_ub_val)],names=c('B','UB'), col='darkolivegreen4')
-title(main='N_cappelen2')
-vioplot(notodden3_b_val[!is.na(notodden3_b_val)],notodden3_ub_val[!is.na(notodden3_ub_val)],names=c('B','UB'), col='darkolivegreen4')
-title(main='Notodden3', ylab = 'Canopy Height')
-vioplot(notodden5_b_val[!is.na(notodden5_b_val)],notodden5_ub_val[!is.na(notodden5_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(n_cappelen2_b_val[!is.na(n_cappelen2_b_val)],n_cappelen2_ub_val[!is.na(n_cappelen2_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
+title(main='N_cappelen2', ylab = 'Canopy Height')
+vioplot(notodden3_b_val[!is.na(notodden3_b_val)],notodden3_ub_val[!is.na(notodden3_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
+title(main='Notodden3')
+vioplot(notodden5_b_val[!is.na(notodden5_b_val)],notodden5_ub_val[!is.na(notodden5_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Notodden5')
-vioplot(notodden6_b_val[!is.na(notodden6_b_val)],notodden6_ub_val[!is.na(notodden6_ub_val)],names=c('B','UB'), col='darkolivegreen4')
-title(main='Notodden6')
-vioplot(drangedal1_b_val[!is.na(drangedal1_b_val)],drangedal1_ub_val[!is.na(drangedal1_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(notodden6_b_val[!is.na(notodden6_b_val)],notodden6_ub_val[!is.na(notodden6_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
+title(main='Notodden6', ylab = 'Canopy Height')
+vioplot(drangedal1_b_val[!is.na(drangedal1_b_val)],drangedal1_ub_val[!is.na(drangedal1_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Drangedal1')
-vioplot(drangedal3_b_val[!is.na(drangedal3_b_val)],drangedal3_ub_val[!is.na(drangedal3_ub_val)],names=c('B','UB'), col='darkolivegreen4')
-title(main='Drangedal3', ylab = 'Canopy Height')
-vioplot(drangedal4_b_val[!is.na(drangedal4_b_val)],drangedal4_ub_val[!is.na(drangedal4_ub_val)],names=c('B','UB'), col='darkolivegreen4')
-title(main='Drangedal4')
-vioplot(kviteseid1_b_val[!is.na(kviteseid1_b_val)],kviteseid1_ub_val[!is.na(kviteseid1_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(drangedal3_b_val[!is.na(drangedal3_b_val)],drangedal3_ub_val[!is.na(drangedal3_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
+title(main='Drangedal3')
+vioplot(drangedal4_b_val[!is.na(drangedal4_b_val)],drangedal4_ub_val[!is.na(drangedal4_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
+title(main='Drangedal4', ylab = 'Canopy Height')
+vioplot(kviteseid1_b_val[!is.na(kviteseid1_b_val)],kviteseid1_ub_val[!is.na(kviteseid1_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Kviteseid1')
-vioplot(kviteseid2_b_val[!is.na(kviteseid2_b_val)],kviteseid2_ub_val[!is.na(kviteseid2_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(kviteseid2_b_val[!is.na(kviteseid2_b_val)],kviteseid2_ub_val[!is.na(kviteseid2_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Kviteseid2')
-vioplot(kviteseid3_b_val[!is.na(kviteseid3_b_val)],kviteseid3_ub_val[!is.na(kviteseid3_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(kviteseid3_b_val[!is.na(kviteseid3_b_val)],kviteseid3_ub_val[!is.na(kviteseid3_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Kviteseid3', ylab = 'Canopy Height')
-vioplot(fyresdal_b_val[!is.na(fyresdal_b_val)],fyresdal_ub_val[!is.na(fyresdal_ub_val)],names=c('B','UB'), col='darkolivegreen4')
+vioplot(fyresdal_b_val[!is.na(fyresdal_b_val)],fyresdal_ub_val[!is.na(fyresdal_ub_val)],names=c('Open plot','Exclosure'), col='darkolivegreen4')
 title(main='Fyresdal')
 
 #Hedmark
 par(mfrow=c(4,3))
 par(mar=c(1,4,3,1))
-vioplot(didrik_holmsen_b_val[!is.na(didrik_holmsen_b_val)],didrik_holmsen_ub_val[!is.na(didrik_holmsen_ub_val)],names=c('B','UB'), col='firebrick2')   
+vioplot(didrik_holmsen_b_val[!is.na(didrik_holmsen_b_val)],didrik_holmsen_ub_val[!is.na(didrik_holmsen_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')   
 title(main='Didrik Holmsen', ylab = 'Canopy Height')
-vioplot(stangesk_aurskog_b_val[!is.na(stangesk_aurskog_b_val)],stangesk_aurskog_ub_val[!is.na(stangesk_aurskog_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(stangesk_aurskog_b_val[!is.na(stangesk_aurskog_b_val)],stangesk_aurskog_ub_val[!is.na(stangesk_aurskog_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Stangeskovene Aurskog')
-vioplot(stig_dahlen_b_val[!is.na(stig_dahlen_b_val)],stig_dahlen_ub_val[!is.na(stig_dahlen_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(stig_dahlen_b_val[!is.na(stig_dahlen_b_val)],stig_dahlen_ub_val[!is.na(stig_dahlen_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Stig Dahlen')
-vioplot(truls_holm_b_val[!is.na(truls_holm_b_val)],truls_holm_ub_val[!is.na(truls_holm_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(truls_holm_b_val[!is.na(truls_holm_b_val)],truls_holm_ub_val[!is.na(truls_holm_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Truls Holm', ylab = 'Canopy Height')
-vioplot(fet3_b_val[!is.na(fet3_b_val)],fet3_ub_val[!is.na(fet3_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(fet3_b_val[!is.na(fet3_b_val)],fet3_ub_val[!is.na(fet3_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Fet3')
-vioplot(eidskog_b_val[!is.na(eidskog_b_val)],eidskog_ub_val[!is.na(eidskog_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(eidskog_b_val[!is.na(eidskog_b_val)],eidskog_ub_val[!is.na(eidskog_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Eidskog')
-vioplot(h_pramhus_b_val[!is.na(h_pramhus_b_val)],h_pramhus_ub_val[!is.na(h_pramhus_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(h_pramhus_b_val[!is.na(h_pramhus_b_val)],h_pramhus_ub_val[!is.na(h_pramhus_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Halvard Pramhus', ylab = 'Canopy Height')
-vioplot(stangesk_eidskog_b_val[!is.na(stangesk_eidskog_b_val)],stangesk_eidskog_ub_val[!is.na(stangesk_eidskog_ub_val)],names=c('B','UB'), col='firebrick2')
+vioplot(stangesk_eidskog_b_val[!is.na(stangesk_eidskog_b_val)],stangesk_eidskog_ub_val[!is.na(stangesk_eidskog_ub_val)],names=c('Open plot','Exclosure'), col='firebrick2')
 title(main='Stangeskovene Eidskog')
 
-ggplot(data=MyData2, aes(x=Treatment, y=Median))+geom_violin()
-title(main="All sites")
+library(ggplot2)
+vioplot_allsites <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_violin()+ggtitle('All sites')
+vioplot_allsites
+
+
+# Data analysis -----------------------------------------------------------
+#Load MyData
+library(readr)
+MyData <- read_csv("~/Master - Sustherb/LidarMoose/MyData.csv")
+View(MyData)
+
+#Load MyData2
+library(readr)
+MyData2 <- read_csv("~/Master - Sustherb/LidarMoose/MyData2.csv")
+View(MyData2)
+
+#Load MyData3
+library(readr)
+MyData3 <- read_csv("~/Master - Sustherb/LidarMoose/MyData3.csv")
+View(MyData3)
+
+
+
+# Median canopy height - plots --------------------------------------------
+
+
+#Wilcox test
+wilcox.test(MyData3$Median[MyData3$Treatment=='Open plot'],MyData3$Median[MyData3$Treatment=='Exclosure'],paired=T)
+#p-value = 3.148e-07
+
+#boxplot median - treatment
+p1 <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_boxplot()
+p1 <- print(p7+labs(y='Median Canopy Height'))
+
+#vioplot median - treatment
+library(ggplot2)
+vioplot_median <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_violin()
+
+
+#Median spaghetti plot
+x1<- factor(MyData3$Treatment, levels = c('Exclosure', 'Open plot'))
+p2 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=18))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p2
+
+
+
+# Median absolute deviation -----------------------------------------------
+
+#Wilcox test
+wilcox.test(MyData3$MAD[MyData3$Treatment=='Open plot'],MyData3$MAD[MyData3$Treatment=='Exclosure'],paired=T)
+#p-value = 1.103e-07
+
+#Boxplot mad-treatment
+p3 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD))+geom_boxplot()
+p3
+
+#vioplot mad-treatment
+p4 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD))+geom_violin()
+p4
+
+#mad spaghetti plot
+#reorder x-axis
+x1 <- factor(MyData3$Treatment, levels =  c('Exclosure', 'Open plot'))
+p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=18))
+p5
+
+
+# Panel plots -------------------------------------------------------------
+
+#Getting figures side-by side (mad and median)
+library(egg)
+panel_plot_spagh<- egg::ggarrange(p2+ theme(legend.position="none"),p5, ncol=2) #common.legend = T)
+
+#maybe remove grid in the background? - looks a bit strange. Add, panel_grid_element_blank in theme.
+#and treatment only written once? -axis.title.x.bottom=element_blank() removes treatment on both,how to add one on the middle
+
+panel_plot_vio<- egg::ggarrange(vioplot_median+ theme(legend.position="none"),p4, ncol=2) #common.legend = T)
+
+panel_plot_box<- egg::ggarrange(p1+ theme(legend.position="none"),p3, ncol=2) #common.legend = T)
+
+
+# IQR ---------------------------------------------------------------------
+
+#IQR
+#Wilcox test
+wilcox.test(MyData3$IQR[MyData3$Treatment=='Open plot'],MyData3$IQR[MyData3$Treatment=='Exclosure'],paired=T)
+
+#IQR boxplot
+p6 <-  ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_boxplot()
+
+  #IQR violin plot
+p6 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR))+geom_violin()
+
+#Spaghetti plot IQR - treatment
+p7 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR, group=LocalityName,color=MyData3$Region))+geom_line()
+
+
+
+# CV ----------------------------------------------------------------------
+#Wilcox test
+wilcox.test(MyData3$CV[MyData3$Treatment=='Open plot'],MyData3$CV[MyData3$Treatment=='Exclosure'],paired=T)
+
+#Boxplot CV
+p8 <- boxplot(MyData3$CV~MyData3$Treatment, xlab="Treatment", ylab="Coefficient of Variation")
+
+#Vioplot CV
+p9 <-  ggplot(data=MyData3, aes(x=Treatment, y=CV))+geom_violin()
+
+
+
+
+# MAD/Median --------------------------------------------------------------
+#Wilcox test
+wilcox.test(MyData3$MAD_med[MyData3$Treatment=='Open plot'],MyData3$MAD_med[MyData3$Treatment=='Exclosure'],paired=T)
+#p-value= 0.6982 - not significant
+
+#vioplot
+p10 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_violin()
+p10
+
+
+# IQR/Median --------------------------------------------------------------
+wilcox.test(MyData3$IQR_med[MyData3$Treatment=='Open plot'],MyData3$IQR_med[MyData3$Treatment=='Exclosure'],paired=T)
+#p-value = 0.1718
+
+#vioplot
+p11 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_violin()
+p11
+
+
+
+# Mean --------------------------------------------------------------------
+
+#Mean - obs, maybe not a good measure, skewed distribution
+wilcox.test(MyData3$Mean[MyData3$Treatment=='Open plot'],MyData3$Mean[MyData3$Treatment=='Exclosure'],paired=T)
+p12 <- boxplot(MyData3$SD~MyData3$Treatment)
+
+
+
+
+# Testing -----------------------------------------------------------------
+#Years since clear cut - median
+p13 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
+p13
 
 
 
