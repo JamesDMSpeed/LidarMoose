@@ -8,6 +8,8 @@ require(ggplot2)
 require(ggvis)
 require(gridExtra)
 
+
+
 setwd("C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose")
 
 #First, loading canopy height rasters
@@ -620,10 +622,20 @@ vioplot_median <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_violin()
 
 #Median spaghetti plot
 x1<- factor(MyData3$Treatment, levels = c('Exclosure', 'Open plot'))
-p2 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line()+labs(y='Median Canopy Height', x='Treatment')+theme(text=element_text(size=18))+scale_linetype_manual(breaks = c("UB", "B"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p2 <- ggplot(data=MyData3, aes(x=x1, y=Median, group=LocalityName,color=Region))+geom_line(size=1.2)+labs(y='Median Canopy Height (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p2 <- p2+theme(rect=element_rect(fill='#6A9567')
+               ,panel.background = element_rect(fill = '#6A9567')
+               ,panel.grid = element_blank()
+               ,panel.border = element_blank()
+               ,axis.text=element_text(size=30,color="black")
+               ,axis.title.y=element_text(size=30,color="black")
+               ,axis.title.x=element_text(size=30,color="black")
+               ,axis.text.x=element_text(size=26,color="black")
+               ,text=element_text(size=30))+
+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+
+p2 <- p2+scale_color_manual(values=c('black','gray29','gray87')) #changing colours of lines
 p2
-
-
 # Median absolute deviation -----------------------------------------------
 
 #Wilcox test
@@ -640,8 +652,23 @@ p4
 
 #mad spaghetti plot
 #reorder x-axis
-x1 <- factor(MyData3$Treatment, levels =  c('Exclosure', 'Open plot'))
-p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=18))
+#x1 <- factor(MyData3$Treatment, levels =  c('Exclosure', 'Open plot'))
+#p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=18))
+#p5
+x1<- factor(MyData3$Treatment, levels = c('Exclosure', 'Open plot'))
+p5 <- ggplot(data=MyData3, aes(x=x1, y=MAD, group=LocalityName,color=Region))+geom_line(size=1.2)+labs(y='Median Absolute Deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p5 <- p5+theme(rect=element_rect(fill='#6A9567')
+               ,panel.background = element_rect(fill = '#6A9567')
+               ,panel.grid = element_blank()
+               ,panel.border = element_blank()
+               ,axis.text=element_text(size=30,color="black")
+               ,axis.title.y=element_text(size=30,color="black")
+               ,axis.title.x=element_text(size=30,color="black")
+               ,axis.text.x=element_text(size=26,color="black")
+               ,text=element_text(size=30))+
+  scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+
+p5 <- p5+scale_color_manual(values=c('black','gray29','gray87')) #changing colours of lines
 p5
 
 
@@ -694,35 +721,74 @@ p9 <-  ggplot(data=MyData3, aes(x=Treatment, y=CV))+geom_violin()
 wilcox.test(MyData3$MAD_med[MyData3$Treatment=='Open plot'],MyData3$MAD_med[MyData3$Treatment=='Exclosure'],paired=T)
 #p-value= 0.6982 - not significant
 
-#vioplot
-p10 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_violin()
+#Boxplot
+p10 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_boxplot()
 p10
+
+#vioplot
+p11 <- ggplot(data=MyData3, aes(x=Treatment, y=MAD_med))+geom_violin()
+p11
 
 
 # IQR/Median --------------------------------------------------------------
 wilcox.test(MyData3$IQR_med[MyData3$Treatment=='Open plot'],MyData3$IQR_med[MyData3$Treatment=='Exclosure'],paired=T)
 #p-value = 0.1718
 
-#vioplot
-p11 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_violin()
-p11
+#Boxplot
+p12 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_boxplot()
 
+
+#vioplot
+p13 <- ggplot(data=MyData3, aes(x=Treatment, y=IQR_med))+geom_violin()
+p13
 
 
 # Mean --------------------------------------------------------------------
 
 #Mean - obs, maybe not a good measure, skewed distribution
 wilcox.test(MyData3$Mean[MyData3$Treatment=='Open plot'],MyData3$Mean[MyData3$Treatment=='Exclosure'],paired=T)
-p12 <- boxplot(MyData3$SD~MyData3$Treatment)
+p13 <- boxplot(MyData3$SD~MyData3$Treatment)
 
 
 
 
 # Testing -----------------------------------------------------------------
 #Years since clear cut - median
-p13 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
-p13
+p14 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
+p14
 
 range(MyData3$Median)
 
+#Trying to extract colour from image
+#1
+#library(devtools)
+#install_github("andreacirilloac/paletter")/intall.packages("paletter") not for my version of R
 
+#create_palette(image_path = "C:/Users/Ingrid/Documents/Master - Sustherb/Bilder Lillian -Elg/elg 7.2014.jpg",
+#               number_of_colors =20,
+#               type_of_variable = 'categorical')
+
+#2
+#library(imager)
+# nacreDM <- load.image("C:/Users/Ingrid/Documents/Master - Sustherb/Bilder Lillian -Elg/elg 7.2014.jpg")
+
+#nacreRGB <- data.frame(
+#  x = rep(1:nacreDm[2], each = nacreDm[1]),
+#  y = rep(nacreDm[1]:1, nacreDm[2]),
+#  R = as.vector(nacre[,,1]),
+#  G = as.vector(nacre[,,2]),
+#  B = as.vector(nacre[,,3])
+)
+# head(nacreRGB)
+
+# Assign RGB channels to data frame without pixel coordinates
+#nacreRGB2 <- data.frame(
+#  R = as.vector(nacre[,,1]),
+#  G = as.vector(nacre[,,2]),
+#  B = as.vector(nacre[,,3])
+ 
+
+#3
+rgb(red=77,green=125,blue=75, maxColorValue = 125)
+#"#9DFF99"  
+  
