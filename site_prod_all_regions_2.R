@@ -674,7 +674,7 @@ ggplot(data = bio_plot2)+
 bio_plot2 <- bio_plot2[bio_plot2$yse != 8,]
 
 
-bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), #bio_trt - her mister vi mye info, skjønner ikke helt hva som skjer
+bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), #Ingrid:bio_trt - her mister vi mye info, skjønner ikke helt hva som skjer
                        by= list(
                          yse=bio_plot2$yse,
                          Treatment=bio_plot2$Treatment,
@@ -683,7 +683,7 @@ bio_trt <- aggregate(cbind(biomass_tonn_ha = bio_plot2$biomass_tonn_ha), #bio_tr
 ggplot(data = bio_trt, aes(x=yse, y=biomass_tonn_ha, group = Treatment, linetype = Treatment))+
   #geom_line()+
   geom_smooth(method = "lm")
-
+#MEN bio_trt brukes ikke videre..
 
 Dwide <- dcast(bio_plot2, LocalityName+Region+Treatment ~ yse, 
                 value.var = "biomass_tonn_ha", fun.aggregate = mean, na.rm = F)

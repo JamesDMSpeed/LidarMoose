@@ -635,7 +635,7 @@ p2 <- p2+theme(rect=element_rect(fill='#6A9567')
  scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
 
 p2 <- p2+scale_color_manual(values=c('black','gray29','gray87')) #changing colours of lines
-p2
+p2 <- p2+theme(legend.position="top")
 # Median absolute deviation -----------------------------------------------
 
 #Wilcox test
