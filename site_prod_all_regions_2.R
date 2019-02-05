@@ -685,14 +685,15 @@ ggplot(data = bio_trt, aes(x=yse, y=biomass_tonn_ha, group = Treatment, linetype
   geom_smooth(method = "lm")
 #MEN bio_trt brukes ikke videre..
 
+#Ingrid: kolonne 7 NAN for H_A
 Dwide <- dcast(bio_plot2, LocalityName+Region+Treatment ~ yse, 
                 value.var = "biomass_tonn_ha", fun.aggregate = mean, na.rm = F)
 
 
 
-
-TrB <- Dwide[Dwide$Treatment == "B",]
-TrUB <- Dwide[Dwide$Treatment == "UB",]
+#Ingrid:hva gjør denne biten?
+TrB <- Dwide[Dwide$Treatment == "B",] #en tabelle med alle browsed
+TrUB <- Dwide[Dwide$Treatment == "UB",] #en tabell med alle unbrowsed
 TrB$annInc_Mg_ha <-              ((TrB$`7`- TrB$`6`) +
                                   (TrB$`6`- TrB$`5`) +
                                   (TrB$`5`- TrB$`4`) +
@@ -720,8 +721,8 @@ combined$max_annual_inc_tonns_ha <- ifelse(combined$Exclosures_annInc_Mg_ha > co
 plot(combined$max_annual_inc_tonns_ha)
 boxplot(combined$max_annual_inc_tonns_ha ~ combined$Region) # similar between regions. Region is a random factor
 # so I dont need to standardise per region. 
-combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/max(combined$max_annual_inc_tonns_ha) 
-summary(combined$max_annual_inc_tonns_ha) # max = 1
+#combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/max(combined$max_annual_inc_tonns_ha) #Ingrid: DET ER HER ALT BLIR NA! Hvis jeg kutter ut denne linja får jeg resultat, men ikke for hedmark/akershus, og ikke standardisert.
+#summary(combined$max_annual_inc_tonns_ha) # max = 1
 
 
 productivity <- select(combined, 
