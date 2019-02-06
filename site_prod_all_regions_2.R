@@ -434,7 +434,6 @@ den <- select(density,
               )
 rm(density)
 
-
 den$date <- as.Date(den$`_Date`, format = "%d/%m/%Y")
 den$year <- format(den$date, "%Y")
 
@@ -687,31 +686,34 @@ ggplot(data = bio_trt, aes(x=yse, y=biomass_tonn_ha, group = Treatment, linetype
 
 #Ingrid: kolonne 7 NAN for H_A
 Dwide <- dcast(bio_plot2, LocalityName+Region+Treatment ~ yse, 
-                value.var = "biomass_tonn_ha", fun.aggregate = mean, na.rm = F)
+                value.var = "biomass_tonn_ha")
 
 
 
 #Ingrid:hva gjør denne biten?
 TrB <- Dwide[Dwide$Treatment == "B",] #en tabelle med alle browsed
 TrUB <- Dwide[Dwide$Treatment == "UB",] #en tabell med alle unbrowsed
-TrB$annInc_Mg_ha <-              ((TrB$`7`- TrB$`6`) +
+TrB$annInc_Mg_ha <-              (#(TrB$`7`- TrB$`6`) +
                                   (TrB$`6`- TrB$`5`) +
                                   (TrB$`5`- TrB$`4`) +
-                                  (TrB$`4`- TrB$`3`) +
-                                  (TrB$`3`- TrB$`2`) +
-                                  (TrB$`2`- TrB$`1`) ) /6
+                                  (TrB$`4`- TrB$`3`) #+
+                                 # (TrB$`3`- TrB$`2`) +
+                                  #(TrB$`2`- TrB$`1`) 
+                                   ) /3
 
-TrUB$annInc_Mg_ha <-               ((TrUB$`7`- TrUB$`6`) +
+TrUB$annInc_Mg_ha <-               (#(TrUB$`7`- TrUB$`6`) +
                                     (TrUB$`6`- TrUB$`5`) +
                                     (TrUB$`5`- TrUB$`4`) +
-                                    (TrUB$`4`- TrUB$`3`) +
-                                    (TrUB$`3`- TrUB$`2`) +
-                                    (TrUB$`2`- TrUB$`1`) ) /6
+                                    (TrUB$`4`- TrUB$`3`) #+
+                                   # (TrUB$`3`- TrUB$`2`) +
+                                  #  (TrUB$`2`- TrUB$`1`) 
+                                    ) /3
 
 combined <- data.frame(cbind(Region = TrB$Region, 
                               LocalityName = TrB$LocalityName, 
                              Exclosures_annInc_Mg_ha = TrUB$annInc_Mg_ha, 
                              OpenPlots_annInc_Mg_ha  = as.numeric(TrB$annInc_Mg_ha)))
+
 combined$Exclosures_annInc_Mg_ha <- as.numeric(as.character(combined$Exclosures_annInc_Mg_ha))
 combined$OpenPlots_annInc_Mg_ha <- as.numeric(as.character(combined$OpenPlots_annInc_Mg_ha))
 combined$max_annual_inc_tonns_ha <- ifelse(combined$Exclosures_annInc_Mg_ha > combined$OpenPlots_annInc_Mg_ha,
@@ -721,12 +723,14 @@ combined$max_annual_inc_tonns_ha <- ifelse(combined$Exclosures_annInc_Mg_ha > co
 plot(combined$max_annual_inc_tonns_ha)
 boxplot(combined$max_annual_inc_tonns_ha ~ combined$Region) # similar between regions. Region is a random factor
 # so I dont need to standardise per region. 
-#combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/max(combined$max_annual_inc_tonns_ha) #Ingrid: DET ER HER ALT BLIR NA! Hvis jeg kutter ut denne linja får jeg resultat, men ikke for hedmark/akershus, og ikke standardisert.
+maks <- max(combined$max_annual_inc_tonns_ha,na.rm=TRUE)
+combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/maks
 #summary(combined$max_annual_inc_tonns_ha) # max = 1
 
 
 productivity <- select(combined, 
                        Region, LocalityName, productivity = max_annual_inc_tonns_ha)
+write.csv(productivity, 'Site_prod_all_regions.csv')
 #save(productivity, file="M:\\Anders L Kolstad\\R\\R_projects\\succession_paper\\prod_index_telemark_and_trondelag.RData")
 
 

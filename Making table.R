@@ -752,6 +752,43 @@ p13 <- boxplot(MyData3$SD~MyData3$Treatment)
 
 
 
+
+
+# Making table that include productivity --------------------------------------------
+library(readr)
+Site_prod_all_regions <- read_csv("~/Master - Sustherb/LidarMoose/Site_prod_all_regions.csv")
+View(Site_prod_all_regions)
+
+#Site_prod_all_regions$LocalityCode <- NA
+
+#Site_prod_all_regions$LocalityCode <- ifelse(Site_prod_all_regions$LocalityName=='Didrik Holmsen', 'DHB', NA)
+
+#Changed localityNames in excel to merge it with MyData3
+library(readr)
+productivity_test <- read_delim("~/Master - Sustherb/LidarMoose/productivity_test.csv", 
+                                ";", escape_double = FALSE, trim_ws = TRUE)
+View(productivity_test)
+
+MyData4<- merge.data.frame(MyData3, productivity_test, by= 'LocalityName')
+write.csv(MyData4, 'MyData4.csv')
+
+View(MyData4)
+
+# New plots, with productivity --------------------------------------------
+library(readr)
+MyData4 <- read_csv("~/Master - Sustherb/LidarMoose/MyData4.csv")
+View(MyData4)
+
+group <- group_by(MyData4$LocalityName)
+
+#Making new table
+#Prod <- productivity_test
+#Prod$diff_median_ex_op <- NA
+
+#Prod$diff_median_ex_op <-   
+  
+  
+  
 # Testing -----------------------------------------------------------------
 #Years since clear cut - median
 p14 <- ggplot(data=MyData3, aes(x=ClearCutToLidar, y=Median, color=Treatment))+geom_point(shape=1)+geom_smooth(method = lm,formula = y~x)+labs(x= 'Years from clear cut to lidar data was collected')
@@ -786,9 +823,9 @@ range(MyData3$Median)
 #  R = as.vector(nacre[,,1]),
 #  G = as.vector(nacre[,,2]),
 #  B = as.vector(nacre[,,3])
- 
+
 
 #3
 rgb(red=77,green=125,blue=75, maxColorValue = 125)
 #"#9DFF99"  
-  
+
