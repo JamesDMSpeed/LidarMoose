@@ -13,67 +13,64 @@ dat <- dat[,1:15]
 #Filtrer
 #Remove Tingvoll & Gloppen
 dat1 <- dat[!(dat$Region=='Tingvoll'),]
-dat1 <- dat1[!(dat1$Region)=='Gloppen',]
+dat2 <- dat1[!(dat1$Region)=='Gloppen',]
 
 #Remove sites not in the project
 study_sites<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
 
-dat2 <- dat1[(dat1$LocalityCode==study_sites),]
+dat3 <- dat2[(dat2$LocalityCode%in%study_sites),]
 
-# Remove years that are not from the same year as LIDAR data for each site
 
-#dat3$year <- NA
-#bratsberg_fd <-dat3[dat3$LocalityName=='Bratsberg'& grepl('2017',dat3$`_Date`),] 
-#singsaas_fd <-dat3[dat3$LocalityName=='Singsås'& grepl('2015',dat3$`_Date`),] 
 
 #Make col with years
-dat2$`_Date` <- as.Date(dat2$`_Date`, "%d.%m.%Y")
-dat2$year <- format(as.Date(dat2$`_Date`, format="%d/%m/%Y"),"%Y")
+dat3$`_Date` <- as.Date(dat3$`_Date`, "%d.%m.%Y")
+dat3$year <- format(as.Date(dat3$`_Date`, format="%d/%m/%Y"),"%Y")
 
+# Remove years that are not from the same year as LIDAR data for each site
 #Select data from year of interest
 #Trøndelag
-dat3 <- dat2[!(dat2$LocalityName=='Bratsberg'& dat2$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Singsås' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='Malvik' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Selbu_Flub' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='Selbu_kl' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='Selbu_Sl' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='Hi_tydal' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='Sl_Tydal' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='steinkjer_1BBb' & dat3$year!='2011'),]
-dat3 <- dat3[!(dat3$LocalityName=='steinkjer_2BBb' & dat3$year!='2011'),]
-dat3 <- dat3[!(dat3$LocalityName=='Nsb_Verdal' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='verdal_1vb' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='verdal_2VB' & dat3$year!='2015'),]
-dat3 <- dat3[!(dat3$LocalityName=='namdalseid_1kub' & dat3$year!='2010'),]
-dat3 <- dat3[!(dat3$LocalityName=='Sub_Namdalseid' & dat3$year!='2010'),]
-
-#Telemark
-dat3 <- dat3[!(dat3$LocalityName=='Fritsøe1' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Fritsøe2' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Nome_Cappelen1' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Nome_Cappelen2' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Notodden3' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Notodden5' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Notodden6' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Drangedal1' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Drangedal3' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Drangedal4' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Kviteseid1' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Kviteseid2' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Kviteseid3' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Furesdal' & dat3$year!='2017'),]
-
-#Hedmark_Akershus
-dat3 <- dat3[!(dat3$LocalityName=='Didrik Holmsen' & dat3$year!='2018'),]
-dat3 <- dat3[!(dat3$LocalityName=='Stangeskovene Aurskog' & dat3$year!='2018'),]
-dat3 <- dat3[!(dat3$LocalityName=='Stig Dæhlen' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Truls Holm' & dat3$year!='2017'),]
-dat3 <- dat3[!(dat3$LocalityName=='Fet 3' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Eidskog' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Halvard Pramhus' & dat3$year!='2016'),]
-dat3 <- dat3[!(dat3$LocalityName=='Stangeskovene Eidskog' & dat3$year!='2016'),]
-
+# dat4 <- dat3[!(dat3$LocalityName=='Bratsberg'& dat3$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Singsås' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Malvik' & dat4$year!='2016'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Selbu_Flub' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Selbu_kl' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Selbu_Sl' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Hi_tydal' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Sl_Tydal' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='steinkjer_1BBb' & dat4$year!='2011'),]
+# dat4 <- dat4[!(dat4$LocalityName=='steinkjer_2BBb' & dat4$year!='2011'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Nsb_Verdal' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='verdal_1vb' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='verdal_2VB' & dat4$year!='2015'),]
+# dat4 <- dat4[!(dat4$LocalityName=='namdalseid_1kub' & dat4$year!='2010'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Sub_Namdalseid' & dat4$year!='2010'),]
+# 
+# #Telemark
+# dat4 <- dat4[!(dat4$LocalityName=='Fritsøe1' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Fritsøe2' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Nome_Cappelen1' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Nome_Cappelen2' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Notodden3' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Notodden5' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Notodden6' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Drangedal1' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Drangedal3' & dat4$year!='2016'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Drangedal4' & dat4$year!='2016'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid1' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid2' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid3' & dat4$year!='2017'),]
+# dat4 <- dat4[!(dat4$LocalityName=='Furesdal' & dat4$year!='2017'),]
+# 
+# #Hedmark_Akershus
+# dat4 <- dat4[!(dat4 $LocalityName=='Didrik Holmsen' & dat4 $year!='2018'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Stangeskovene Aurskog' & dat4 $year!='2018'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Stig Dæhlen' & dat4 $year!='2017'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Truls Holm' & dat4 $year!='2017'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Fet 3' & dat4 $year!='2016'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Eidskog' & dat4 $year!='2016'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Halvard Pramhus' & dat4 $year!='2016'),]
+# dat4  <- dat4 [!(dat4 $LocalityName=='Stangeskovene Eidskog' & dat4 $year!='2016'),]
+# 
 
 
 
@@ -86,18 +83,18 @@ dat4 <- reshape::untable(dat3, num = dat3$Quantity)
 
 # konvertere height_class til m
 max(dat4$Height_class_50cm)
-#max = 7
+#max =9
 dat4$height_m <- ifelse(dat4$Height_class_50cm=='1', 0.25,
                         ifelse(dat4$Height_class_50cm=='2', 0.75,
                                ifelse(dat4$Height_class_50cm=='3', 1.25,
                                       ifelse(dat4$Height_class_50cm=='4', 1.75,
                                              ifelse(dat4$Height_class_50cm=='5', 2.25,
-                                                    ifelse(dat4$Height_class_50cm=='6', 2.75, 3.25))))))
+                                                    ifelse(dat4$Height_class_50cm=='6', 2.75, 
+                                                           ifelse(dat4$Height_class_50cm=='7', 3.25,
+                                                                  ifelse(dat4$Height_class_50cm=='8', 3.75, 4.25))))))))
 
 
 # aggregate to plot, calculate median height plot
-#test <- reshape2::dcast(dat4, LocalityName ~ height_m)
-#test[1,]
 
 #make new data frame to merge with mydata4
 #Make a table for some summary values
@@ -105,15 +102,36 @@ df2<-data.frame(matrix(nrow=74,ncol=))
 rownames(df2)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
 colnames(df2)<-c('Field_median')  
 
-#Trøndelag - calculating the median for each site
-brb_df <- dat4[dat4$LocalityName=='Bratsberg',]
-brb_med <- median(brb_df$height_m)
-lab_df <- dat4[dat4$LocalityName=='Singsås',]
-lab_med<- median(lab_df$height_m)
-mab_df <- dat4[dat4$LocalityName=='Malvik',]
-mab_med <- median(mab_df$height_m)
-flb_df <- dat4[dat4$LocalityName=='Selbu_Flub',] #no observations
-#flb_med <- median(flb_df$height_m)
+#Trøndelag - dataframes for each site correct year. Calculating the median for each treatment at each site
+bratsberg_2017    <- dat4[dat4$LocalityName=='Bratsberg'& dat4$year=='2017',]
+bratsberg_b_2017  <- bratsberg_2017[bratsberg_2017$Treatment=='B',]
+bratsberg_ub_2017 <- bratsberg_2017[bratsberg_2017$Treatment=='UB',]
+bratsberg_b_med   <- median(bratsberg_b_2017$height_m)
+bratsberg_ub_med  <- median(bratsberg_ub_2017$height_m)
+
+singsaas_2015     <- dat4[dat4$LocalityName=='Singsås'& dat4$year=='2015',]
+singsaas_b_2015   <- singsaas_2015[singsaas_2015$Treatment=='B',]
+singsaas_ub_2015  <- singsaas_2015[singsaas_2015$Treatment=='UB',]
+singsaas_b_med    <- median(singsaas_b_2015$height_m)
+singsaas_ub_med   <- median(singsaas_ub_2015$height_m)
+
+#Skal jeg gjøre det på denne måten tro (se over)? Sjekke for hvert omr at det er registrert trær i alle sirklene
+
+malvik_2015     <- dat4[dat4$LocalityName=='Selbu_Flub'& dat4$year=='2016',]
+malvik_b_2015   <- malvik_2015[malvik_2015$Treatment=='B',]
+malvik_ub_2015  <- malvik_2015[malvik_2015$Treatment=='UB',]
+malvik_b_med    <- median(malvik_b_2015$height_m)
+malvik_ub_med   <- median(malvik_ub_2015$height_m)
+
+selbu_flub_2015     <- dat4[dat4$LocalityName=='Selbu_Flub'& dat4$year=='2015',]
+selbu_flub_b_2015   <- selbu_flub_2015[selbu_flub_2015$Treatment=='B',]
+selbu_flub_ub_2015  <- selbu_flub_2015[selbu_flub_2015$Treatment=='UB',]
+selbu_flub_b_med    <- median(selbu_flub_b_2015$height_m)
+selbu_flub_ub_med   <- median(selbu_flub_ub_2015$height_m)
+
+
+
+
 klb_df <- dat4[dat4$LocalityName=='Selbu_kl',] #no observations
 #klb_med <- median(klb_df$height_m)
 slb_df <- dat4[dat4$LocalityName=='Selbu_Sl',]#no observations
@@ -169,12 +187,8 @@ sd_med <- median(sd_df$height_m)
 th_df <- dat4[dat4$LocalityName=='Truls Holm',]
 th_med <- median(th_df$height_m)
 
-
-
-
-
-df2['BRB',1] <- brb_med
-df2['BRUB', 1] <- brb_med
+df2['BRB',1] <- bratsberg_b_med
+df2['BRUB', 1] <- bratsberg_ub_med
 df2['LAB',1] <- lab_med
 df2['LAUB',1] <- lab_med
 df2['MAB',1] <- mab_med
