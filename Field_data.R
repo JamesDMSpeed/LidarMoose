@@ -1,5 +1,9 @@
 # eksempelskript til Ingrid
 
+
+# Loading and tidying field data ------------------------------------------
+
+
 library(readxl)
 sustherb_densityDataset_Dump06022019 <- read_excel("E:/sustherb_densityDataset_Dump06022019.xlsx")
 View(sustherb_densityDataset_Dump06022019)
@@ -657,7 +661,137 @@ furesdal_ub_med   <- median(c(median(furesdal_ub_oh$height_m), median(furesdal_u
 
 
 # Hedmark_Akershus --------------------------------------------------------
+####Didrik Holmsen####
+didrik_holmsen_2018    <- dat4[dat4$LocalityName=='Didrik Holmsen'& dat4$year=='2018',] #Ingen data
 
+# didrik_holmsen_b_2018  <- didrik_holmsen_2018[didrik_holmsen_2018$Treatment=='B',]
+# didrik_holmsen_b_oh    <- didrik_holmsen_b_2018[didrik_holmsen_b_2018$Plot=='ØH',]
+# didrik_holmsen_b_nh    <- didrik_holmsen_b_2018[didrik_holmsen_b_2018$Plot=='NH',]
+# didrik_holmsen_b_nv    <- didrik_holmsen_b_2018[didrik_holmsen_b_2018$Plot=='NV',]
+# didrik_holmsen_b_ov    <- didrik_holmsen_b_2018[didrik_holmsen_b_2018$Plot=='ØV',]
+# didrik_holmsen_b_med   <- median(c(median(didrik_holmsen_b_oh$height_m), median(didrik_holmsen_b_nh$height_m), median(didrik_holmsen_b_nv$height_m), median(didrik_holmsen_b_ov$height_m)))
+# 
+# didrik_holmsen_ub_2018 <- didrik_holmsen_2018[didrik_holmsen_2018$Treatment=='UB',]
+# didrik_holmsen_ub_oh    <- didrik_holmsen_ub_2018[didrik_holmsen_ub_2018$Plot=='ØH',]
+# didrik_holmsen_ub_nh    <- didrik_holmsen_ub_2018[didrik_holmsen_ub_2018$Plot=='NH',]
+# didrik_holmsen_ub_nv    <- didrik_holmsen_ub_2018[didrik_holmsen_ub_2018$Plot=='NV',]
+# didrik_holmsen_ub_ov    <- didrik_holmsen_ub_2018[didrik_holmsen_ub_2018$Plot=='ØV',]
+# didrik_holmsen_ub_med   <- median(c(median(didrik_holmsen_ub_oh$height_m), median(didrik_holmsen_ub_nh$height_m), median(didrik_holmsen_ub_nv$height_m), median(didrik_holmsen_ub_ov$height_m)))
+
+
+####Stangesk_Aurskog####
+
+#ingen feltdata fra 2018
+
+####Stig_Dahlen####
+stig_dahlen_2017    <- dat4[dat4$LocalityName=='Stig Dæhlen'& dat4$year=='2017',]
+
+stig_dahlen_b_2017  <- stig_dahlen_2017[stig_dahlen_2017$Treatment=='B',]
+stig_dahlen_b_ne    <- stig_dahlen_b_2017[stig_dahlen_b_2017$Plot=='NE',]
+stig_dahlen_b_nw    <- stig_dahlen_b_2017[stig_dahlen_b_2017$Plot=='NW',]
+stig_dahlen_b_se    <- stig_dahlen_b_2017[stig_dahlen_b_2017$Plot=='SE',]
+stig_dahlen_b_sw    <- stig_dahlen_b_2017[stig_dahlen_b_2017$Plot=='SW',]
+stig_dahlen_b_med   <- median(c(median(stig_dahlen_b_ne$height_m), median(stig_dahlen_b_nw$height_m), median(stig_dahlen_b_se$height_m), median(stig_dahlen_b_sw$height_m)))
+
+stig_dahlen_ub_2017 <- stig_dahlen_2017[stig_dahlen_2017$Treatment=='UB',]
+stig_dahlen_ub_ne    <- stig_dahlen_ub_2017[stig_dahlen_ub_2017$Plot=='NE',]
+stig_dahlen_ub_nw    <- stig_dahlen_ub_2017[stig_dahlen_ub_2017$Plot=='NW',]
+stig_dahlen_ub_se    <- stig_dahlen_ub_2017[stig_dahlen_ub_2017$Plot=='SE',]
+stig_dahlen_ub_sw    <- stig_dahlen_ub_2017[stig_dahlen_ub_2017$Plot=='SW',]
+stig_dahlen_ub_med   <- median(c(median(stig_dahlen_ub_ne$height_m), median(stig_dahlen_ub_nw$height_m), median(stig_dahlen_ub_se$height_m), median(stig_dahlen_ub_sw$height_m)))
+
+
+####Truls Holm####
+truls_holm_2017    <- dat4[dat4$LocalityName=='Truls Holm'& dat4$year=='2017',]
+
+truls_holm_b_2017  <- truls_holm_2017[truls_holm_2017$Treatment=='B',]
+truls_holm_b_ne    <- truls_holm_b_2017[truls_holm_b_2017$Plot=='NE',]
+truls_holm_b_nw    <- truls_holm_b_2017[truls_holm_b_2017$Plot=='NW',]
+truls_holm_b_se    <- truls_holm_b_2017[truls_holm_b_2017$Plot=='SE',]
+truls_holm_b_sw    <- truls_holm_b_2017[truls_holm_b_2017$Plot=='SW',]
+truls_holm_b_med   <- median(c(median(truls_holm_b_ne$height_m), median(truls_holm_b_nw$height_m), median(truls_holm_b_se$height_m), median(truls_holm_b_sw$height_m)))
+
+truls_holm_ub_2017 <- truls_holm_2017[truls_holm_2017$Treatment=='UB',]
+truls_holm_ub_ne    <- truls_holm_ub_2017[truls_holm_ub_2017$Plot=='NE',]
+truls_holm_ub_nw    <- truls_holm_ub_2017[truls_holm_ub_2017$Plot=='NW',]
+truls_holm_ub_se    <- truls_holm_ub_2017[truls_holm_ub_2017$Plot=='SE',]
+truls_holm_ub_sw    <- truls_holm_ub_2017[truls_holm_ub_2017$Plot=='SW',]
+truls_holm_ub_med   <- median(c(median(truls_holm_ub_ne$height_m), median(truls_holm_ub_nw$height_m), median(truls_holm_ub_se$height_m), median(truls_holm_ub_sw$height_m)))
+
+
+####fet3####
+fet3_2016    <- dat4[dat4$LocalityName=='Fet 3'& dat4$year=='2016',]
+
+fet3_b_2016  <- fet3_2016[fet3_2016$Treatment=='B',]
+fet3_b_ne    <- fet3_b_2016[fet3_b_2016$Plot=='NE',]
+fet3_b_nw    <- fet3_b_2016[fet3_b_2016$Plot=='NW',]
+fet3_b_se    <- fet3_b_2016[fet3_b_2016$Plot=='SE',]
+fet3_b_sw    <- fet3_b_2016[fet3_b_2016$Plot=='SW',]
+fet3_b_med   <- median(c(median(fet3_b_ne$height_m), median(fet3_b_nw$height_m), median(fet3_b_se$height_m), median(fet3_b_sw$height_m)))
+
+fet3_ub_2016 <- fet3_2016[fet3_2016$Treatment=='UB',]
+fet3_ub_ne    <- fet3_ub_2016[fet3_ub_2016$Plot=='NE',]
+fet3_ub_nw    <- fet3_ub_2016[fet3_ub_2016$Plot=='NW',]
+fet3_ub_se    <- fet3_ub_2016[fet3_ub_2016$Plot=='SE',]
+fet3_ub_sw    <- fet3_ub_2016[fet3_ub_2016$Plot=='SW',]
+fet3_ub_med   <- median(c(median(fet3_ub_ne$height_m), median(fet3_ub_nw$height_m), median(fet3_ub_se$height_m), median(fet3_ub_sw$height_m)))
+
+####Eidskog####
+eidskog_2016    <- dat4[dat4$LocalityName=='Eidskog'& dat4$year=='2016',]
+
+eidskog_b_2016  <- eidskog_2016[eidskog_2016$Treatment=='B',]
+eidskog_b_ne    <- eidskog_b_2016[eidskog_b_2016$Plot=='NE',]
+eidskog_b_nw    <- eidskog_b_2016[eidskog_b_2016$Plot=='NW',]
+eidskog_b_se    <- eidskog_b_2016[eidskog_b_2016$Plot=='SE',]
+eidskog_b_sw    <- eidskog_b_2016[eidskog_b_2016$Plot=='SW',]
+eidskog_b_med   <- median(c(median(eidskog_b_ne$height_m), median(eidskog_b_nw$height_m), median(eidskog_b_se$height_m), median(eidskog_b_sw$height_m)))
+
+eidskog_ub_2016 <- eidskog_2016[eidskog_2016$Treatment=='UB',]
+eidskog_ub_ne    <- eidskog_ub_2016[eidskog_ub_2016$Plot=='NE',]
+eidskog_ub_nw    <- eidskog_ub_2016[eidskog_ub_2016$Plot=='NW',]
+eidskog_ub_se    <- eidskog_ub_2016[eidskog_ub_2016$Plot=='SE',]
+eidskog_ub_sw    <- eidskog_ub_2016[eidskog_ub_2016$Plot=='SW',]
+eidskog_ub_med   <- median(c(median(eidskog_ub_ne$height_m), median(eidskog_ub_nw$height_m), median(eidskog_ub_se$height_m), median(eidskog_ub_sw$height_m)))
+
+####Halvard Pramhus####
+halvard_pramhus_2016    <- dat4[dat4$LocalityName=='Halvard Pramhus'& dat4$year=='2016',]
+
+halvard_pramhus_b_2016  <- halvard_pramhus_2016[halvard_pramhus_2016$Treatment=='B',]
+halvard_pramhus_b_ne    <- halvard_pramhus_b_2016[halvard_pramhus_b_2016$Plot=='NE',]
+halvard_pramhus_b_nw    <- halvard_pramhus_b_2016[halvard_pramhus_b_2016$Plot=='NW',]
+halvard_pramhus_b_se    <- halvard_pramhus_b_2016[halvard_pramhus_b_2016$Plot=='SE',]
+halvard_pramhus_b_sw    <- halvard_pramhus_b_2016[halvard_pramhus_b_2016$Plot=='SW',]
+halvard_pramhus_b_med   <- median(c(median(halvard_pramhus_b_ne$height_m), median(halvard_pramhus_b_nw$height_m), median(halvard_pramhus_b_se$height_m), median(halvard_pramhus_b_sw$height_m)))
+
+halvard_pramhus_ub_2016 <- halvard_pramhus_2016[halvard_pramhus_2016$Treatment=='UB',]
+halvard_pramhus_ub_ne    <- halvard_pramhus_ub_2016[halvard_pramhus_ub_2016$Plot=='NE',]
+halvard_pramhus_ub_nw    <- halvard_pramhus_ub_2016[halvard_pramhus_ub_2016$Plot=='NW',]
+halvard_pramhus_ub_se    <- halvard_pramhus_ub_2016[halvard_pramhus_ub_2016$Plot=='SE',]
+halvard_pramhus_ub_sw    <- halvard_pramhus_ub_2016[halvard_pramhus_ub_2016$Plot=='SW',]
+halvard_pramhus_ub_med   <- median(c(median(halvard_pramhus_ub_ne$height_m), median(halvard_pramhus_ub_nw$height_m), median(halvard_pramhus_ub_se$height_m), median(halvard_pramhus_ub_sw$height_m)))
+
+####Stangesk Eidskog####
+stangeskovene_eidskog_2016    <- dat4[dat4$LocalityName=='Stangeskovene Eidskog'& dat4$year=='2016',]
+
+stangeskovene_eidskog_b_2016  <- stangeskovene_eidskog_2016[stangeskovene_eidskog_2016$Treatment=='B',]
+stangeskovene_eidskog_b_ne    <- stangeskovene_eidskog_b_2016[stangeskovene_eidskog_b_2016$Plot=='NE',]
+stangeskovene_eidskog_b_nw    <- stangeskovene_eidskog_b_2016[stangeskovene_eidskog_b_2016$Plot=='NW',]
+stangeskovene_eidskog_b_se    <- stangeskovene_eidskog_b_2016[stangeskovene_eidskog_b_2016$Plot=='SE',]
+stangeskovene_eidskog_b_sw    <- stangeskovene_eidskog_b_2016[stangeskovene_eidskog_b_2016$Plot=='SW',]
+stangeskovene_eidskog_b_med   <- median(c(median(stangeskovene_eidskog_b_ne$height_m), median(stangeskovene_eidskog_b_nw$height_m), median(stangeskovene_eidskog_b_se$height_m), median(stangeskovene_eidskog_b_sw$height_m)))
+
+stangeskovene_eidskog_ub_2016 <- stangeskovene_eidskog_2016[stangeskovene_eidskog_2016$Treatment=='UB',]
+stangeskovene_eidskog_ub_ne    <- stangeskovene_eidskog_ub_2016[stangeskovene_eidskog_ub_2016$Plot=='NE',]
+stangeskovene_eidskog_ub_nw    <- stangeskovene_eidskog_ub_2016[stangeskovene_eidskog_ub_2016$Plot=='NW',]
+stangeskovene_eidskog_ub_se    <- stangeskovene_eidskog_ub_2016[stangeskovene_eidskog_ub_2016$Plot=='SE',]
+stangeskovene_eidskog_ub_sw    <- stangeskovene_eidskog_ub_2016[stangeskovene_eidskog_ub_2016$Plot=='SW',]
+stangeskovene_eidskog_ub_med   <- median(c(median(stangeskovene_eidskog_ub_ne$height_m), median(stangeskovene_eidskog_ub_nw$height_m), median(stangeskovene_eidskog_ub_se$height_m), median(stangeskovene_eidskog_ub_sw$height_m)))
+
+
+
+# Fyller inn tabell med median verdier ------------------------------------
+
+rownames(df2)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
 
 df2['BRB',1] <- bratsberg_b_med
 df2['BRUB', 1] <- bratsberg_ub_med
