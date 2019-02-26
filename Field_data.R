@@ -100,6 +100,8 @@ dat4$height_m <- ifelse(dat4$Height_class_50cm=='1', 0.25,
 
 # aggregate to plot, calculate median height plot
 
+# Make new dataframe ------------------------------------------------------
+
 #make new data frame to merge with mydata4
 #Make a table for some summary values
 df2<-data.frame(matrix(nrow=74,ncol=))
@@ -249,7 +251,7 @@ hi_tydal_ub_nh    <- hi_tydal_ub_2015[hi_tydal_ub_2015$Plot=='NH',]
 hi_tydal_ub_nv    <- hi_tydal_ub_2015[hi_tydal_ub_2015$Plot=='NV',]
 hi_tydal_ub_ov    <- hi_tydal_ub_2015[hi_tydal_ub_2015$Plot=='ØV',]
 hi_tydal_ub_med   <- median(c(median(hi_tydal_ub_oh$height_m), median(hi_tydal_ub_nh$height_m), median(hi_tydal_ub_nv$height_m), median(hi_tydal_ub_ov$height_m)))
-s
+
 
 ####Sl_tydal####
 sl_tydal_2015     <- dat4[dat4$LocalityName=='Sl_Tydal'& dat4$year=='2015',]
@@ -791,46 +793,87 @@ stangeskovene_eidskog_ub_med   <- median(c(median(stangeskovene_eidskog_ub_ne$he
 
 # Fyller inn tabell med median verdier ------------------------------------
 
-rownames(df2)<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
 
 df2['BRB',1] <- bratsberg_b_med
 df2['BRUB', 1] <- bratsberg_ub_med
-df2['LAB',1] <- singsaas_b_med
-df2['LAUB',1] <- singsaas_ub_med
-df2['MAB',1] <- malvik_b_med
-df2['MAUB',1] <- malvik_ub_med
 df2['HIB',1] <- hi_tydal_b_med
 df2['HIUB',1] <- hi_tydal_ub_med
+df2['MAB',1] <- malvik_b_med
+df2['MAUB',1] <- malvik_ub_med
+df2['1KB',1] <- namdalseid_1kub_b_med
+df2['1KUB',1] <- namdalseid_1kub_ub_med
+df2['1NSB',1] <- nsb_verdal_b_med
+df2['1NSUB',1] <- nsb_verdal_ub_med
+df2['FLB',1] <- selbu_flub_b_med
+df2['FLUB',1] <- selbu_flub_ub_med
+df2['KLB',1] <- selbu_kl_b_med
+df2['KLUB',1] <- selbu_kl_ub_med
+df2['SLB',1] <- selbu_sl_b_med
+df2['SLUB',1] <- selbu_sl_ub_med
+df2['LAB',1] <- singsaas_b_med
+df2['LAUB',1] <- singsaas_ub_med
+df2['SEB',1] <- sl_tydal_b_med
+df2['SEUB',1] <- sl_tydal_ub_med
+df2['1BBB',1] <- steinkjer_1BBb_b_med
+df2['1BBUB',1] <- steinkjer_1BBb_ub_med
+df2['2BBB',1] <- steinkjer_2BBb_b_med
+df2['2BBUB',1] <- steinkjer_2BBb_ub_med
+df2['LAB',1] <- singsaas_b_med
+df2['LAUB',1] <- singsaas_ub_med
 df2['1SB',1] <- sub_namdalseid_b_med
 df2['1SUB',1] <- sub_namdalseid_ub_med
-df2['4DRB',1] <- drb4_med
-df2['4DRUB',1] <- drb4_med
-df2['1FRB',1] <- frb1_med
-df2['1FRUB',1] <- frb1_med
-df2['2FRB',1] <- frb2_med
-df2['2FRUB',1] <- frb2_med
-df2['1FYB',1] <- fyb_med
-df2['1FYUB',1] <- fyb_med
-df2['1KVB',1] <- kvb1_med
-df2['1KVUB',1] <- kvb1_med
-df2['3KVB',1] <- kvb3_med
-df2['3KVUB',1] <- kvb3_med
-df2['1CAB',1] <- cab1_med
-df2['1CAUB',1] <- cab1_med
-df2['2CAB',1] <- cab2_med
-df2['2CAUB',1] <- cab2_med
-df2['6NOB',1] <- nob6_med
-df2['6NOUB',1] <- nob6_med
-df2['STSKNB',1] <- stskn_med
-df2['STSKNUB',1] <- stskn_med
-df2['HPB',1] <- hp_med
-df2['HPUB',1] <- hp_med
-df2['SDB',1] <- sd_med
-df2['SDUB',1] <- sd_med
-df2['THB',1] <- th_med
-df2['THUB',1] <- th_med
+df2['1VBB',1] <- verdal_1vb_b_med
+df2['1VBUB',1] <- verdal_1vb_ub_med
+df2['2VBB',1] <- verdal_2vb_b_med
+df2['2VBUB',1] <- verdal_2vb_ub_med
 
 
+df2['1DRB',1] <- drangedal1_b_med
+df2['1DRUB',1] <- drangedal1_ub_med
+df2['3DRB',1] <- drangedal3_b_med
+df2['3DRUB',1] <- drangedal3_ub_med
+df2['4DRB',1] <- drangedal4_b_med
+df2['4DRUB',1] <- drangedal4_ub_med
+df2['1FRB',1] <- fritsoe1_b_med
+df2['1FRUB',1] <- fritsoe1_ub_med
+df2['2FRB',1] <- fritsoe2_b_med
+df2['2FRUB',1] <- fritsoe2_ub_med
+df2['1FYB',1] <- furesdal_b_med
+df2['1FYUB',1] <- furesdal_ub_med
+df2['1KVB',1] <- kviteseid1_b_med
+df2['1KVUB',1] <- kviteseid1_ub_med
+df2['2KVB',1] <- kviteseid2_b_med
+df2['2KVUB',1] <- kviteseid2_ub_med
+df2['3KVB',1] <- kviteseid3_b_med
+df2['3KVUB',1] <- kviteseid3_ub_med
+df2['1CAB',1] <- nome_cappelen1_b_med
+df2['1CAUB',1] <- nome_cappelen1_ub_med
+df2['2CAB',1] <- nome_cappelen2_b_med
+df2['2CAUB',1] <- nome_cappelen2_ub_med
+df2['3NOB',1] <- notodden3_b_med
+df2['3NOUB',1] <- notodden3_ub_med
+df2['5NOB',1] <- notodden5_b_med
+df2['5NOUB',1] <- notodden5_ub_med
+df2['6NOB',1] <- notodden6_b_med
+df2['6NOUB',1] <- notodden6_ub_med
+
+#'SDB','SDUB','THB','THUB')
+#df2['DHB',1] <- INGEN DATA, best å holde verdien til NA? Didrik
+#df2['DHUB',1] <- 
+df2['STSKNB',1] <- eidskog_b_med
+df2['STSKNUB',1] <- eidskog_ub_med
+df2['FKB',1] <- fet3_b_med
+df2['FKUB',1] <- fet3_ub_med
+df2['HPB',1] <- halvard_pramhus_b_med
+df2['HPUB',1] <- halvard_pramhus_ub_med
+#df2['SSAB',1] <- INGEN DATA, Stangeskovene Aurskog
+#df2['SSAUB',1] <- 
+df2['SSBB',1] <- stangeskovene_eidskog_b_med
+df2['SSBUB',1] <- stangeskovene_eidskog_ub_med
+df2['SDB',1] <- stig_dahlen_b_med
+df2['SDUB',1] <- stig_dahlen_ub_med
+df2['THB',1] <- truls_holm_b_med
+df2['THUB',1] <- truls_holm_ub_med
 
 
 library(readr)
