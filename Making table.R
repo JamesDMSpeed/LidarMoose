@@ -759,17 +759,20 @@ library(readr)
 Site_prod_all_regions <- read_csv("~/Master - Sustherb/LidarMoose/Site_prod_all_regions.csv")
 View(Site_prod_all_regions)
 
-#Site_prod_all_regions$LocalityCode <- NA
+prod <- Site_prod_all_regions
+prod[8, 3]='Fritsoe1'
+prod[9, 3]='Fritsoe2'
+prod[36, 3]='Singsaas'
+prod[42, 3]='Stig Dahlen'
 
-#Site_prod_all_regions$LocalityCode <- ifelse(Site_prod_all_regions$LocalityName=='Didrik Holmsen', 'DHB', NA)
 
-#Changed localityNames in excel to merge it with MyData3
-library(readr)
-productivity_test <- read_delim("~/Master - Sustherb/LidarMoose/productivity_test.csv", 
-                                ";", escape_double = FALSE, trim_ws = TRUE)
-View(productivity_test)
+# #Changed localityNames in excel to merge it with MyData3
+# library(readr)
+# productivity_test <- read_delim("~/Master - Sustherb/LidarMoose/productivity_test.csv", 
+#                                 ";", escape_double = FALSE, trim_ws = TRUE)
+# View(productivity_test)
 
-MyData4<- merge.data.frame(MyData3, productivity_test, by= 'LocalityName')
+MyData4<- merge.data.frame(MyData3, prod, by= 'LocalityName')
 write.csv(MyData4, 'MyData4.csv')
 
 View(MyData4)

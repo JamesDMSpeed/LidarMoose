@@ -86,7 +86,7 @@ dat4 <- reshape::untable(dat3, num = dat3$Quantity)
 
 
 # konvertere height_class til m
-max(dat4$Height_class_50cm)
+max(dat4$Height_class_50cm, na.rm = T)
 #max =9
 dat4$height_m <- ifelse(dat4$Height_class_50cm=='1', 0.25,
                         ifelse(dat4$Height_class_50cm=='2', 0.75,
@@ -113,15 +113,12 @@ colnames(df2)<-c('Field_median')
 
 
 #Dataframes for each site correct year. Calculating the median for each circle in a plot, and the median for the plot is the median of those medians
-
+#Viste seg å være en vanvitting tungvint metode.. Anders' forslag
+# ALKdat <- aggregate(data = dat4, 
+#                     height_m ~ LocalityName + Treatment + year + Plot,
+#                     FUN = median)
 
 ####Bratsberg##############
-ALKdat <- aggregate(data = dat4, 
-                    height_m ~ LocalityName + Treatment + year + Plot,
-                    FUN = median)
-
-
-
 bratsberg_2017    <- dat4[dat4$LocalityName=='Bratsberg'& dat4$year=='2017',]
 
 bratsberg_b_2017  <- bratsberg_2017[bratsberg_2017$Treatment=='B',]
@@ -890,4 +887,62 @@ Data_prod_field <- merge(MyData4, df2, by.x="LocalityCode", by.y="row.names")
 write.csv(Data_prod_field, 'Data_prod_field.csv')
 
 
+# Legger til kolonne med mean fra feltdata --------------------------------
+unique(dat4$Plot)
+dat4$Plot[dat4$Plot == "NE"] <- "ØH"
+dat4$Plot[dat4$Plot == "SE"] <- "NH"
+dat4$Plot[dat4$Plot == "SW"] <- "NV"
+dat4$Plot[dat4$Plot == "NW"] <- "ØV"
+
+
+dat4 <- dat4[dat4$Height_class_50cm != "8",]
+dat4 <- dat4[dat4$Height_class_50cm != "9",]
+
+dat_mean <- aggregate(data = dat4,
+                    height_m ~ LocalityName + Treatment + year + Plot,
+                    FUN = mean, drop = F
+                    )
+
+dat_median <- aggregate(data = dat4,
+                      cbind(height = height_m) ~ LocalityName + Treatment + year + Plot,
+                      FUN = median, drop = F)
+
+dat_mean$median <- dat_median$height
+# blir masse NA for år uten sampling, feks telemark 2000, men vi får rader for sirkler der det var samplet, men det ikke var noen trær. Disse NAene må gjøres om til 0.
+dat_mean$height_m[is.na(dat_mean$height_m)] <- 0
+dat_mean$height_m[is.na(dat_mean$median)] <- 0
+
+summary(dat_mean$height_m)
+dat_mean2 <- aggregate(data = dat_mean,
+                      cbind(mean_of_mean = height_m, "mean_of_median" = median) ~ LocalityName + Treatment + year,
+                      FUN = mean)
+dat_mean3 <- aggregate(data = dat_mean,
+                       cbind(median_of_mean = height_m, "median_of_median" = median) ~ LocalityName + Treatment + year,
+                       FUN = median)
+dat_mean2$median_of_mean <- dat_mean3$median_of_mean
+dat_mean2$median_of_median <- dat_mean3$median_of_median
+
+#Endrer navn slik at alle locality names er like i begge tabellene
+dat_mean2$LocalityName[dat_mean2$LocalityName == "Fritsøe1"] <- "Fritsoe1"
+dat_mean2$LocalityName[dat_mean2$LocalityName == "Fritsøe2"] <- "Fritsoe2"
+dat_mean2$LocalityName[dat_mean2$LocalityName == "Singsås"] <- "Singsaas"
+dat_mean2$LocalityName[dat_mean2$LocalityName == "Stig Dæhlen"] <- "Stig Dahlen"
+
+
+dat_mean2$Treatment[dat_mean2$Treatment == "B"] <- "Open plot"
+dat_mean2$Treatment[dat_mean2$Treatment == "UB"] <- "Exclosure"
+
+
+dat_mean2$link <- paste0(dat_mean2$LocalityName, dat_mean2$Treatment, dat_mean2$year)
+Data_prod_field$link <- paste0(Data_prod_field$LocalityName, Data_prod_field$Treatment, Data_prod_field$LiDAR.data.from.year)
+Data_prod_field$mean_of_mean <- dat_mean2$mean_of_mean[match(Data_prod_field$link, dat_mean2$link)]
+table(dat_mean)
+
+bratsberg_b_df <- dat_mean[dat_mean$LocalityName=='Bratsberg'  & dat_mean$year=='2017'& dat_mean$Treatment=='B',]
+bratsberg_b_mean <- mean(bratsberg_b_df$height_m)
+bratsberg_ub_df <- dat_mean[dat_mean$LocalityName=='Bratsberg'  & dat_mean$year=='2017'& dat_mean$Treatment=='UB',]
+bratsberg_ub_mean <- mean(bratsberg_ub_df$height_m)
+
+
+#colnames(dat_mean)[5] <- 'field_mean' 
  

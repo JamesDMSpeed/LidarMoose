@@ -6,6 +6,10 @@ View(Data_prod_field)
 
 library(ggplot2)
 
+
+# Field data VS Lidar data ------------------------------------------------
+
+
 #Field median VS LIDAR median
 wilcox.test(Data_prod_field$Median, Data_prod_field$Field_median, paired = T)
 #V = 541, p-value = 6.834e-05
@@ -32,5 +36,10 @@ cor.test(Data_prod_field$Field_median, Data_prod_field$Median, alternative = "le
 #Alternative=greater   -> 0.7621236
 # samme for "Less" også
 #when the term "correlation coefficient" is used without further qualification, it usually refers to the Pearson
+
+
+##consider field mean also?
+
+
 
 
