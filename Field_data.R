@@ -888,13 +888,14 @@ write.csv(Data_prod_field, 'Data_prod_field.csv')
 
 
 # Legger til kolonne med mean fra feltdata --------------------------------
+#Kun fire navn på plot, ikke både norske og engelske
 unique(dat4$Plot)
 dat4$Plot[dat4$Plot == "NE"] <- "ØH"
 dat4$Plot[dat4$Plot == "SE"] <- "NH"
 dat4$Plot[dat4$Plot == "SW"] <- "NV"
 dat4$Plot[dat4$Plot == "NW"] <- "ØV"
 
-
+#Fjerner de høyeste trærne, høydeklasse 8 og 9, usikker på om det er best å gjøre
 dat4 <- dat4[dat4$Height_class_50cm != "8",]
 dat4 <- dat4[dat4$Height_class_50cm != "9",]
 
@@ -936,13 +937,12 @@ dat_mean2$Treatment[dat_mean2$Treatment == "UB"] <- "Exclosure"
 dat_mean2$link <- paste0(dat_mean2$LocalityName, dat_mean2$Treatment, dat_mean2$year)
 Data_prod_field$link <- paste0(Data_prod_field$LocalityName, Data_prod_field$Treatment, Data_prod_field$LiDAR.data.from.year)
 Data_prod_field$mean_of_mean <- dat_mean2$mean_of_mean[match(Data_prod_field$link, dat_mean2$link)]
-table(dat_mean)
-
-bratsberg_b_df <- dat_mean[dat_mean$LocalityName=='Bratsberg'  & dat_mean$year=='2017'& dat_mean$Treatment=='B',]
-bratsberg_b_mean <- mean(bratsberg_b_df$height_m)
-bratsberg_ub_df <- dat_mean[dat_mean$LocalityName=='Bratsberg'  & dat_mean$year=='2017'& dat_mean$Treatment=='UB',]
-bratsberg_ub_mean <- mean(bratsberg_ub_df$height_m)
+Data_prod_field$mean_of_median <- dat_mean2$mean_of_median[match(Data_prod_field$link, dat_mean2$link)]
+Data_prod_field$median_of_mean <- dat_mean2$median_of_mean[match(Data_prod_field$link, dat_mean2$link)]
+Data_prod_field$median_of_median <- dat_mean2$median_of_median[match(Data_prod_field$link, dat_mean2$link)]
 
 
-#colnames(dat_mean)[5] <- 'field_mean' 
- 
+#Selecting some rows from data_prod_field
+library(dplyr)
+MyData5 <- subset(Data_prod_field, select = c("LocalityCode","LocalityName", "Region.x", "Treatment", "Mean", "Median", "MAD","productivity", "Field_median", "mean_of_mean", "mean_of_median", "median_of_mean", "median_of_median"  ))
+write.csv(MyData5, 'MyData5.csv')
