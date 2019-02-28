@@ -116,6 +116,12 @@ colnames(df2)<-c('Field_median')
 
 
 ####Bratsberg##############
+ALKdat <- aggregate(data = dat4, 
+                    height_m ~ LocalityName + Treatment + year + Plot,
+                    FUN = median)
+
+
+
 bratsberg_2017    <- dat4[dat4$LocalityName=='Bratsberg'& dat4$year=='2017',]
 
 bratsberg_b_2017  <- bratsberg_2017[bratsberg_2017$Treatment=='B',]
@@ -882,3 +888,6 @@ View(MyData4)
 
 Data_prod_field <- merge(MyData4, df2, by.x="LocalityCode", by.y="row.names")
 write.csv(Data_prod_field, 'Data_prod_field.csv')
+
+
+ 

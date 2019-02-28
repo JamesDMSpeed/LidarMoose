@@ -557,15 +557,20 @@ summary(D1$biomass)
 #plot(D1$biomass)
 
 D1 <- D1[D1$year %in% c("2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"),]
+#D1 ingen NA på biomasse
+
 
 bio_circle2 <- aggregate(cbind(Biomass_circle = D1$biomass), 
                         by= list(
                           LocalityName=D1$LocalityName, 
                           Treatment = D1$Treatment,
-                          Plot=D1$Plot, 
+                          Plot=D1$Plot,
                           year=D1$year), 
                         FUN = sum, drop=F)
+bio_circle2$Biomass_circle[is.na(bio_circle2$Biomass_circle)] <- 0
 dim(bio_circle2) #  1984
+table(bio_circle2$Plot, bio_circle2$year, bio_circle2$LocalityName)
+#masse NA i biomass_circle2 
 
 bio_circle2$unique <- paste0(bio_circle2$Treatment, bio_circle2$Plot)
 library(ggplot2)
@@ -647,14 +652,16 @@ bio_plot2$yse <- ""
 
 #bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, as.numeric(bio_plot2$year)-2009)
 bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, ifelse(bio_plot2$Region == "Telemark", as.numeric(bio_plot2$year)-2009, as.numeric(bio_plot2$year)-2010)) #Ingrid
-bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
-bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2012, bio_plot2$yse) #Ingrid
+bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2012, bio_plot2$yse) #Ingrid
 
 table(bio_plot2$year, bio_plot2$yse)
 #View(bio_plot2[bio_plot2$yse==0,])
 bio_plot2 <- bio_plot2[bio_plot2$yse != 0,] #Ingrid: Hva skjer her? Fjerner alle som har yse lik 0. Burde jeg fjerne de negative verdiene også?
 bio_plot2 <- bio_plot2[bio_plot2$yse != -1,] #Ingrid  
 bio_plot2 <- bio_plot2[bio_plot2$yse != -2,] #Ingrid
+
+bio_plotALK <- bio_plot2[bio_plot2$biomass_tonn_ha!= 0,]
 
 table(bio_plot2$year, bio_plot2$yse)
 ggplot(data = bio_plot2)+
