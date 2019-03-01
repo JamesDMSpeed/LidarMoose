@@ -98,17 +98,36 @@ cor.test(MyData6$mean_of_median, MyData6$Median, alternative = "two.sided", meth
 
 
 
+
+
+
+
 # Productivity plots ------------------------------------------------------
-# test3 <- MyData6[MyData6$Treatment=='Open plot',]
-# test4 <- MyData6[MyData6$Treatment=='Exclosure',]
-# 
-# test5 <- test3[test3$LocalityName!='Didrik Holmsen'& test3$LocalityName!='Stangeskovene Aurskog',]
-# 
-# ggplot(data=MyData6, aes(test3$productivity))+
-#   geom_line(aes(y=test3$Median), colour="test3$Median")+
-#   geom_line(aes(y=test4$Median), colour="test4$Median")
+#Median
+ df_open <- MyData6[MyData6$Treatment=='Open plot',] #blue
+ df_exc <- MyData6[MyData6$Treatment=='Exclosure',] #red
 
-MyData6$Treatment <- as.factor(MyData6$Treatment)
-test1 <- split(MyData6$Median, MyData6$Treatment)
+# First curve is plotted
+plot(df_open$productivity, df_open$Median, col="blue", xlab = "Productiviy", ylab = "Median (m)")
 
-ggplot(data=MyData6, aes(productivity, Median))+geom_line()
+# Add second curve to the same plot by calling points() and lines()
+points(df_exc$productivity, df_exc$Median, col="red")
+abline(lm(df_open$Median ~ df_open$productivity), col="blue")
+abline(lm(df_exc$Median ~ df_exc$productivity), col="red")
+
+
+#MAD
+# First curve is plotted
+plot(df_open$productivity, df_open$MAD, col="blue",xlab = "Productiviy", ylab = "MAD")
+
+# Add second curve to the same plot by calling points() and lines()
+points(df_exc$productivity, df_exc$MAD, col="red")
+abline(lm(df_open$MAD ~ df_open$productivity), col="blue")
+abline(lm(df_exc$MAD ~ df_exc$productivity), col="red")
+
+#Labels on ablines???
+
+
+#ANOVA
+anova(lm(df_open$Median ~ df_open$productivity))
+anova(lm(df_exc$Median ~ df_exc$productivity))
