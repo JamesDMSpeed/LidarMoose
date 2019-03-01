@@ -942,6 +942,9 @@ Data_prod_field$median_of_mean <- dat_mean2$median_of_mean[match(Data_prod_field
 Data_prod_field$median_of_median <- dat_mean2$median_of_median[match(Data_prod_field$link, dat_mean2$link)]
 
 
+#Overskriver så data_prod_field inneholder felt dataene produsert over
+write.csv(Data_prod_field, 'Data_prod_field.csv')
+
 #Selecting some rows from data_prod_field
 library(dplyr)
 MyData5 <- subset(Data_prod_field, select = c("LocalityCode","LocalityName", "Region.x", "Treatment", "Mean", "Median", "MAD","productivity", "Field_median", "mean_of_mean", "mean_of_median", "median_of_mean", "median_of_median"  ))
