@@ -157,7 +157,8 @@ ggplot(data=MyData7,
 ggplot(data=MyData7,
        aes(x = productivity, y = Median_std, group = Treatment, colour = Treatment))+
   geom_smooth(method = "lm")+
-  geom_point()
+  geom_point()+
+  labs(x= "Productivity", y=("Standardized Median"))
 
 # #linear model
 # lmProd<-lm(Median~productivity*Treatment,data=MyData6 )
@@ -247,7 +248,8 @@ ggplot(data=MyData7,
 ggplot(data=MyData7,
        aes(x = productivity, y = MAD, group = Treatment, colour = Treatment))+
   geom_smooth(method = "lm")+
-  geom_point()
+  geom_point()+
+  labs(x="Productivity", y= "Median absolute deviation")
 
 # lmProd_madmed<-lm(MAD_med~productivity*Treatment,data=MyData6 )
 # summary(lmProd_madmed)
