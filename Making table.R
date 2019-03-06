@@ -613,7 +613,7 @@ wilcox.test(MyData3$Median[MyData3$Treatment=='Open plot'],MyData3$Median[MyData
 
 #boxplot median - treatment
 p1 <- ggplot(data=MyData3, aes(x=Treatment, y=Median))+geom_boxplot()
-p1 <- print(p7+labs(y='Median Canopy Height'))
+p1 <- print(p1+labs(y='Median Canopy Height'))
 
 #vioplot median - treatment
 library(ggplot2)

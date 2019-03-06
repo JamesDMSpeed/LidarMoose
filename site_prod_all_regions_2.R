@@ -417,6 +417,7 @@ density <- read_excel("density.xlsx", col_types = c("text",
                                                     "numeric", "numeric", "numeric", "numeric"))
 #density <- read.csv("M:/Anders L Kolstad/systherb data/exported cvs/density09til15.csv", sep=";")
 
+
 library(dplyr)      
 library(reshape2)   # dcast & melt
 library(reshape)    # untable
@@ -436,6 +437,7 @@ rm(density)
 
 den$date <- as.Date(den$`_Date`, format = "%d/%m/%Y")
 den$year <- format(den$date, "%Y")
+table(den$year[den$LocalityName=="Stig Dæhlen"])
 
 # Insted of height classes I will use the center values for each class:
 # but lets see how height was recorded
@@ -556,7 +558,7 @@ summary(D1$biomass)
 #hist(D1$biomass)
 #plot(D1$biomass)
 
-D1 <- D1[D1$year %in% c("2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"),]
+D1 <- D1[D1$year %in% c("2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"),]
 #D1 ingen NA på biomasse
 
 
@@ -577,6 +579,8 @@ library(ggplot2)
 ggplot(data = bio_circle2)+
   geom_line(aes(x=year, y=Biomass_circle, group = unique, colour = unique))+
   facet_wrap( ~ LocalityName, scales = "free")
+ggplot(data = bio_circle2[bio_circle2$LocalityName=="Stig Dæhlen",])+
+  geom_line(aes(x=year, y=Biomass_circle, group = unique, colour = unique))
 
 # IMPORTANT - if tree height is recorded with a maximum height class (3m) we cannot model biomass over time and perhaps not make reliable productivity indeces?
 
@@ -652,8 +656,8 @@ bio_plot2$yse <- ""
 
 #bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, as.numeric(bio_plot2$year)-2009)
 bio_plot2$yse <- ifelse(bio_plot2$Region == "Trondelag", as.numeric(bio_plot2$year)-2008, ifelse(bio_plot2$Region == "Telemark", as.numeric(bio_plot2$year)-2009, as.numeric(bio_plot2$year)-2010)) #Ingrid
-bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2012, bio_plot2$yse) #Ingrid
-bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2012, bio_plot2$yse) #Ingrid
+#bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Fet 3", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
+#bio_plot2$yse <- ifelse(bio_plot2$LocalityName =="Eidskog", as.numeric(bio_plot2$year)-2011, bio_plot2$yse) #Ingrid
 
 table(bio_plot2$year, bio_plot2$yse)
 #View(bio_plot2[bio_plot2$yse==0,])
@@ -736,10 +740,11 @@ combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/maks
 
 
 productivity <- select(combined, 
-                       Region, LocalityName, productivity = max_annual_inc_tonns_ha)
+                       Region, LocalityName, Productivity = max_annual_inc_tonns_ha)
 write.csv(productivity, 'Site_prod_all_regions.csv')
 #save(productivity, file="M:\\Anders L Kolstad\\R\\R_projects\\succession_paper\\prod_index_telemark_and_trondelag.RData")
 
+plot(productivity$LocalityName, productivity$Productivity)
 
 # calculations checked
 #setwd("M:\\Anders L Kolstad\\R\\R_projects\\succession_paper")
