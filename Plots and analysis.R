@@ -20,6 +20,10 @@ MyData6 <-Data_prod_field[keeps]
 
 write.csv(MyData6,'MyData6.csv')
 
+library(readr)
+MyData6 <- read_csv("~/Master - Sustherb/LidarMoose/MyData6.csv")
+View(MyData6)
+
 library(ggplot2)
 
 
@@ -27,7 +31,7 @@ library(ggplot2)
 
 
 #Field median VS LIDAR median
-wilcox.test(MyData6$Median, MyData6$Field_median, paired = T)
+#wilcox.test(MyData6$Median, MyData6$Field_median, paired = T) Sjekker istedet om korrelasjonen er signifikant, ikke om forskjellen er det
 #V = 453, p-value = 5.229e-05
 
 #Scatterplot ggplot
@@ -48,8 +52,8 @@ abline(coef = c(0,1))
 #Check correlation between field median and lidar median data
 cor.test(MyData6$Field_median, MyData6$Median, alternative = "two.sided", method = "pearson")
 
-#Alternative=two.sided -> 0.747673  
-#Alternative=greater   -> 0.747673 
+#Alternative=two.sided ->       cor 0.7621236   
+#Alternative=greater   ->       cor 0.7621236 
 # samme for "Less" også
 #when the term "correlation coefficient" is used without further qualification, it usually refers to the Pearson
 
@@ -65,7 +69,7 @@ abline(coef = c(0,1))
 
 #checking correation
 cor.test(MyData6$mean_of_mean, MyData6$Median, alternative = "two.sided", method = "pearson")
-#cor: 0.7663498 
+#cor: 0.7812088  
 
 ##Field median of mean vs lidar median
 plot(MyData6$median_of_mean, MyData6$Median,
@@ -78,7 +82,7 @@ abline(coef = c(0,1))
 
 #checking correation
 cor.test(MyData6$median_of_mean, MyData6$Median, alternative = "two.sided", method = "pearson")
-#cor: 0.7603712 
+#cor: 0.7786235  
 
 ##Field mean of median vs lidar median
 plot(MyData6$mean_of_median, MyData6$Median,
@@ -91,7 +95,7 @@ abline(coef = c(0,1))
 
 #checking correation
 cor.test(MyData6$mean_of_median, MyData6$Median, alternative = "two.sided", method = "pearson")
-#cor: 0.754108 
+#cor: 0.7685942  
 
 
 
@@ -131,3 +135,55 @@ abline(lm(df_exc$MAD ~ df_exc$productivity), col="red")
 #ANOVA
 anova(lm(df_open$Median ~ df_open$productivity))
 anova(lm(df_exc$Median ~ df_exc$productivity))
+
+
+
+# Median canopy height - plots --------------------------------------------
+
+#Wilcox test
+wilcox.test(MyData6$Median[MyData6$Treatment=='Open plot'],MyData6$Median[MyData6$Treatment=='Exclosure'],paired=T)
+#p-value =3.148e-07
+
+#boxplot median - treatment
+p1 <- ggplot(data=MyData6, aes(x=Treatment, y=Median))+geom_boxplot()
+p1 <- print(p1+labs(y='Median Canopy Height'))
+
+#vioplot median - treatment
+library(ggplot2)
+vioplot_median <- ggplot(data=MyData6, aes(x=Treatment, y=Median))+geom_violin()
+
+
+#Median spaghetti plot
+x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
+p2 <- ggplot(data=MyData6, aes(x=x1, y=Median, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Canopy Height (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p2 
+
+
+# Median absolute deviation -----------------------------------------------
+
+#Wilcox test
+wilcox.test(MyData6$MAD[MyData6$Treatment=='Open plot'],MyData6$MAD[MyData6$Treatment=='Exclosure'],paired=T)
+#p-value = p-value = 1.103e-07
+
+#Boxplot mad-treatment
+p3 <- ggplot(data=MyData6, aes(x=Treatment, y=MAD))+geom_boxplot()
+p3
+
+#vioplot mad-treatment
+p4 <- ggplot(data=MyData6, aes(x=Treatment, y=MAD))+geom_violin()
+p4
+
+#mad spaghetti plot
+#reorder x-axis
+#x1 <- factor(MyData6$Treatment, levels =  c('Exclosure', 'Open plot'))
+#p5 <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName, color=Region))+geom_line()+labs(y='Median Absolute Deviation', x='Treatment')+theme(text=element_text(size=18))
+#p5
+x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
+p5 <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Absolute Deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p5
+
+ifelse(MyData3$Median!=MyData6$Median, print("TRUE"), print("FALSE"))
+summary(MyData6$Median)
+summary(MyData3$Median)
+length(MyData3$Median)
+length(MyData6$Median)
