@@ -777,18 +777,7 @@ write.csv(MyData4, 'MyData4.csv')
 
 View(MyData4)
 
-# New plots, with productivity --------------------------------------------
-library(readr)
-MyData4 <- read_csv("~/Master - Sustherb/LidarMoose/MyData4.csv")
-View(MyData4)
 
-group <- group_by(MyData4$LocalityName)
-
-#Making new table
-#Prod <- productivity_test
-#Prod$diff_median_ex_op <- NA
-
-#Prod$diff_median_ex_op <-   
   
   
   
