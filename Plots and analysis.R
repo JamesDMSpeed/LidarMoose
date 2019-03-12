@@ -237,7 +237,7 @@ mymod3 <- lm(data = MyData7,
              log(MAD)~productivity*Treatment)
 MyData7$pred2 <- predict(mymod3, MyData7)
 MyData7$pred_us2 <- exp(MyData7$pred2)
-ggplot()+
+mad_prod_plot <- ggplot()+
   geom_point(aes(x = productivity, y = MAD, colour= Treatment), data = MyData7)+
   geom_line(aes(x = productivity, y = pred_us2, colour = Treatment), data = MyData7, size = 1.5)+
   labs(x="Productivity", y="Median absolute deviation")+
@@ -298,9 +298,9 @@ mymod4 <- lm(data = MyData7,
              log(MAD_med)~productivity*Treatment)
 MyData7$pred3 <- predict(mymod4, MyData7)
 MyData7$pred_us3 <- exp(MyData7$pred3)
-ggplot()+
-  geom_point(aes(x = productivity, y = MAD_med, colour= Treatment), data = MyData7)+
-  geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7, size = 1.5)+
+mad_med_prod <- ggplot()+
+  geom_point(aes(x = productivity, y = MAD_med, colour= Treatment), data = MyData7[MyData7$Median > 0.01,])+
+  geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7[MyData7$Median > 0.01,], size = 1.5)+
   labs(x="Productivity", y="Median absolute deviation / median")+
   theme(axis.text.y   = element_text(size=12),
         axis.text.x   = element_text(size=12),
@@ -313,7 +313,9 @@ ggplot()+
         panel.border = element_rect(colour = "black", fill=NA, size=1))
 
 
-
+library(egg)
+MAD_madmed_prod <- egg::ggarrange(mad_prod_plot + theme(legend.position="none"),mad_med_prod, ncol=2)
+panel_plot_spagh<- egg::ggarrange(p2+ theme(legend.position="none"),p5, ncol=2) #common.legend = T)
 
 
 #Namdalseid_1kub open plot, outlier -removed that site
