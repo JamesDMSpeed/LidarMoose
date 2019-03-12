@@ -148,51 +148,72 @@ anova(lmer_median)
 plot(lmer_median)
 qqnorm(resid(lmer_median))
 
-#Adding model to data frame to be able to plot it. 
-MyData7$ALKpred <- predict(lmer_median, MyData7, se.fit=F)
-MyData7$ALKpred_bt <- exp(MyData7$ALKpred)
-ALKmod <- lm(log(MyData7$Median_std)~MyData7$productivity*MyData7$Treatment)
-newdf<-data.frame(Treatment = MyData7$Treatment, 
-  productivity=seq(min(MyData7$productivity),max(MyData7$productivity),length.out =  nrow(MyData7)))
-
-newdfpred<-predict(ALKmod,newdf,se.fit=F)
-newdf$pred_bf<-exp(newdfpred)
-
-
-MyData7$model_med <- predict(ALKmod)
-MyData7$BT_model_med <- exp(MyData7$model_med)
-MyData7$Median_l <- log(MyData7$Median)
-
-
-summary(MyData7$Median)
-#plotting predicited and observed values together. 
-library(ggplot2)
-ggplot(MyData7,aes(x=productivity, y=Median, colour=Treatment)) + 
-  geom_point(alpha = 0.3) +
-  geom_line(aes(y=MyData7$ALKpred_bt))
-  #geom_line(aes(y=newdf$pred_bf, x=newdf$productivity))
-  #stat_smooth(method = "lm")+
-
-plot(MyData7$ALKpred_bt[MyData7$Treatment=="Exclosure"], MyData7$productivity[MyData7$Treatment=="Exclosure"])
-lines(MyData7$Median,MyData7$productivity)
-#plotting
-ggplot(data=MyData7,
-       aes(x = Treatment, y = Median_std))+
-  geom_boxplot()
-ggplot(data=MyData7,
-       aes(x = productivity, y = (Median_std), group = Treatment, colour = Treatment))+
-  geom_smooth(method = "lm")+
-  geom_point()+
-  labs(x= "Productivity", y=('Median / (years from project start to lidar data) (m)'))+
+# How does the predict() function do?:
+mymod2 <- lm(data = MyData7,
+             log(Median_std)~productivity*Treatment)
+MyData7$pred <- predict(mymod2, MyData7)
+MyData7$pred_us <- exp(MyData7$pred)
+ggplot()+
+  geom_point(aes(x = productivity, y = Median_std, colour= Treatment), data = MyData7)+
+  geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)+
+  labs(y="Canopy height growth (m/year)", x="Productivity")+
   theme(axis.text.y   = element_text(size=12),
-        axis.text.x   = element_text(size=12),
-        axis.title.y  = element_text(size=12),
-        axis.title.x  = element_text(size=12),
-        panel.background = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.border = element_rect(colour = "black", fill=NA, size=1))  
+       axis.text.x   = element_text(size=12),
+       axis.title.y  = element_text(size=12),
+       axis.title.x  = element_text(size=12),
+       panel.background = element_blank(),
+       panel.grid.major = element_blank(), 
+       panel.grid.minor = element_blank(),
+       axis.line = element_line(colour = "black"),
+       panel.border = element_rect(colour = "black", fill=NA, size=1))  
+
+
+
+# #Adding model to data frame to be able to plot it. 
+# MyData7$ALKpred <- predict(lmer_median, MyData7, se.fit=F)
+# MyData7$ALKpred_bt <- exp(MyData7$ALKpred)
+# ALKmod <- lm(log(MyData7$Median_std)~MyData7$productivity*MyData7$Treatment)
+# newdf<-data.frame(Treatment = MyData7$Treatment, 
+#   productivity=seq(min(MyData7$productivity),max(MyData7$productivity),length.out =  nrow(MyData7)))
+# 
+# newdfpred<-predict(ALKmod,newdf,se.fit=F)
+# newdf$pred_bf<-exp(newdfpred)
+# 
+# 
+# MyData7$model_med <- predict(ALKmod)
+# MyData7$BT_model_med <- exp(MyData7$model_med)
+# MyData7$Median_l <- log(MyData7$Median)
+
+
+# summary(MyData7$Median)
+# #plotting predicited and observed values together. 
+# library(ggplot2)
+# ggplot(MyData7,aes(x=productivity, y=Median, colour=Treatment)) + 
+#   geom_point(alpha = 0.3) +
+#   geom_line(aes(y=MyData7$ALKpred_bt))
+#   #geom_line(aes(y=newdf$pred_bf, x=newdf$productivity))
+#   #stat_smooth(method = "lm")+
+# 
+# plot(MyData7$ALKpred_bt[MyData7$Treatment=="Exclosure"], MyData7$productivity[MyData7$Treatment=="Exclosure"])
+# lines(MyData7$Median,MyData7$productivity)
+# #plotting
+# ggplot(data=MyData7,
+#        aes(x = Treatment, y = Median_std))+
+#   geom_boxplot()
+# ggplot(data=MyData7,
+#        aes(x = productivity, y = (Median_std), group = Treatment, colour = Treatment))+
+#   geom_smooth(method = "lm")+
+#   geom_point()+
+#   labs(x= "Productivity", y=('Median / (years from project start to lidar data) (m)'))+
+#   theme(axis.text.y   = element_text(size=12),
+#         axis.text.x   = element_text(size=12),
+#         axis.title.y  = element_text(size=12),
+#         axis.title.x  = element_text(size=12),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank(),
+#         axis.line = element_line(colour = "black"),
+#         panel.border = element_rect(colour = "black", fill=NA, size=1))  
 
   
 
@@ -203,7 +224,7 @@ lmer_mad <- lmer(log(MAD) ~ productivity
                     +Treatment 
                     +Treatment:productivity
                     +duration
-                    +duration:Treatment  
+                    #+duration:Treatment  
                     +(1|LocalityName), data = MyData7)
 summary(lmer_mad)
 
@@ -211,15 +232,25 @@ summary(lmer_mad)
 plot(lmer_mad)
 qqnorm(resid(lmer_mad))
 
-#Adding model to data frame to be able to plot it. 
-MyData7$model_mad <- predict(lmer_mad)
-
-#plotting predicited and observed values together. Looks like predicted values are way off!
-library(ggplot2)
-ggplot(MyData7,aes(productivity, MAD, colour=Treatment)) + geom_point() +
-  geom_line(aes(y=model_mad), size=0.8) +
-  geom_point(alpha = 0.3) 
-
+#Plot with linear model and predict()
+mymod3 <- lm(data = MyData7,
+             log(MAD)~productivity*Treatment)
+MyData7$pred2 <- predict(mymod3, MyData7)
+MyData7$pred_us2 <- exp(MyData7$pred2)
+ggplot()+
+  geom_point(aes(x = productivity, y = MAD, colour= Treatment), data = MyData7)+
+  geom_line(aes(x = productivity, y = pred_us2, colour = Treatment), data = MyData7, size = 1.5)+
+  labs(x="Productivity", y="Median absolute deviation")+
+  theme(axis.text.y   = element_text(size=12),
+        axis.text.x   = element_text(size=12),
+        axis.title.y  = element_text(size=12),
+        axis.title.x  = element_text(size=12),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1))
+  
 
 #plot
 ggplot(data=MyData7,
@@ -260,6 +291,30 @@ summary(lmer_madmed) #ingen signifikant interaksjon
 #Validation
 plot(lmer_madmed)
 qqnorm(resid(lmer_madmed))
+
+
+#Plot
+mymod4 <- lm(data = MyData7,
+             log(MAD_med)~productivity*Treatment)
+MyData7$pred3 <- predict(mymod4, MyData7)
+MyData7$pred_us3 <- exp(MyData7$pred3)
+ggplot()+
+  geom_point(aes(x = productivity, y = MAD_med, colour= Treatment), data = MyData7)+
+  geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7, size = 1.5)+
+  labs(x="Productivity", y="Median absolute deviation / median")+
+  theme(axis.text.y   = element_text(size=12),
+        axis.text.x   = element_text(size=12),
+        axis.title.y  = element_text(size=12),
+        axis.title.x  = element_text(size=12),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1))
+
+
+
+
 
 #Namdalseid_1kub open plot, outlier -removed that site
 
@@ -338,9 +393,9 @@ ggplot(data=MyData6,
 #MAD   
 #Mixed effect model
 library(lmerTest)
-lmer_mad <- lmer(MAD ~ productivity 
+lmer_mad <- lmer(log(MAD) ~ productivity 
                  +Treatment 
-                 +Treatment:productivity
+                #+Treatment:productivity
                  +duration
                  +duration:Treatment  
                  +(1|LocalityName), data = MyData6)
