@@ -35,7 +35,7 @@ library(ggplot2)
 #V = 453, p-value = 5.229e-05
 
 #Scatterplot ggplot
-median_comparison <- ggplot(data = MyData6, aes(x=Field_median, y=Median))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
+median_comparison <- ggplot(data = MyData6, aes(x=Field_median, y=Median, colour=Point.density...m.2.))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
 median_comparison <- median_comparison+  geom_abline() #linja blir litt "hakkete"
 median_comparison <- median_comparison + xlab("Median from field data")+ylab("Median from lidar data")+ theme(axis.text.y   = element_text(size=12),
                                                                                                               axis.text.x   = element_text(size=12),
@@ -47,7 +47,39 @@ median_comparison <- median_comparison + xlab("Median from field data")+ylab("Me
                                                                                                               axis.line = element_line(colour = "black"),
                                                                                                               panel.border = element_rect(colour = "black", fill=NA, size=1))  
 
-median_comparison
+
+
+
+
+#Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
+library(reshape2)
+MyData6_cast <- dcast(data = MyData6,
+                      LocalityName+Region.x ~ Treatment, 
+                      value.var = "Median")
+MyData6_cast$median_diff <- MyData6_cast$Exclosure-MyData6_cast$`Open plot`
+
+MyData6_cast_f <- dcast(data = MyData6,
+                      LocalityName+Region.x ~ Treatment, 
+                      value.var = "Field_median")
+MyData6_cast_f$median_diff_f <- MyData6_cast_f$Exclosure-MyData6_cast_f$`Open plot`
+
+MyData_cast <- merge(MyData6_cast_f, MyData6_cast, by="LocalityName" )
+
+p1 <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff))+geom_point()+ xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))
+p1 <- p1+  geom_abline() #linja blir litt "hakkete"
+p1 <- p1 + xlab("Difference in median between treatments from field data")+ylab("Difference in median from lidar data")+ theme(axis.text.y   = element_text(size=12),
+                                                                                                              axis.text.x   = element_text(size=12),
+                                                                                                              axis.title.y  = element_text(size=12),
+                                                                                                              axis.title.x  = element_text(size=12),
+                                                                                                              panel.background = element_blank(),
+                                                                                                              panel.grid.major = element_blank(), 
+                                                                                                              panel.grid.minor = element_blank(),
+                                                                                                              axis.line = element_line(colour = "black"),
+                                                                                                              panel.border = element_rect(colour = "black", fill=NA, size=1))  
+
+
+cor.test(MyData_cast$median_diff_f, MyData_cast$median_diff, alternative = "two.sided", method = "pearson")
+# cor 0.6446853 
 
 #Scatterplot with origin
 plot(MyData6$Field_median, MyData6$Median,
@@ -154,9 +186,9 @@ mymod2 <- lm(data = MyData7,
 MyData7$pred <- predict(mymod2, MyData7)
 MyData7$pred_us <- exp(MyData7$pred)
 ggplot()+
-  geom_point(aes(x = productivity, y = Median_std, colour= Treatment), data = MyData7)+
+  geom_point(aes(x = productivity, y = Median_std, colour= Region.x, shape=Treatment), data = MyData7)+
   geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)+
-  labs(y="Canopy height growth (m/year)", x="Productivity")+
+  labs(y="Median/duration (m/year)", x="Productivity")+
   theme(axis.text.y   = element_text(size=12),
        axis.text.x   = element_text(size=12),
        axis.title.y  = element_text(size=12),
@@ -300,7 +332,7 @@ MyData7$pred3 <- predict(mymod4, MyData7)
 MyData7$pred_us3 <- exp(MyData7$pred3)
 mad_med_prod <- ggplot()+
   geom_point(aes(x = productivity, y = MAD_med, colour= Treatment), data = MyData7[MyData7$Median > 0.01,])+
-  geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7[MyData7$Median > 0.01,], size = 1.5)+
+  #geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7[MyData7$Median > 0.01,], size = 1.5)+
   labs(x="Productivity", y="Median absolute deviation / median")+
   theme(axis.text.y   = element_text(size=12),
         axis.text.x   = element_text(size=12),
