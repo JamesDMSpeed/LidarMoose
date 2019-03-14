@@ -690,4 +690,22 @@ MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1VBUB", rumple_index(verda
 MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2VBB", rumple_index(verdal2_b_canopyheight), MyData6$rumple_index)
 MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2VBUB", rumple_index(verdal2_ub_canopyheight), MyData6$rumple_index)
 
+write.csv(MyData6,'MyData6.csv')
 
+
+
+# Plotting surface roughness ----------------------------------------------
+library(ggplot2)
+
+ggplot(data=MyData6, aes(x=Treatment, y=rumple_index))+geom_boxplot()+labs(y="Roughness index")+
+  theme(axis.text.y   = element_text(size=12),
+        axis.text.x   = element_text(size=12),
+        axis.title.y  = element_text(size=12),
+        axis.title.x  = element_text(size=12),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1))  
+wilcox.test(MyData6$rumple_index[MyData6$Treatment=='Open plot'],MyData6$rumple_index[MyData6$Treatment=='Exclosure'],paired=T)
+#p-value = 1.654e-07 
