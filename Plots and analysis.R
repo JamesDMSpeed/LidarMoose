@@ -157,7 +157,8 @@ MyData7$Median_std <- MyData7$Median/(MyData7$LiDAR.data.from.year-MyData7$Year.
 MyData7$duration <- MyData7$LiDAR.data.from.year-MyData7$Year.initiated
 
 plot(MyData7$duration)
-
+ggplot(data=MyData7, aes(x=X1, y=duration,colour=Region.x))+geom_point()
+  
 #Mixed effect model
 library(lmerTest)
 lmer_median <- lmer(log(Median) ~ productivity 
@@ -175,6 +176,16 @@ anova(lmer_median)
 #                     +duration:Treatment  
 #                     +(1|LocalityName), data = MyData7)
 # summary(lmer_median_std) #noen ikke signifikante linjer
+
+#Output table
+# library(sjPlot)
+# sjt_lmer(lmer_median)
+# 
+# library(memisc)
+# getSummary.mer(lmer_median)$coef
+# write.csv(getSummary.mer(mod1)$coef,"answer.csv")
+
+
 
 # model validation - looks ok
 plot(lmer_median)
@@ -509,8 +520,8 @@ p2 <- p2+labs(colour="Region")
 p2
 
 #Median/(time from fencing to lidar data prod)
-x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
-p2 <- ggplot(data=MyData6, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y='Median / (years from project start to lidar data) (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+x1<- factor(MyData7$Treatment, levels = c('Exclosure', 'Open plot'))
+p2 <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y='Median / duration (m/year)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 p2  <- p2+
   theme(axis.text.y   = element_text(size=12),
         axis.text.x   = element_text(size=12),
@@ -595,3 +606,88 @@ MAD_madmed <- egg::ggarrange(p3,p10, ncol=2)
 #vioplot
 p11 <- ggplot(data=MyData6, aes(x=Treatment, y=MAD_med))+geom_violin()
 p11
+
+
+# Roughness index ---------------------------------------------------------
+
+#Rumple_index from lidR
+#Loaded all the rasters for each site (and treatment) in making table script. 
+require(lidR)
+MyData6$rumple_index <- NA
+
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="BRB", rumple_index(bratsberg_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="BRUB", rumple_index(bratsberg_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="DHB", rumple_index(didrik_holmsen_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="DHUB", rumple_index(didrik_holmsen_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1DRB", rumple_index(drangedal1_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1DRUB", rumple_index(drangedal1_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3DRB", rumple_index(drangedal3_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3DRUB", rumple_index(drangedal3_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="4DRB", rumple_index(drangedal4_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="4DRUB", rumple_index(drangedal4_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="STSKNB", rumple_index(eidskog_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="STSKNUB", rumple_index(eidskog_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="FKB", rumple_index(fet3_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="FKUB", rumple_index(fet3_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1FRB", rumple_index(fritsoe1_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1FRUB", rumple_index(fritsoe1_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2FRB", rumple_index(fritsoe2_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2FRUB", rumple_index(fritsoe2_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1FYB", rumple_index(fyresdal_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1FYUB", rumple_index(fyresdal_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="HPB", rumple_index(h_pramhus_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="HPUB", rumple_index(h_pramhus_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="HIB", rumple_index(hi_tydal_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="HIUB", rumple_index(hi_tydal_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1KVB", rumple_index(kviteseid1_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1KVUB", rumple_index(kviteseid1_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2KVB", rumple_index(kviteseid2_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2KVUB", rumple_index(kviteseid2_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3KVB", rumple_index(kviteseid3_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3KVUB", rumple_index(kviteseid3_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="MAB", rumple_index(malvik_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="MAUB", rumple_index(malvik_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1KB", rumple_index(namdalseid_1kub_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1KUB", rumple_index(namdalseid_1kub_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1CAB", rumple_index(n_cappelen1_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1CAUB", rumple_index(n_cappelen1_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2CAB", rumple_index(n_cappelen2_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2CAUB", rumple_index(n_cappelen2_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3NOB", rumple_index(notodden3_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="3NOUB", rumple_index(notodden3_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="5NOB", rumple_index(notodden5_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="5NOUB", rumple_index(notodden5_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="6NOB", rumple_index(notodden6_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="6NOUB", rumple_index(notodden6_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1NSB", rumple_index(nsb_verdal_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1NSUB", rumple_index(nsb_verdal_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="FLB", rumple_index(selbu_flub_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="FLUB", rumple_index(selbu_flub_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="KLB", rumple_index(selbu_kl_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="KLUB", rumple_index(selbu_kl_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SLB", rumple_index(selbu_sl_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SLUB", rumple_index(selbu_sl_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="LAB", rumple_index(singsaas_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="LAUB", rumple_index(singsaas_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SEB", rumple_index(sl_tydal_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SEUB", rumple_index(sl_tydal_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SSAB", rumple_index(stangesk_aurskog_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SSAUB", rumple_index(stangesk_aurskog_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SSBB", rumple_index(stangesk_eidskog_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SSBUB", rumple_index(stangesk_eidskog_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1BBB", rumple_index(steinkjer_1BBb_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1BBUB", rumple_index(steinkjer_1BBb_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2BBB", rumple_index(steinkjer_2BBb_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2BBUB", rumple_index(steinkjer_2BBb_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SDB", rumple_index(stig_dahlen_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="SDUB", rumple_index(stig_dahlen_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1SB", rumple_index(sub_namdalseid_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1SUB", rumple_index(sub_namdalseid_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="THB", rumple_index(truls_holm_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="THUB", rumple_index(truls_holm_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1VBB", rumple_index(verdal1_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="1VBUB", rumple_index(verdal1_ub_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2VBB", rumple_index(verdal2_b_canopyheight), MyData6$rumple_index)
+MyData6$rumple_index <- ifelse(MyData6$LocalityCode=="2VBUB", rumple_index(verdal2_ub_canopyheight), MyData6$rumple_index)
+
+
