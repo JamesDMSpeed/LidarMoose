@@ -709,3 +709,23 @@ ggplot(data=MyData6, aes(x=Treatment, y=rumple_index))+geom_boxplot()+labs(y="Ro
         panel.border = element_rect(colour = "black", fill=NA, size=1))  
 wilcox.test(MyData6$rumple_index[MyData6$Treatment=='Open plot'],MyData6$rumple_index[MyData6$Treatment=='Exclosure'],paired=T)
 #p-value = 1.654e-07 
+
+
+#Check correlation bewteen MAD and rumpleindex
+p2 <- ggplot(data=MyData6, aes(x=rumple_index, y=MAD))+geom_point()+xlim(c(0,max(MyData6$rumple_index, na.rm = T)))+ ylim(c(0,max(MyData6$MAD, na.rm = T)))
+p2 <- p2+geom_abline()
+p2
+
+
+cor.test(MyData6$rumple_index, MyData6$MAD, alternative = "two.sided", method = "pearson")
+#      cor 0.8451068 
+
+
+
+# Testing -----------------------------------------------------------------
+#Median of median values within the different treatments
+exclosure <- MyData6[MyData6$Treatment=="Exclosure",]
+median_ex <- median(exclosure$Median)
+
+open_p <- MyData6[MyData6$Treatment=="Open plot",]
+median_op <- median(open_p$Median)
