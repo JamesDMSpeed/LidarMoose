@@ -35,8 +35,8 @@ library(ggplot2)
 #V = 453, p-value = 5.229e-05
 
 #Scatterplot ggplot
-median_comparison <- ggplot(data = MyData6, aes(x=Field_median, y=Median, colour=Point.density...m.2.))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
-median_comparison <- median_comparison+  geom_abline() #linja blir litt "hakkete"
+median_comparison <- ggplot(data = MyData6, aes(x=Field_median, y=Median, colour=as.factor(Point.density...m.2.)))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
+median_comparison <- median_comparison+  geom_abline() 
 median_comparison <- median_comparison + xlab("Median from field data")+ylab("Median from lidar data")+ theme(axis.text.y   = element_text(size=12),
                                                                                                               axis.text.x   = element_text(size=12),
                                                                                                               axis.title.y  = element_text(size=12),
@@ -45,8 +45,9 @@ median_comparison <- median_comparison + xlab("Median from field data")+ylab("Me
                                                                                                               panel.grid.major = element_blank(), 
                                                                                                               panel.grid.minor = element_blank(),
                                                                                                               axis.line = element_line(colour = "black"),
-                                                                                                              panel.border = element_rect(colour = "black", fill=NA, size=1))  
-
+                                                                                                              panel.border = element_rect(colour = "black", fill=NA, size=1))
+median_comparison <- median_comparison+ labs(color=expression(paste(ext="Point density m"^"-2")))
+median_comparison
 
 
 
@@ -54,7 +55,7 @@ median_comparison <- median_comparison + xlab("Median from field data")+ylab("Me
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
 MyData6_cast <- dcast(data = MyData6,
-                      LocalityName+Region.x ~ Treatment, 
+                      LocalityName+Region.x+Point.density...m.2. ~ Treatment, 
                       value.var = "Median")
 MyData6_cast$median_diff <- MyData6_cast$Exclosure-MyData6_cast$`Open plot`
 
@@ -65,7 +66,7 @@ MyData6_cast_f$median_diff_f <- MyData6_cast_f$Exclosure-MyData6_cast_f$`Open pl
 
 MyData_cast <- merge(MyData6_cast_f, MyData6_cast, by="LocalityName" )
 
-p1 <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff))+geom_point()+ xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))
+p1 <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff, colour=as.factor(Point.density...m.2.)))+geom_point()+ xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))
 p1 <- p1+  geom_abline() #linja blir litt "hakkete"
 p1 <- p1 + xlab("Difference in median between treatments from field data")+ylab("Difference in median from lidar data")+ theme(axis.text.y   = element_text(size=12),
                                                                                                               axis.text.x   = element_text(size=12),
@@ -76,6 +77,9 @@ p1 <- p1 + xlab("Difference in median between treatments from field data")+ylab(
                                                                                                               panel.grid.minor = element_blank(),
                                                                                                               axis.line = element_line(colour = "black"),
                                                                                                               panel.border = element_rect(colour = "black", fill=NA, size=1))  
+p1 <- p1+labs(color=expression(paste(ext="Point density m"^"-2")))
+p1
+
 
 
 cor.test(MyData_cast$median_diff_f, MyData_cast$median_diff, alternative = "two.sided", method = "pearson")
@@ -92,6 +96,11 @@ abline(coef = c(0,1))
 
 #Check correlation between field median and lidar median data
 cor.test(MyData6$Field_median, MyData6$Median, alternative = "two.sided", method = "pearson")
+
+#Making panel plot
+library(egg)
+p2 <- egg::ggarrange(median_comparison+ theme(legend.position="none"),p1, ncol=2)
+
 
 #Alternative=two.sided ->       cor 0.7621236   
 #Alternative=greater   ->       cor 0.7621236 
@@ -196,10 +205,10 @@ mymod2 <- lm(data = MyData7,
              log(Median_std)~productivity*Treatment)
 MyData7$pred <- predict(mymod2, MyData7)
 MyData7$pred_us <- exp(MyData7$pred)
-ggplot()+
-  geom_point(aes(x = productivity, y = Median_std, colour= Region.x, shape=Treatment), data = MyData7)+
+p3 <- ggplot()+
+  geom_point(aes(x = productivity, y = Median_std, colour= Treatment), data = MyData7)+
   geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)+
-  labs(y="Median/duration (m/year)", x="Productivity")+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
   theme(axis.text.y   = element_text(size=12),
        axis.text.x   = element_text(size=12),
        axis.title.y  = element_text(size=12),
@@ -209,7 +218,26 @@ ggplot()+
        panel.grid.minor = element_blank(),
        axis.line = element_line(colour = "black"),
        panel.border = element_rect(colour = "black", fill=NA, size=1))  
+p3
 
+p4 <- ggplot()+
+  geom_point(aes(x = productivity, y = Median_std, colour= Treatment, shape=Region.x), data = MyData7)+
+  geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme(axis.text.y   = element_text(size=12),
+        axis.text.x   = element_text(size=12),
+        axis.title.y  = element_text(size=12),
+        axis.title.x  = element_text(size=12),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1))  
+p4 <- p4+labs(colour="Treatment",shape="Region")
+p4
+#Making panel plot
+library(egg)
+median_panel <- egg::ggarrange(p2,p3, ncol=2)
 
 
 # #Adding model to data frame to be able to plot it. 
@@ -521,7 +549,7 @@ p2
 
 #Median/(time from fencing to lidar data prod)
 x1<- factor(MyData7$Treatment, levels = c('Exclosure', 'Open plot'))
-p2 <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y='Median / duration (m/year)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p2 <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 p2  <- p2+
   theme(axis.text.y   = element_text(size=12),
         axis.text.x   = element_text(size=12),
@@ -568,7 +596,23 @@ p4
 #p5
 x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
 p5 <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Absolute Deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p5 <- p5+theme(axis.text.y   = element_text(size=12),
+               axis.text.x   = element_text(size=12),
+               axis.title.y  = element_text(size=12),
+               axis.title.x  = element_text(size=12),
+               panel.background = element_blank(),
+               panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(),
+               axis.line = element_line(colour = "black"),
+               panel.border = element_rect(colour = "black", fill=NA, size=1))#,
+#legend.position = "top")
+p5 <- p5+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+p5 <- p5+labs(colour="Region")   
 p5
+
+
+
+
 
 ifelse(MyData3$Median!=MyData6$Median, print("TRUE"), print("FALSE"))
 summary(MyData6$Median)
@@ -598,10 +642,27 @@ p10 <- ggplot(data= MyData7[MyData7$Median > 0.01,], aes(x=Treatment, y=MAD_med)
         panel.border = element_rect(colour = "black", fill=NA, size=1))
 p10
 
+#spaghetti plot
+x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
+p6 <- ggplot(data=MyData6, aes(x=x1, y=MAD_med, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Absolute Deviation/median', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p6 <- p6+theme(axis.text.y   = element_text(size=12),
+               axis.text.x   = element_text(size=12),
+               axis.title.y  = element_text(size=12),
+               axis.title.x  = element_text(size=12),
+               panel.background = element_blank(),
+               panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(),
+               axis.line = element_line(colour = "black"),
+               panel.border = element_rect(colour = "black", fill=NA, size=1))#,
+#legend.position = "top")
+p6 <- p6+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+p6 <- p6+labs(colour="Region")   
+p6
+
 #Getting figures side-by side (mad and median)
 library(egg)
-MAD_madmed <- egg::ggarrange(p3,p10, ncol=2)
-
+MAD_madmed_box <- egg::ggarrange(p,p10, ncol=2)
+MAD_madmed_spag <- egg::ggarrange(p5+ theme(legend.position="none"),p6, ncol=2)
 
 #vioplot
 p11 <- ggplot(data=MyData6, aes(x=Treatment, y=MAD_med))+geom_violin()
@@ -712,8 +773,7 @@ wilcox.test(MyData6$rumple_index[MyData6$Treatment=='Open plot'],MyData6$rumple_
 
 
 #Check correlation bewteen MAD and rumpleindex
-p2 <- ggplot(data=MyData6, aes(x=rumple_index, y=MAD))+geom_point()+xlim(c(0,max(MyData6$rumple_index, na.rm = T)))+ ylim(c(0,max(MyData6$MAD, na.rm = T)))
-p2 <- p2+geom_abline()
+p2 <- ggplot(data=MyData6, aes(x=rumple_index, y=MAD))+geom_point()
 p2
 
 
@@ -725,7 +785,14 @@ cor.test(MyData6$rumple_index, MyData6$MAD, alternative = "two.sided", method = 
 # Testing -----------------------------------------------------------------
 #Median of median values within the different treatments
 exclosure <- MyData6[MyData6$Treatment=="Exclosure",]
-median_ex <- median(exclosure$Median)
+summary(exclosure$Median) 
+hist(exclosure$Median) # not normally distributed --- using median
+summary(exclosure$MAD)
+hist(exclosure$MAD)
+
 
 open_p <- MyData6[MyData6$Treatment=="Open plot",]
-median_op <- median(open_p$Median)
+summary(open_p$Median)
+hist(open_p$Median)
+summary(open_p$MAD)
+hist(open_p$MAD)
