@@ -24,6 +24,10 @@ library(readr)
 MyData6 <- read_csv("~/Master - Sustherb/LidarMoose/MyData6.csv")
 View(MyData6)
 
+library(readr)
+MyData7 <- read_csv("~/Master - Sustherb/LidarMoose/MyData7.csv")
+View(MyData6)
+
 library(ggplot2)
 
 
@@ -34,7 +38,7 @@ library(ggplot2)
 #wilcox.test(MyData6$Median, MyData6$Field_median, paired = T) Sjekker istedet om korrelasjonen er signifikant, ikke om forskjellen er det
 #V = 453, p-value = 5.229e-05
 
-#Scatterplot ggplot
+#Scatterplot ggplot with colour representing point density
 median_comparison <- ggplot(data = MyData6, aes(x=Field_median, y=Median, colour=as.factor(Point.density...m.2.)))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
 median_comparison <- median_comparison+  geom_abline() 
 median_comparison <- median_comparison + xlab("Median from field data")+ylab("Median from lidar data")+ theme(axis.text.y   = element_text(size=12),
@@ -49,16 +53,20 @@ median_comparison <- median_comparison + xlab("Median from field data")+ylab("Me
 median_comparison <- median_comparison+ labs(color=expression(paste(ext="Point density m"^"-2")))
 median_comparison
 
+#Check correlation between field median and lidar median data
+cor.test(MyData6$Field_median, MyData6$Median, alternative = "two.sided", method = "pearson")
 
 
 
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
+#Difference lidar data
 MyData6_cast <- dcast(data = MyData6,
                       LocalityName+Region.x+Point.density...m.2. ~ Treatment, 
                       value.var = "Median")
 MyData6_cast$median_diff <- MyData6_cast$Exclosure-MyData6_cast$`Open plot`
 
+#difference field data
 MyData6_cast_f <- dcast(data = MyData6,
                       LocalityName+Region.x ~ Treatment, 
                       value.var = "Field_median")
@@ -85,27 +93,12 @@ p1
 cor.test(MyData_cast$median_diff_f, MyData_cast$median_diff, alternative = "two.sided", method = "pearson")
 # cor 0.6446853 
 
-#Scatterplot with origin
-plot(MyData6$Field_median, MyData6$Median,
-     xlab = "Median from field data",
-     ylab = "Median from lidar data",
-     xlim = c(0,max(MyData6$Field_median, na.rm = T)),
-     ylim = c(0,max(MyData6$Median, na.rm = T)))
-#add reference line
-abline(coef = c(0,1))
 
-#Check correlation between field median and lidar median data
-cor.test(MyData6$Field_median, MyData6$Median, alternative = "two.sided", method = "pearson")
 
 #Making panel plot
 library(egg)
 p2 <- egg::ggarrange(median_comparison+ theme(legend.position="none"),p1, ncol=2)
 
-
-#Alternative=two.sided ->       cor 0.7621236   
-#Alternative=greater   ->       cor 0.7621236 
-# samme for "Less" også
-#when the term "correlation coefficient" is used without further qualification, it usually refers to the Pearson
 
 
 ##consider field mean also
@@ -120,37 +113,6 @@ abline(coef = c(0,1))
 #checking correation
 cor.test(MyData6$mean_of_mean, MyData6$Median, alternative = "two.sided", method = "pearson")
 #cor: 0.7812088  
-par(mfrow=c(1,2))
-##Field median of mean vs lidar median
-plot(MyData6$median_of_mean, MyData6$Median,
-     xlab = "Median of mean, field values",
-     ylab = "Median from lidar data",
-     xlim = c(0,max(MyData6$median_of_mean, na.rm = T)),
-     ylim = c(0,max(MyData6$Median, na.rm = T)))
-#add reference line
-abline(coef = c(0,1))
-
-#checking correation
-cor.test(MyData6$median_of_mean, MyData6$Median, alternative = "two.sided", method = "pearson")
-#cor: 0.7786235  
-
-##Field mean of median vs lidar median
-plot(MyData6$mean_of_median, MyData6$Median,
-     xlab = "Mean of median, field values",
-     ylab = "Median from lidar data",
-     xlim = c(0,max(MyData6$mean_of_median, na.rm = T)),
-     ylim = c(0,max(MyData6$Median, na.rm = T)))
-#add reference line
-abline(coef = c(0,1))
-
-#checking correation
-cor.test(MyData6$mean_of_median, MyData6$Median, alternative = "two.sided", method = "pearson")
-#cor: 0.7685942  
-
-
-
-
-
 
 
 
@@ -161,9 +123,11 @@ MyData7 <- MyData6[MyData6$LocalityName!="Stig Dahlen",] #Same as MyData6, but w
 
 ##Median
 # standardizing for year since clear cutting
+MyData6$Median_std <- MyData6$Median/(MyData7$LiDAR.data.from.year-MyData6$Year.initiated)
 MyData7$Median_std <- MyData7$Median/(MyData7$LiDAR.data.from.year-MyData7$Year.initiated)
-#MyData7$duration <- MyData7$LiDAR.data.from.year-MyData7$Clear.cut
 MyData7$duration <- MyData7$LiDAR.data.from.year-MyData7$Year.initiated
+
+write.csv(MyData7,'MyData7.csv')
 
 plot(MyData7$duration)
 ggplot(data=MyData7, aes(x=X1, y=duration,colour=Region.x))+geom_point()
@@ -178,23 +142,6 @@ lmer_median <- lmer(log(Median) ~ productivity
                     +(1|LocalityName), data = MyData7)
 summary(lmer_median)
 anova(lmer_median)
-# lmer_median_std <- lmer(Median_std ~ productivity 
-#                     +Treatment 
-#                     +Treatment:productivity
-#                     +duration
-#                     +duration:Treatment  
-#                     +(1|LocalityName), data = MyData7)
-# summary(lmer_median_std) #noen ikke signifikante linjer
-
-#Output table
-# library(sjPlot)
-# sjt_lmer(lmer_median)
-# 
-# library(memisc)
-# getSummary.mer(lmer_median)$coef
-# write.csv(getSummary.mer(mod1)$coef,"answer.csv")
-
-
 
 # model validation - looks ok
 plot(lmer_median)
@@ -220,8 +167,8 @@ p3 <- ggplot()+
        panel.border = element_rect(colour = "black", fill=NA, size=1))  
 p3
 
-p4 <- ggplot()+
-  geom_point(aes(x = productivity, y = Median_std, colour= Treatment, shape=Region.x), data = MyData7)+
+chg_prod <- ggplot()+
+  geom_point(aes(x = productivity, y = Median_std, colour= Treatment, shape=Region.x),data = MyData7)+
   geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)+
   labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
   theme(axis.text.y   = element_text(size=12),
@@ -233,62 +180,17 @@ p4 <- ggplot()+
         panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1))  
-p4 <- p4+labs(colour="Treatment",shape="Region")
-p4
+chg_prod <- chg_prod+labs(colour="Treatment",shape="Region", size=8)
+chg_prod
+
+
 #Making panel plot
 library(egg)
-median_panel <- egg::ggarrange(p2,p3, ncol=2)
+canopy_height_growth_panel <- egg::ggarrange(chg_treat,chg_prod, ncol=2)
+library(cowplot)
+plot_grid(chg_treat, chg_prod, nrow=2)
 
-
-# #Adding model to data frame to be able to plot it. 
-# MyData7$ALKpred <- predict(lmer_median, MyData7, se.fit=F)
-# MyData7$ALKpred_bt <- exp(MyData7$ALKpred)
-# ALKmod <- lm(log(MyData7$Median_std)~MyData7$productivity*MyData7$Treatment)
-# newdf<-data.frame(Treatment = MyData7$Treatment, 
-#   productivity=seq(min(MyData7$productivity),max(MyData7$productivity),length.out =  nrow(MyData7)))
-# 
-# newdfpred<-predict(ALKmod,newdf,se.fit=F)
-# newdf$pred_bf<-exp(newdfpred)
-# 
-# 
-# MyData7$model_med <- predict(ALKmod)
-# MyData7$BT_model_med <- exp(MyData7$model_med)
-# MyData7$Median_l <- log(MyData7$Median)
-
-
-# summary(MyData7$Median)
-# #plotting predicited and observed values together. 
-# library(ggplot2)
-# ggplot(MyData7,aes(x=productivity, y=Median, colour=Treatment)) + 
-#   geom_point(alpha = 0.3) +
-#   geom_line(aes(y=MyData7$ALKpred_bt))
-#   #geom_line(aes(y=newdf$pred_bf, x=newdf$productivity))
-#   #stat_smooth(method = "lm")+
-# 
-# plot(MyData7$ALKpred_bt[MyData7$Treatment=="Exclosure"], MyData7$productivity[MyData7$Treatment=="Exclosure"])
-# lines(MyData7$Median,MyData7$productivity)
-# #plotting
-# ggplot(data=MyData7,
-#        aes(x = Treatment, y = Median_std))+
-#   geom_boxplot()
-# ggplot(data=MyData7,
-#        aes(x = productivity, y = (Median_std), group = Treatment, colour = Treatment))+
-#   geom_smooth(method = "lm")+
-#   geom_point()+
-#   labs(x= "Productivity", y=('Median / (years from project start to lidar data) (m)'))+
-#   theme(axis.text.y   = element_text(size=12),
-#         axis.text.x   = element_text(size=12),
-#         axis.title.y  = element_text(size=12),
-#         axis.title.x  = element_text(size=12),
-#         panel.background = element_blank(),
-#         panel.grid.major = element_blank(), 
-#         panel.grid.minor = element_blank(),
-#         axis.line = element_line(colour = "black"),
-#         panel.border = element_rect(colour = "black", fill=NA, size=1))  
-
-  
-
-MAD   
+#MAD   
 #Mixed effect model
 library(lmerTest)
 lmer_mad <- lmer(log(MAD) ~ productivity 
@@ -342,7 +244,6 @@ mad_prod <- mad_prod +  theme(axis.text.y   = element_text(size=12),
                               panel.border = element_rect(colour = "black", fill=NA, size=1))  
 mad_prod
 
-#geom_smooth:Level of confidence interval 0.95 by default
 
 
 
@@ -549,8 +450,8 @@ p2
 
 #Median/(time from fencing to lidar data prod)
 x1<- factor(MyData7$Treatment, levels = c('Exclosure', 'Open plot'))
-p2 <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
-p2  <- p2+
+chg_treat <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, color=Region.x))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+chg_treat  <- chg_treat+
   theme(axis.text.y   = element_text(size=12),
         axis.text.x   = element_text(size=12),
         axis.title.y  = element_text(size=12),
@@ -561,9 +462,9 @@ p2  <- p2+
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1))#,
 #legend.position = "top")
-p2 <- p2+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
-p2 <- p2+labs(colour="Region")   
-p2
+chg_treat <- chg_treat+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+chg_treat <- chg_treat+labs(colour="Region", size=10)   
+chg_treat
 
 
 # Median absolute deviation -----------------------------------------------
@@ -786,13 +687,69 @@ cor.test(MyData6$rumple_index, MyData6$MAD, alternative = "two.sided", method = 
 #Median of median values within the different treatments
 exclosure <- MyData6[MyData6$Treatment=="Exclosure",]
 summary(exclosure$Median) 
-hist(exclosure$Median) # not normally distributed --- using median
+hist(exclosure$Median_std) # not normally distributed --- using median
 summary(exclosure$MAD)
 hist(exclosure$MAD)
-
+summary(exclosure$Median_std)
 
 open_p <- MyData6[MyData6$Treatment=="Open plot",]
 summary(open_p$Median)
 hist(open_p$Median)
 summary(open_p$MAD)
 hist(open_p$MAD)
+summary(open_p$Median_std)
+
+
+
+# Plots presented in results ----------------------------------------------
+library(readr)
+MyData6 <- read_csv("~/Master - Sustherb/LidarMoose/MyData6.csv")
+View(MyData6)
+
+library(readr)
+MyData7 <- read_csv("~/Master - Sustherb/LidarMoose/MyData7.csv")
+View(MyData6)
+
+library(ggplot2)
+
+####Part 3.1####
+
+#Canopy height growth - treatment
+x1<- factor(MyData7$Treatment, levels = c('Exclosure', 'Open plot'))
+chg_treat <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName, colour=Region.x))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+chg_treat <- chg_treat+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+chg_treat <- chg_treat + theme_bw()
+chg_treat <- chg_treat + scale_color_grey() #Separate regions, and if, what colour?
+chg_treat <- chg_treat + labs(colour="Region")
+chg_treat
+
+#Canopy height growth - productivity
+mymod2 <- lm(data = MyData7,
+             log(Median_std)~productivity*Treatment)
+MyData7$pred <- predict(mymod2, MyData7)
+MyData7$pred_us <- exp(MyData7$pred)
+
+chg_prod <- ggplot()+geom_point(aes(x = productivity, y = Median_std, colour= Treatment, shape=Region.x),data = MyData7)
+chg_prod <- chg_prod + geom_line(aes(x = productivity, y = pred_us, colour = Treatment), data = MyData7, size = 1.5)
+chg_prod <- chg_prod +  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')
+chg_prod <- chg_prod + theme_bw()
+chg_prod <- chg_prod + scale_color_manual(values = c("gray0", "gray60"))
+chg_prod <- chg_prod + labs(colour="Treatment", shape="Region")
+chg_prod
+
+#Combining them to one panel plot
+library(cowplot)
+plot_grid(chg_treat, chg_prod, ncol=2)
+
+####Part 3.2####
+#Median absolute deviation
+x1<- factor(MyData7$Treatment, levels = c('Exclosure', 'Open plot'))
+mad_treat <- ggplot(data=MyData7, aes(x=x1, y=MAD, group=LocalityName, colour=Region.x))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+mad_treat <- mad_treat+ scale_x_discrete(limits = c("Exclosure", "Open plot"), breaks = c("Exclosure", "Open plot"), expand = c(0.1,0))
+mad_treat <- mad_treat + theme_bw()
+mad_treat <- mad_treat + scale_color_grey() #Separate regions, and if, what colour?
+mad_treat <- mad_treat + labs(colour="Region")
+mad_treat
+
+
+
