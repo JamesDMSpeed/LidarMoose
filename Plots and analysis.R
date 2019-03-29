@@ -26,7 +26,7 @@ View(MyData6)
 
 library(readr)
 MyData7 <- read_csv("~/Master - Sustherb/LidarMoose/MyData7.csv")
-View(MyData6)
+View(MyData7)
 
 library(ggplot2)
 
@@ -420,6 +420,8 @@ ggplot(data=MyData6,
 #Wilcox test
 wilcox.test(MyData6$Median[MyData6$Treatment=='Open plot'],MyData6$Median[MyData6$Treatment=='Exclosure'],paired=T)
 #p-value =3.148e-07
+wilcox.test(MyData6$Median_std[MyData6$Treatment=='Open plot'],MyData6$Median_std[MyData6$Treatment=='Exclosure'],paired=T)
+#p-value = 2.054e-06
 
 #boxplot median - treatment
 p1 <- ggplot(data=MyData6, aes(x=Treatment, y=Median))+geom_boxplot()
@@ -545,7 +547,7 @@ p10
 
 #spaghetti plot
 x1<- factor(MyData6$Treatment, levels = c('Exclosure', 'Open plot'))
-p6 <- ggplot(data=MyData6, aes(x=x1, y=MAD_med, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Absolute Deviation/median', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+p6 <- ggplot(data=MyData6[MyData6$Median > 0.01,], aes(x=x1, y=MAD_med, group=LocalityName,color=Region.x))+geom_line()+labs(y='Median Absolute Deviation/median', x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 p6 <- p6+theme(axis.text.y   = element_text(size=12),
                axis.text.x   = element_text(size=12),
                axis.title.y  = element_text(size=12),
@@ -719,6 +721,7 @@ x1<- factor(MyData7$Treatment, levels = c('Open plot', 'Exclosure'))
 chg_treat <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 chg_treat <- chg_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 chg_treat <- chg_treat + theme_bw()
+chg_treat <- chg_treat + theme(text = element_text(size = 20))
 chg_treat
 
 #Canopy height growth - productivity
@@ -733,11 +736,12 @@ chg_prod <- chg_prod +  labs(y=expression(paste('Canopy height growth (m year'^'
 chg_prod <- chg_prod + theme_bw()
 chg_prod <- chg_prod + scale_color_manual(values = c("gray0", "gray60"))
 chg_prod <- chg_prod + labs(colour="Treatment", shape="Region")
+chg_prod <- chg_prod + theme(text = element_text(size = 20))
 chg_prod
 
 #Combining them to one panel plot
 library(cowplot)
-plot_grid(chg_treat, chg_prod, ncol=2)
+plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2)
 
 ####Part 3.2####
 #Median absolute deviation - treatment
@@ -812,7 +816,7 @@ med_comp <- med_comp+ xlab("Median from field data")+ylab("Median from lidar dat
 med_comp <- med_comp+ labs(colour=expression(paste(ext="Point density m"^"-2")), shape="Region")
 med_comp <- med_comp + theme_bw()
 med_comp <- med_comp + scale_color_manual(values =c("darkgoldenrod1","deepskyblue1"))
-med_comp 
+med_comp
 
 #Try to do it with baseplot
 plot(MyData6$Field_median, MyData6$Median,
