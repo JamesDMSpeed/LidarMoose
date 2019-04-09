@@ -827,71 +827,9 @@ p <- ggplot(MyData6, aes(x =Field_median, y = Median,
   xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))+
   geom_abline()
   
-p + geom_point(size = 3)
+p <- p + geom_point(size = 2)
 
 
-
-#Scatterplot ggplot with colour representing point density
-
-# MyData6$density <- as.factor(MyData6$Point.density...m.2.)
-# 
-# med_comp <- ggplot(data = MyData6, 
-#                    aes(x=Field_median, y=Median, 
-#   shape=Region.x, 
-#   fill=density))+
-#   
-#   scale_fill_manual(name = "Density", values = c("white", "black"))+
-#   
-#   geom_point(aes(size = density))+
-#   
-#   scale_size_manual(name = "density", values = c(3, 3.01))+
-#                
-#   xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
-# #med_comp <- med_comp + scale_shape_manual(values = c(1,16))
-# med_comp <- med_comp+  geom_abline() 
-# med_comp <- med_comp+ xlab("Median from field data")+ylab("Median from lidar data")
-# #med_comp <- med_comp+ labs(colour=expression(paste(ext="Point density m"^"-2")), shape="Region")
-# med_comp <- med_comp + theme_bw()
-# #med_comp <- med_comp + scale_color_manual(values =c("darkgoldenrod1","deepskyblue1"))
-# med_comp
-# 
-# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, fill=density))+geom_point()
-# p <- p + scale_shape_manual(values=c(21, 22, 23))
-# p <- p + scale_fill_manual(values = c("black", "white"))
-# 
-# p <- p +  labs(y="Median absolute deviation / median", x='Productivity')
-# p <- p + theme_bw()
-# 
-# p <- p + labs(colour="Treatment", shape="Region")
-# p
-# 
-# 
-# 
-# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, fill=density))+geom_point()
-# p <- p + scale_shape_manual(values=c(21, 22, 23))
-# p <- p + scale_fill_manual(values = c("black", "white"))
-# 
-# p <- p +  labs(y="Median absolute deviation / median", x='Productivity')
-# p <- p + theme_bw()
-# 
-# p <- p + labs(fill="Treatment", shape="Region")
-# p
-# # p <- ggplot(data = MyData6, aes(x=Field_median, y=Median,
-# #                                 shape=Region.x,
-# #                                 fill=ifelse(density=="2",Field_median, density)))
-# # p  
-# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, colour=density) )+geom_point()
-# p <- p + scale_color_manual(values = c("black", "white"))
-# p
-# #Try to do it with baseplot
-# plot(MyData6$Field_median, MyData6$Median,
-#      xlab = "Median from field data",
-#      ylab = "Median from lidar data",
-#      xlim = c(0,max(MyData6$mean_of_mean, na.rm = T)),
-#      ylim = c(0,max(MyData6$Median, na.rm = T)))
-# #add reference line
-# abline(coef = c(0,1))
-# 
 
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
@@ -910,20 +848,31 @@ MyData6_cast_f$median_diff_f <- MyData6_cast_f$Exclosure-MyData6_cast_f$`Open pl
 MyData_cast <- merge(MyData6_cast_f, MyData6_cast, by="LocalityName" )
 # MyData_cast[7] <- NULL
 View(MyData_cast)
-
-med_diff <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff, colour=as.factor(Point.density...m.2..x), shape=Region.x.x))+geom_point()+ xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))
-med_diff <- med_diff+  geom_abline() #linja blir litt "hakkete"
-med_diff <- med_diff + xlab("Difference in median between treatments from field data")+ylab("Difference in median from lidar data") 
-med_diff <- med_diff+labs(color=expression(paste(ext="Point density m"^"-2")))
-med_diff <- med_diff+theme_bw()
-med_diff
+MyData_cast$density <- as.factor(MyData_cast$Point.density...m.2..x)
 
 
+
+
+med_diff <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff, 
+                         shape = Region.x.x, 
+                         fill = density)) +
+  
+  scale_shape_manual(name = "Region", values = c(24, 21, 22)) +
+  scale_fill_manual(name= expression(paste(ext="Point density m"^"-2")),breaks = c("2", "5"), values= c("black", "white")) +
+  guides(fill=guide_legend(override.aes = list(shape=21)),
+         shape=guide_legend(override.aes = list(fill="black")))+
+  theme_bw()+
+  xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))+
+  geom_abline()+
+  xlab("Difference in median between treatments from field data")+ylab("Difference in median from lidar data") 
+  
+
+med_diff <- med_diff + geom_point(size = 2)
 
 
 #Making panel plot
 library(egg)
-p2 <- egg::ggarrange(median_comparison+ theme(legend.position="none"),p1, ncol=2)
+p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2)
 
 
 
