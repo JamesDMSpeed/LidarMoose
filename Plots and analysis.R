@@ -17,6 +17,8 @@ View(MyData5)
 colnames(Data_prod_field)
 keeps <- c('LocalityCode', "LocalityName", "ExperimentID","Region.x", "DistrictID", "Treatment" , "Longitude","Latitude","Clear.cut", "Year.initiated","LiDAR.data.from.year", "Point.density...m.2.", "Resolution..m.","Mean","Median","SD", "Min", "Max", "X1st.Qu." ,"X3rd.Qu.", "IQR","ClearCutToLidar","CV","IQR_med","MAD", "MAD_med","productivity","Field_median","link","mean_of_mean", "mean_of_median","median_of_mean", "median_of_median")
 MyData6 <-Data_prod_field[keeps]
+MyData6$Median_std <- MyData6$Median/(MyData6$LiDAR.data.from.year-MyData6$Year.initiated)
+MyData6$duration <- MyData6$LiDAR.data.from.year-MyData6$Year.initiated
 
 write.csv(MyData6,'MyData6.csv')
 
@@ -710,15 +712,15 @@ View(MyData6)
 
 library(readr)
 MyData7 <- read_csv("~/Master - Sustherb/LidarMoose/MyData7.csv")
-View(MyData6)
+View(MyData7)
 
 library(ggplot2)
 
 ####Part 3.1####
 
 #Canopy height growth - treatment
-x1<- factor(MyData7$Treatment, levels = c('Open plot', 'Exclosure'))
-chg_treat <- ggplot(data=MyData7, aes(x=x1, y=Median_std, group=LocalityName))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
+x1<- factor(MyData6$Treatment, levels = c('Open plot', 'Exclosure'))
+chg_treat <- ggplot(data=MyData6, aes(x=x1, y=Median_std, group=LocalityName))+geom_line()+labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+scale_linetype_manual(breaks = c("Exclosure", "Open plot"), labels = c("Open plots", "Exclosures"), values=c(1,2))
 chg_treat <- chg_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 chg_treat <- chg_treat + theme_bw()
 chg_treat <- chg_treat + theme(text = element_text(size = 20))
@@ -745,18 +747,19 @@ plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2)
 
 ####Part 3.2####
 #Median absolute deviation - treatment
-x1<- factor(MyData7$Treatment, levels = c('Open plot', 'Exclosure'))
-mad_treat <- ggplot(data=MyData7, aes(x=x1, y=MAD, group=LocalityName))+geom_line()+labs(y='Median absolute deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
+x1<- factor(MyData6$Treatment, levels = c('Open plot', 'Exclosure'))
+mad_treat <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName))+geom_line()+labs(y='Median absolute deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
 mad_treat <- mad_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 mad_treat <- mad_treat + theme_bw()
 mad_treat
 
 
 #Median absolute deviation/median - treatment
-x1<- factor(MyData7$Treatment, levels = c('Open plot', 'Exclosure'))
-madmed_treat <- ggplot(data=MyData7, aes(x=x1, y=MAD_med, group=LocalityName))+geom_line()+labs(y='Median absolute deviation / median', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
+x2<- factor(MyData6[MyData6$Median > 0.01,]$Treatment, levels = c('Open plot', 'Exclosure'))
+madmed_treat <- ggplot(data=MyData6[MyData6$Median > 0.01,], aes(x=x2, y=MAD_med, group=LocalityName))+geom_line()+labs(y='Median absolute deviation / median', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
 madmed_treat <- madmed_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 madmed_treat <- madmed_treat + theme_bw()
+#madmed_treat <- madmed_treat+geom_text(show.legend = FALSE)
 madmed_treat
 
 #Median absolute deviation - productivity
@@ -770,7 +773,8 @@ mad_prod <- mad_prod + geom_line(aes(x = productivity, y = pred_us3, colour = Tr
 mad_prod <- mad_prod +  labs(y="Median absolute deviation (m)", x='Productivity')
 mad_prod <- mad_prod + theme_bw()
 mad_prod <- mad_prod + scale_color_manual(values = c("gray0", "gray60"))
-mad_prod <- mad_prod + labs(colour="Treatment", shape="Region")
+#mad_prod <- mad_prod + labs(colour="Treatment", shape="Region")
+mad_prod <- mad_prod + theme(legend.position = "none") 
 mad_prod
 
 #Median absolute deviation/median - productivity
@@ -783,50 +787,111 @@ madmed_prod <- ggplot()+geom_point(aes(x = productivity, y = MAD_med, colour= Tr
 madmed_prod <- madmed_prod +  labs(y="Median absolute deviation / median", x='Productivity')
 madmed_prod <- madmed_prod + theme_bw()
 madmed_prod <- madmed_prod + scale_color_manual(values = c("gray0", "gray60"))
-madmed_prod <- madmed_prod + labs(colour="Treatment", shape="Region")
+#madmed_prod <- madmed_prod + labs(colour="Treatment", shape="Region")
+madmed_prod <- madmed_prod + theme(legend.position = "none") 
 madmed_prod
 
 #Combining them to one panel plot
-library(cowplot)
-plot_grid(mad_treat,madmed_treat,mad_prod+theme(legend.position = "none"),madmed_prod+theme(legend.position = "none"))
-# library(grid)
-# library(gtable)
-# p1 <- ggplotGrob(mad_treat)
-# p2 <- ggplotGrob(madmed_treat)
-# p3 <- ggplotGrob(mad_prod)
-# p4 <- ggplotGrob(madmed_prod)
-# 
-# g1 <- rbind(p1,p2,size="last")
-# g2 <- rbind(p3,p4,size="last")
-# g3 <- cbind(g1,g2, size="last")
-# 
-# vp <- viewport(x=0.5, y=0.5, width = 0.95, height = 0.9)
-# pushViewport(vp)
-# grid.newpage()
-# grid.draw(g3)
+# library(cowplot)
+# plot_grid(mad_treat,madmed_treat,mad_prod+theme(legend.position = "none"),madmed_prod+theme(legend.position = "none"))
+
+library(grid)
+library(gtable)
+p1 <- ggplotGrob(mad_treat)
+p2 <- ggplotGrob(madmed_treat)
+p3 <- ggplotGrob(mad_prod)
+p4 <- ggplotGrob(madmed_prod)
+
+g1 <- rbind(p1,p3,size="last")
+g2 <- rbind(p2,p4,size="last")
+g3 <- cbind(g1,g2, size="last")
+
+vp <- viewport(x=0.5, y=0.5, width = 0.95, height = 0.9)
+pushViewport(vp)
+grid.newpage()
+grid.draw(g3)
 
 ####Part 3.3####                  
 #Correlation plots
+#Field vs lidar median
+MyData6$density <- as.factor(MyData6$Point.density...m.2.)
+p <- ggplot(MyData6, aes(x =Field_median, y = Median, 
+                         shape = Region.x, 
+                         fill = density)) +
+  
+  scale_shape_manual(name = "Region", values = c(24, 21, 22)) +
+  scale_fill_manual(name= expression(paste(ext="Point density m"^"-2")),breaks = c("2", "5"), values= c("black", "white")) +
+  guides(fill=guide_legend(override.aes = list(shape=21)),
+         shape=guide_legend(override.aes = list(fill="black")))+
+  theme_bw()+
+  xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))+
+  geom_abline()
+  
+p + geom_point(size = 3)
+
+
+
 #Scatterplot ggplot with colour representing point density
 
-med_comp <- ggplot(data = MyData6, aes(x=Field_median, y=Median, shape=Region.x, colour=as.factor(Point.density...m.2.)))+geom_point()+ xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
-#med_comp <- med_comp + scale_shape_manual(values = c(1,16))
-med_comp <- med_comp+  geom_abline() 
-med_comp <- med_comp+ xlab("Median from field data")+ylab("Median from lidar data")
-med_comp <- med_comp+ labs(colour=expression(paste(ext="Point density m"^"-2")), shape="Region")
-med_comp <- med_comp + theme_bw()
-med_comp <- med_comp + scale_color_manual(values =c("darkgoldenrod1","deepskyblue1"))
-med_comp
-
-#Try to do it with baseplot
-plot(MyData6$Field_median, MyData6$Median,
-     xlab = "Median from field data",
-     ylab = "Median from lidar data",
-     xlim = c(0,max(MyData6$mean_of_mean, na.rm = T)),
-     ylim = c(0,max(MyData6$Median, na.rm = T)))
-#add reference line
-abline(coef = c(0,1))
-
+# MyData6$density <- as.factor(MyData6$Point.density...m.2.)
+# 
+# med_comp <- ggplot(data = MyData6, 
+#                    aes(x=Field_median, y=Median, 
+#   shape=Region.x, 
+#   fill=density))+
+#   
+#   scale_fill_manual(name = "Density", values = c("white", "black"))+
+#   
+#   geom_point(aes(size = density))+
+#   
+#   scale_size_manual(name = "density", values = c(3, 3.01))+
+#                
+#   xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))
+# #med_comp <- med_comp + scale_shape_manual(values = c(1,16))
+# med_comp <- med_comp+  geom_abline() 
+# med_comp <- med_comp+ xlab("Median from field data")+ylab("Median from lidar data")
+# #med_comp <- med_comp+ labs(colour=expression(paste(ext="Point density m"^"-2")), shape="Region")
+# med_comp <- med_comp + theme_bw()
+# #med_comp <- med_comp + scale_color_manual(values =c("darkgoldenrod1","deepskyblue1"))
+# med_comp
+# 
+# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, fill=density))+geom_point()
+# p <- p + scale_shape_manual(values=c(21, 22, 23))
+# p <- p + scale_fill_manual(values = c("black", "white"))
+# 
+# p <- p +  labs(y="Median absolute deviation / median", x='Productivity')
+# p <- p + theme_bw()
+# 
+# p <- p + labs(colour="Treatment", shape="Region")
+# p
+# 
+# 
+# 
+# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, fill=density))+geom_point()
+# p <- p + scale_shape_manual(values=c(21, 22, 23))
+# p <- p + scale_fill_manual(values = c("black", "white"))
+# 
+# p <- p +  labs(y="Median absolute deviation / median", x='Productivity')
+# p <- p + theme_bw()
+# 
+# p <- p + labs(fill="Treatment", shape="Region")
+# p
+# # p <- ggplot(data = MyData6, aes(x=Field_median, y=Median,
+# #                                 shape=Region.x,
+# #                                 fill=ifelse(density=="2",Field_median, density)))
+# # p  
+# p <- ggplot(data=MyData6,aes(x =Field_median, y = Median, shape=Region.x, colour=density) )+geom_point()
+# p <- p + scale_color_manual(values = c("black", "white"))
+# p
+# #Try to do it with baseplot
+# plot(MyData6$Field_median, MyData6$Median,
+#      xlab = "Median from field data",
+#      ylab = "Median from lidar data",
+#      xlim = c(0,max(MyData6$mean_of_mean, na.rm = T)),
+#      ylim = c(0,max(MyData6$Median, na.rm = T)))
+# #add reference line
+# abline(coef = c(0,1))
+# 
 
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
