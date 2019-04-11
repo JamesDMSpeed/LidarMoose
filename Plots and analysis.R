@@ -741,9 +741,10 @@ chg_prod <- chg_prod + labs(colour="Treatment", shape="Region")
 chg_prod <- chg_prod + theme(text = element_text(size = 20))
 chg_prod
 
+
 #Combining them to one panel plot
 library(cowplot)
-plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2)
+plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2, labels = c("A", "B"))
 
 ####Part 3.2####
 #Median absolute deviation - treatment
@@ -792,8 +793,8 @@ madmed_prod <- madmed_prod + theme(legend.position = "none")
 madmed_prod
 
 #Combining them to one panel plot
-# library(cowplot)
-# plot_grid(mad_treat,madmed_treat,mad_prod+theme(legend.position = "none"),madmed_prod+theme(legend.position = "none"))
+ library(cowplot)
+ plot_grid(mad_treat,madmed_treat,mad_prod+theme(legend.position = "none"),madmed_prod+theme(legend.position = "none"),labels = c("A", "B", "C", "D"), label_size = 10)
 
 library(grid)
 library(gtable)
@@ -835,7 +836,7 @@ p <- p + geom_point(size = 2)
 library(reshape2)
 #Difference lidar data
 MyData6_cast <- dcast(data = MyData6,
-                      LocalityName+Region.x+Point.density...m.2. ~ Treatment, 
+                      LocalityName+Region.x+Point.density...m.2.+productivity ~ Treatment, 
                       value.var = "Median")
 MyData6_cast$median_diff <- MyData6_cast$Exclosure-MyData6_cast$`Open plot`
 
@@ -872,7 +873,7 @@ med_diff <- med_diff + geom_point(size = 2)
 
 #Making panel plot
 library(egg)
-p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2)
+p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2,labels = c("A", "B"))
 
 
 
