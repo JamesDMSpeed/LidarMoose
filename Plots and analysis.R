@@ -149,7 +149,7 @@ anova(lmer_median)
 plot(lmer_median)
 qqnorm(resid(lmer_median))
 
-# How does the predict() function do?:
+cit# How does the predict() function do?:
 mymod2 <- lm(data = MyData7,
              log(Median_std)~productivity*Treatment)
 MyData7$pred <- predict(mymod2, MyData7)
@@ -724,6 +724,7 @@ chg_treat <- ggplot(data=MyData6, aes(x=x1, y=Median_std, group=LocalityName))+g
 chg_treat <- chg_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 chg_treat <- chg_treat + theme_bw()
 chg_treat <- chg_treat + theme(text = element_text(size = 20))
+chg_treat <-  chg_treat + ylim(0, 0.4)
 chg_treat
 
 #Canopy height growth - productivity
@@ -739,6 +740,7 @@ chg_prod <- chg_prod + theme_bw()
 chg_prod <- chg_prod + scale_color_manual(values = c("gray0", "gray60"))
 chg_prod <- chg_prod + labs(colour="Treatment", shape="Region")
 chg_prod <- chg_prod + theme(text = element_text(size = 20))
+chg_prod <- chg_prod + ylim(0, 0.4)
 chg_prod
 
 
@@ -803,8 +805,8 @@ p2 <- ggplotGrob(madmed_treat)
 p3 <- ggplotGrob(mad_prod)
 p4 <- ggplotGrob(madmed_prod)
 
-g1 <- rbind(p1,p3,size="last")
-g2 <- rbind(p2,p4,size="last")
+g1 <- rbind(p1,p2,size="last")
+g2 <- rbind(p3,p4,size="last")
 g3 <- cbind(g1,g2, size="last")
 
 vp <- viewport(x=0.5, y=0.5, width = 0.95, height = 0.9)
@@ -825,12 +827,13 @@ p <- ggplot(MyData6, aes(x =Field_median, y = Median,
   guides(fill=guide_legend(override.aes = list(shape=21)),
          shape=guide_legend(override.aes = list(fill="black")))+
   theme_bw()+
+  theme(text = element_text(size = 16))+
   xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))+
   geom_abline()
   
 p <- p + geom_point(size = 2)
-
-
+p <- p + labs(x= "Field median", y="Lidar median")
+p
 
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
@@ -863,12 +866,13 @@ med_diff <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff,
   guides(fill=guide_legend(override.aes = list(shape=21)),
          shape=guide_legend(override.aes = list(fill="black")))+
   theme_bw()+
-  xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,max(MyData_cast$median_diff, na.rm = T)))+
+  xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,3))+
   geom_abline()+
-  xlab("Difference in median between treatments from field data")+ylab("Difference in median from lidar data") 
+  labs(x="Difference in median between treatments from field data", y="Difference in median from lidar data")+
+  theme(text = element_text(size = 16))
   
-
 med_diff <- med_diff + geom_point(size = 2)
+med_diff
 
 
 #Making panel plot
@@ -879,5 +883,12 @@ p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2,labels =
 
 
 
+# Export table ------------------------------------------------------------
+MyData6_export <- dcast(data = MyData6,
+                      LocalityName+Region.x+Clear.cut+Year.initiated+LiDAR.data.from.year+Point.density...m.2.+Resolution..m.+productivity ~ Treatment,
+                      value.var = "Median")
 
+Table_methods <- MyData6_export[, c(1:8)]
+write.table(Table_methods, "Methods_table", sep=",", col.names = F)
 
+write.csv(MyData6_export, "Method_table2")
