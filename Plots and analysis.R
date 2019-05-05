@@ -751,7 +751,7 @@ plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2, labels = 
 ####Part 3.2####
 #Median absolute deviation - treatment
 x1<- factor(MyData6$Treatment, levels = c('Open plot', 'Exclosure'))
-mad_treat <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName))+geom_line()+labs(y='Median absolute deviation (m)', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
+mad_treat <- ggplot(data=MyData6, aes(x=x1, y=MAD, group=LocalityName))+geom_line()+labs(y='MAD (m)', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
 mad_treat <- mad_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 mad_treat <- mad_treat + theme_bw()
 mad_treat
@@ -759,7 +759,7 @@ mad_treat
 
 #Median absolute deviation/median - treatment
 x2<- factor(MyData6[MyData6$Median > 0.01,]$Treatment, levels = c('Open plot', 'Exclosure'))
-madmed_treat <- ggplot(data=MyData6[MyData6$Median > 0.01,], aes(x=x2, y=MAD_med, group=LocalityName))+geom_line()+labs(y='Median absolute deviation / median', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
+madmed_treat <- ggplot(data=MyData6[MyData6$Median > 0.01,], aes(x=x2, y=MAD_med, group=LocalityName))+geom_line()+labs(y='RMAD', x='Treatment')+scale_linetype_manual(breaks = c('Open plot', 'Exclosure'), labels = c("Open plots", "Exclosures"), values=c(1,2))
 madmed_treat <- madmed_treat+ scale_x_discrete(limits = c('Open plot', 'Exclosure'), breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))
 madmed_treat <- madmed_treat + theme_bw()
 #madmed_treat <- madmed_treat+geom_text(show.legend = FALSE)
@@ -773,7 +773,7 @@ MyData7$pred_us3 <- exp(MyData7$pred3)
 
 mad_prod <- ggplot()+geom_point(aes(x = productivity, y = MAD, colour= Treatment, shape=Region.x),data = MyData7)
 mad_prod <- mad_prod + geom_line(aes(x = productivity, y = pred_us3, colour = Treatment), data = MyData7, size = 1.5)
-mad_prod <- mad_prod +  labs(y="Median absolute deviation (m)", x='Productivity')
+mad_prod <- mad_prod +  labs(y="MAD (m)", x='Productivity')
 mad_prod <- mad_prod + theme_bw()
 mad_prod <- mad_prod + scale_color_manual(values = c("gray0", "gray60"))
 #mad_prod <- mad_prod + labs(colour="Treatment", shape="Region")
@@ -787,7 +787,7 @@ MyData7$pred4 <- predict(mymod4, MyData7)
 MyData7$pred_us4 <- exp(MyData7$pred4)
 
 madmed_prod <- ggplot()+geom_point(aes(x = productivity, y = MAD_med, colour= Treatment, shape=Region.x),data = MyData7[MyData7$Median > 0.01,])
-madmed_prod <- madmed_prod +  labs(y="Median absolute deviation / median", x='Productivity')
+madmed_prod <- madmed_prod +  labs(y="RMAD", x='Productivity')
 madmed_prod <- madmed_prod + theme_bw()
 madmed_prod <- madmed_prod + scale_color_manual(values = c("gray0", "gray60"))
 #madmed_prod <- madmed_prod + labs(colour="Treatment", shape="Region")
@@ -796,7 +796,7 @@ madmed_prod
 
 #Combining them to one panel plot
  library(cowplot)
- plot_grid(mad_treat,madmed_treat,mad_prod+theme(legend.position = "none"),madmed_prod+theme(legend.position = "none"),labels = c("A", "B", "C", "D"), label_size = 10)
+ plot_grid(mad_treat,mad_prod+theme(legend.position = "none"),madmed_treat,madmed_prod+theme(legend.position = "none"),labels = c("A", "B", "C", "D"), label_size = 10)
 
 library(grid)
 library(gtable)
