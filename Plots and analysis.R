@@ -741,12 +741,21 @@ chg_prod <- chg_prod + scale_color_manual(values = c("gray0", "gray60"))
 chg_prod <- chg_prod + labs(colour="Treatment", shape="Region")
 chg_prod <- chg_prod + theme(text = element_text(size = 20))
 chg_prod <- chg_prod + ylim(0, 0.4)
+chg_prod <- chg_prod + theme(legend.position = c(.05, .95),
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
 chg_prod
 
 
 #Combining them to one panel plot
 library(cowplot)
-plot_grid(chg_treat, chg_prod+theme(legend.position = "none"), ncol=2, labels = c("A", "B"))
+
+tiff("fig3_1.tiff", units = "cm", res = 300, height = 20, width = 35) 
+plot_grid(chg_treat, chg_prod+theme(legend.position = c(0.05, 0.95)), ncol=2, labels = c("A", "B"))
+dev.off()
+
 
 ####Part 3.2####
 #Median absolute deviation - treatment
@@ -786,17 +795,21 @@ mymod4 <- lm(data = MyData7,
 MyData7$pred4 <- predict(mymod4, MyData7)
 MyData7$pred_us4 <- exp(MyData7$pred4)
 
+tiff("fig_test.tiff", units = "cm", res = 300, height = 12.5, width = 15)
 madmed_prod <- ggplot()+geom_point(aes(x = productivity, y = MAD_med, colour= Treatment, shape=Region.x),data = MyData7[MyData7$Median > 0.01,])
 madmed_prod <- madmed_prod +  labs(y="RMAD", x='Productivity')
 madmed_prod <- madmed_prod + theme_bw()
 madmed_prod <- madmed_prod + scale_color_manual(values = c("gray0", "gray60"))
-#madmed_prod <- madmed_prod + labs(colour="Treatment", shape="Region")
-madmed_prod <- madmed_prod + theme(legend.position = "none") 
+madmed_prod <- madmed_prod + labs(colour="Treatment", shape="Region")
+#madmed_prod <- madmed_prod + guides(fill=guide_legend(title = "Region")) 
 madmed_prod
+dev.off()
 
 #Combining them to one panel plot
  library(cowplot)
- plot_grid(mad_treat,mad_prod+theme(legend.position = "none"),madmed_treat,madmed_prod+theme(legend.position = "none"),labels = c("A", "B", "C", "D"), label_size = 10)
+tiff("fig3_2_2.tiff", units = "cm", res = 300, height = 25, width = 30) 
+ plot_grid(mad_treat,mad_prod+theme(legend.position = "none"),madmed_treat,madmed_prod+theme(legend.position = "right"),labels = c("A", "B", "C", "D"), label_size = 10)
+dev.off()
 
 library(grid)
 library(gtable)
@@ -877,8 +890,10 @@ med_diff
 
 #Making panel plot
 library(egg)
-p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2,labels = c("A", "B"))
 
+tiff("fig3_3.tiff", units = "cm", res = 300, height = 20, width = 35) 
+p2 <- egg::ggarrange(p+ theme(legend.position="none"),med_diff , ncol=2,labels = c("A", "B"))
+dev.off()
 
 
 
