@@ -881,7 +881,7 @@ med_diff <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff,
   theme_bw()+
   xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,3))+
   geom_abline()+
-  labs(x="Difference in median between treatments from field data", y="Difference in median from lidar data")+
+  labs(x="Difference in median between treatments from field data", y="Difference in median between treamtments from lidar data")+
   theme(text = element_text(size = 16))
   
 med_diff <- med_diff + geom_point(size = 2)
