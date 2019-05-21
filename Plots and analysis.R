@@ -58,7 +58,12 @@ median_comparison
 #Check correlation between field median and lidar median data
 cor.test(MyData6$Field_median, MyData6$Median, alternative = "two.sided", method = "pearson")
 
+#Check if correlation is better for lidar data with 5 points per m compared to 2 points per m
+pd_2 <- MyData6[MyData6$Point.density...m.2.==2,]
+pd_5<- MyData6[MyData6$Point.density...m.2.==5,]
 
+cor.test(pd_2$Field_median, pd_2$Median, alternative = "two.sided", method = "pearson") #corr.coef: 0.7652242
+cor.test(pd_5$Field_median, pd_5$Median, alternative = "two.sided", method = "pearson") #corr.coef: 0.8375562
 
 #Plot comparing field and lidar median where the dots represent the difference in median between treatments at each site
 library(reshape2)
@@ -95,6 +100,11 @@ p1
 cor.test(MyData_cast$median_diff_f, MyData_cast$median_diff, alternative = "two.sided", method = "pearson")
 # cor 0.6446853 
 
+po_de_2 <- MyData_cast[MyData_cast$Point.density...m.2.==2,]
+po_de_5 <- MyData_cast[MyData_cast$Point.density...m.2.==5,]
+
+cor.test(po_de_2$median_diff_f, po_de_2$median_diff, alternative = "two.sided", method = "pearson")# cor 0.6073566 
+cor.test(po_de_5$median_diff_f, po_de_5$median_diff, alternative = "two.sided", method = "pearson")# cor 0.7486884 
 
 
 #Making panel plot
@@ -141,8 +151,19 @@ lmer_median <- lmer(log(Median) ~ productivity
                              +Treatment:productivity
                              +duration
                              #+duration:Treatment  
-                    +(1|LocalityName), data = MyData7)
+                    +(1|LocalityName)+(1|Region.x), data = MyData7)
 summary(lmer_median)
+
+
+lmer_median_ALK <- lmer(log(Median) ~ productivity 
+                    +Treatment 
+                    +Treatment:productivity
+                    +duration
+                    #+duration:Treatment  
+                    +(1|LocalityName), data = MyData7)
+
+
+AIC(lmer_median,lmer_median_ALK)
 anova(lmer_median)
 
 # model validation - looks ok
@@ -200,8 +221,18 @@ lmer_mad <- lmer(log(MAD) ~ productivity
                     +Treatment:productivity
                     +duration
                     #+duration:Treatment  
-                    +(1|LocalityName), data = MyData7)
+                    +(1|LocalityName)+(1|Region.x), data = MyData7)
 summary(lmer_mad)
+
+lmer_mad_ALK <- lmer(log(MAD) ~ productivity 
+                 +Treatment 
+                 +Treatment:productivity
+                 +duration
+                 #+duration:Treatment  
+                 +(1|LocalityName), data = MyData7)
+summary(lmer_mad)
+
+AIC(lmer_mad, lmer_mad_ALK)
 
 #Validation -looks ok
 plot(lmer_mad)
@@ -257,9 +288,18 @@ lmer_madmed <- lmer(log(MAD_med) ~ productivity
                  #+Treatment:productivity
                  #+duration
                  #+duration:Treatment  
-                 +(1|LocalityName), data = MyData7[MyData7$Median > 0.01,])
+                 +(1|LocalityName)+(1|Region.x), data = MyData7[MyData7$Median > 0.01,])
 summary(lmer_madmed) #ingen signifikant interaksjon
 
+lmer_madmed_ALK <- lmer(log(MAD_med) ~ productivity 
+                    +Treatment 
+                    #+Treatment:productivity
+                    #+duration
+                    #+duration:Treatment  
+                    +(1|LocalityName), data = MyData7[MyData7$Median > 0.01,])
+summary(lmer_madmed) #ingen signifikant interaksjon
+
+AIC(lmer_madmed, lmer_madmed_ALK)
 #test <- MyData7[MyData7$Median > 0.01,]
 
 #Validation
@@ -842,7 +882,7 @@ p <- ggplot(MyData6, aes(x =Field_median, y = Median,
   theme_bw()+
   theme(text = element_text(size = 16))+
   xlim(c(0,max(MyData6$Field_median, na.rm = T)))+ ylim(c(0,max(MyData6$Median, na.rm = T)))+
-  geom_abline()
+  geom_abline(slope=1, intercept=0,colour="gray65")
   
 p <- p + geom_point(size = 2)
 p <- p + labs(x= "Field median", y="Lidar median")
@@ -880,7 +920,7 @@ med_diff <- ggplot(data = MyData_cast, aes(x=median_diff_f, y=median_diff,
          shape=guide_legend(override.aes = list(fill="black")))+
   theme_bw()+
   xlim(c(0,max(MyData_cast$median_diff_f, na.rm = T)))+ ylim(c(0,3))+
-  geom_abline()+
+  geom_abline(slope=1, intercept=0,colour="gray65")+
   labs(x="Difference in median between treatments from field data", y="Difference in median between treamtments from lidar data")+
   theme(text = element_text(size = 16))
   
@@ -907,3 +947,13 @@ Table_methods <- MyData6_export[, c(1:8)]
 write.table(Table_methods, "Methods_table", sep=",", col.names = F)
 
 write.csv(MyData6_export, "Method_table2")
+
+
+
+# Test --------------------------------------------------------------------
+
+t <- ggplot(data=MyData6, aes(x=Region.x, y=productivity))+ geom_boxplot()
+t
+
+t2 <- ggplot(data=MyData6, aes(x=Region.x, y=Median_std))+ geom_violin()
+t2
