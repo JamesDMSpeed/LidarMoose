@@ -16,9 +16,9 @@ canopydiffbb<-gridcanopybb-(crop(gridterrainbb,gridcanopybb))
 plot(canopydiffbb)
 
 #Tree detection
-trees<-tree_detection(bb,ws=5,hmin=5)#Detect all trees >5m with moving window of 3m 
+trees<-tree_detection(bb,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
 treeheight<-extract(canopydiffbb,trees[,1:2])
-#trees_5m<-tree_detection(bb,ws=2,hmin=5)#Detect all trees >5m with moving window of 3m 
+#trees_5m<-tree_detection(bb,ws=2,hmin=5)#Detect all trees >5m with moving window of 5m 
 #Vary hmin and ws...
 
 
@@ -30,6 +30,11 @@ lastrees_dalponte(bb,canopydiffbb,trees[treeheight>=4,],th_seed=0.05,th_cr=0.1)#
 #need to look further into arguments to ensure that whole tree is segmented
 
 
+
+#OBS!! Without tree detection and lastrees_dalponte there is no treeID and we cannot run tree_hulls
+
+
+
 #Now make hulls around the trees
 treeout<-tree_hulls(bb,type='convex',field='treeID')
 
@@ -37,7 +42,9 @@ plot(canopydiffbb)
 plot(treeout,add=T) # These regions seem to be the big trees. Clip these out...
 
 #Those greater than 7m
-bigtrees<-which(extract(canopydiffbb,treeout,fun=max,na.rm=T)>4)
+bigtrees<-which(extract(canopydiffbb,treeout,fun=max,na.rm=T)>7)
+
+plot(treeout[bigtrees,],add=T,border=2)
 
 #Clip out trees
 bclip<-lasclip(bb,treeout@polygons[[bigtrees[1]]]@Polygons[[1]],inside=F)
@@ -47,6 +54,8 @@ bclip<-lasclip(bclip,treeout@polygons[[bigtrees[i]]]@Polygons[[1]],inside=F)}
 plot(bclip) 
 
 plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,method='knnidw',res=0.5)),as.raster(grid_canopy(bclip,res=0.5)))))
+
+
 
 ####################################################
 #Unbrowsed
