@@ -5,6 +5,8 @@ Ingrid's master project
 
 For now, the large las files are stored on my computer, C:\Users\Ingrid\Documents\Master - Sustherb\orginale_las, and on an external hard drive
 
+Now also at T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files 
+
 Clipped las files, 32x32 m, are stored in LidarMoose, in the folder clipped_las
 
 
