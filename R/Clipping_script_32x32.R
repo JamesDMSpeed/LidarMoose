@@ -1798,3 +1798,89 @@ plot(sorem_ub_outerpoly)
 writeLAS(sorem_ub_outerpoly,'data/clipped_las/sorem_ub.las')
 
 
+# Nes1 --------------------------------------------------------------
+nes1_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\DDB_2019_5p_0_25m\\1097\\data\\eksport_193592_1097_1.laz') 
+nes1_las 
+plot(nes1_las)
+
+#nes1_b
+nes1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14]))
+nes1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14][nes1_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+nes1_b_pl <- Polygons(list(nes1_b_poly),1)
+nes1_b_sp <- SpatialPolygons(list(nes1_b_pl))
+nes1_b_polybuf <- gBuffer(nes1_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_nes1_b<-data.frame(ID=1)
+rownames(df1_nes1_b)<-'buffer' 
+nes1_b_spdf <- SpatialPolygonsDataFrame(nes1_b_polybuf,data=df1_nes1_b,match.ID = TRUE)
+
+nes1_b_outerpoly<-lasclip(nes1_las,nes1_b_spdf)
+nes1_b_outerpoly<-nes1_b_outerpoly$`1`
+plot(nes1_b_outerpoly) 
+
+writeLAS(nes1_b_outerpoly,'data/clipped_las/nes1_b.las')
+
+#nes1_ub
+nes1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14]))
+nes1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14][nes1_ub_order,]))
+
+nes1_ub_pl <- Polygons(list(nes1_ub_poly),1)
+nes1_ub_sp <- SpatialPolygons(list(nes1_ub_pl))
+nes1_ub_polybuf <- gBuffer(nes1_ub_sp, width=6)
+
+df1_nes1_ub<-data.frame(ID=1)
+rownames(df1_nes1_ub)<-'buffer'
+nes1_ub_spdf <- SpatialPolygonsDataFrame(nes1_ub_polybuf,data=df1_nes1_ub,match.ID = TRUE)
+
+nes1_ub_outerpoly<-lasclip(nes1_las,nes1_ub_spdf)
+nes1_ub_outerpoly<-nes1_ub_outerpoly$`1`
+plot(nes1_ub_outerpoly) 
+
+writeLAS(nes1_ub_outerpoly,'data/clipped_las/nes1_ub.las')
+
+# Nes2 --------------------------------------------------------------
+nes2_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\OLB_2019_5p_0_25m\\1097\\data\\eksport_193604_1097_1.laz') 
+nes2_las 
+plot(nes2_las)
+
+#nes2_b
+nes2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14]))
+nes2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14][nes2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+nes2_b_pl <- Polygons(list(nes2_b_poly),1)
+nes2_b_sp <- SpatialPolygons(list(nes2_b_pl))
+nes2_b_polybuf <- gBuffer(nes2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_nes2_b<-data.frame(ID=1)
+rownames(df1_nes2_b)<-'buffer' 
+nes2_b_spdf <- SpatialPolygonsDataFrame(nes2_b_polybuf,data=df1_nes2_b,match.ID = TRUE)
+
+nes2_b_outerpoly<-lasclip(nes2_las,nes2_b_spdf)
+nes2_b_outerpoly<-nes2_b_outerpoly$`1`
+plot(nes2_b_outerpoly) 
+
+writeLAS(nes2_b_outerpoly,'data/clipped_las/nes2_b.las')
+
+#nes2_ub
+nes2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14]))
+nes2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14][nes2_ub_order,]))
+
+nes2_ub_pl <- Polygons(list(nes2_ub_poly),1)
+nes2_ub_sp <- SpatialPolygons(list(nes2_ub_pl))
+nes2_ub_polybuf <- gBuffer(nes2_ub_sp, width=6)
+
+df1_nes2_ub<-data.frame(ID=1)
+rownames(df1_nes2_ub)<-'buffer'
+nes2_ub_spdf <- SpatialPolygonsDataFrame(nes2_ub_polybuf,data=df1_nes2_ub,match.ID = TRUE)
+
+nes2_ub_outerpoly<-lasclip(nes2_las,nes2_ub_spdf)
+nes2_ub_outerpoly<-nes2_ub_outerpoly$`1`
+plot(nes2_ub_outerpoly) 
+
+writeLAS(nes2_ub_outerpoly,'data/clipped_las/nes2_ub.las')
+
