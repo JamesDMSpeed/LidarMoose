@@ -709,7 +709,7 @@ writeLAS(Furesdal_ub_cut,'Telemark/clipped_las/Furesdal_ub.las')
 
 #########################HEDMARK_AKERSHUS#############################################################
 #Import plot coords
-plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
+plotcoords_hedmark_akershus<-read.csv('data/Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
 
 #Didrik Holmsen
 didrik_holmsen_las <-  readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/orginale_las/Hedmark_Akershus/Didrik_Holmsen.las') 
@@ -884,4 +884,28 @@ plot(stangeskovene_eidskog_ub_cut)
 
 writeLAS(stangeskovene_eidskog_b_cut,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_b.las')
 writeLAS(stangeskovene_eidskog_ub_cut,'Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
+
+
+################################################################################################
+#New sites added Oct 2019###
+################################################################################################
+#Sørum 1
+sorem1_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\SKB_2013_2p_0_5m\\121\\data\\eksport_193575_121_1.laz') 
+sorem1_las 
+plot(sorem1_las) 
+
+sorem1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14]))
+sorem1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14][sorem1_b_order,]))
+sorem1_b_cut<-lasclip(sorem1_las,sorem1_b_poly)
+sorem1_b_cut
+plot(sorem1_b_cut)
+
+sorem1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14]))
+sorem1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14][sorem1_ub_order,]))
+sorem1_ub_cut<-lasclip(sorem1_las,sorem1_ub_poly)
+sorem1_ub_cut
+plot(sorem1_ub_cut)
+
+writeLAS(sorem1_b_cut,'data/clipped_las/sorem1_b.las')
+writeLAS(sorem1_ub_cut,'data/clipped_las/sorem1_ub.las')
 
