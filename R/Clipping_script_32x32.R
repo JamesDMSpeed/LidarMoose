@@ -1750,3 +1750,51 @@ plot(truls_holm_ub_outerpoly)
 writeLAS(truls_holm_ub_outerpoly,'Hedmark_Akershus/clipped_las/truls_holm_ub.las')
 
 
+################################################################################################
+#New sites added Oct 2019###
+
+################################################################################################
+# Sørem1 --------------------------------------------------------------
+sorem_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\SKB_2013_2p_0_5m\\121\\data\\eksport_193575_121_1.laz') 
+sorem_las 
+plot(sorem_las)
+
+#sorem_b
+sorem_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14]))
+sorem_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14][sorem_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+sorem_b_pl <- Polygons(list(sorem_b_poly),1)
+sorem_b_sp <- SpatialPolygons(list(sorem_b_pl))
+sorem_b_polybuf <- gBuffer(sorem_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_sorem_b<-data.frame(ID=1)
+rownames(df1_sorem_b)<-'buffer' 
+sorem_b_spdf <- SpatialPolygonsDataFrame(sorem_b_polybuf,data=df1_sorem_b,match.ID = TRUE)
+
+sorem_b_outerpoly<-lasclip(sorem_las,sorem_b_spdf)
+sorem_b_outerpoly<-sorem_b_outerpoly$`1`
+plot(sorem_b_outerpoly) 
+
+writeLAS(sorem_b_outerpoly,'data/clipped_las/sorem_b.las')
+
+#sorem_ub
+sorem_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14]))
+sorem_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14][sorem_ub_order,]))
+
+sorem_ub_pl <- Polygons(list(sorem_ub_poly),1)
+sorem_ub_sp <- SpatialPolygons(list(sorem_ub_pl))
+sorem_ub_polybuf <- gBuffer(sorem_ub_sp, width=6)
+
+df1_sorem_ub<-data.frame(ID=1)
+rownames(df1_sorem_ub)<-'buffer'
+sorem_ub_spdf <- SpatialPolygonsDataFrame(sorem_ub_polybuf,data=df1_sorem_ub,match.ID = TRUE)
+
+sorem_ub_outerpoly<-lasclip(sorem_las,sorem_ub_spdf)
+sorem_ub_outerpoly<-sorem_ub_outerpoly$`1`
+plot(sorem_ub_outerpoly) 
+
+writeLAS(sorem_ub_outerpoly,'data/clipped_las/sorem_ub.las')
+
+
