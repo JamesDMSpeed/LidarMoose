@@ -888,6 +888,7 @@ writeLAS(stangeskovene_eidskog_ub_cut,'Hedmark_Akershus/clipped_las/stangeskoven
 
 ################################################################################################
 #New sites added Oct 2019###
+
 ################################################################################################
 #Sørum 1
 sorem1_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\SKB_2013_2p_0_5m\\121\\data\\eksport_193575_121_1.laz') 
@@ -909,3 +910,44 @@ plot(sorem1_ub_cut)
 writeLAS(sorem1_b_cut,'data/clipped_las/sorem1_b.las')
 writeLAS(sorem1_ub_cut,'data/clipped_las/sorem1_ub.las')
 
+################################################################################################
+#Nes 1
+nes1_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\DDB_2019_5p_0_25m\\1097\\data\\eksport_193592_1097_1.laz') 
+nes1_las 
+plot(nes1_las) 
+
+nes1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14]))
+nes1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14][nes1_b_order,]))
+nes1_b_cut<-lasclip(nes1_las,nes1_b_poly)
+nes1_b_cut
+plot(nes1_b_cut)
+
+nes1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14]))
+nes1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14][nes1_ub_order,]))
+nes1_ub_cut<-lasclip(nes1_las,nes1_ub_poly)
+nes1_ub_cut
+plot(nes1_ub_cut)
+
+writeLAS(nes1_b_cut,'data/clipped_las/nes1_b.las')
+writeLAS(nes1_ub_cut,'data/clipped_las/nes1_ub.las')
+
+################################################################################################
+#Nes 2
+nes2_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\OLB_2019_5p_0_25m\\1097\\data\\eksport_193604_1097_1.laz') 
+nes2_las 
+plot(nes2_las) 
+
+nes2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14]))
+nes2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14][nes2_b_order,]))
+nes2_b_cut<-lasclip(nes2_las,nes2_b_poly)
+nes2_b_cut
+plot(nes2_b_cut)
+
+nes2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14]))
+nes2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14][nes2_ub_order,]))
+nes2_ub_cut<-lasclip(nes2_las,nes2_ub_poly)
+nes2_ub_cut
+plot(nes2_ub_cut)
+
+writeLAS(nes2_b_cut,'data/clipped_las/nes2_b.las')
+writeLAS(nes2_ub_cut,'data/clipped_las/nes2_ub.las')
