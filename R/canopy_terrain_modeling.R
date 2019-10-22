@@ -4,90 +4,107 @@ require(lidR)
 require(raster)
 require(rasterVis)
 
-plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
-plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
-plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
+plotcoords<-read.csv('data/Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+plotcoords_telemark<-read.csv('data/Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
+plotcoords_hedmark_akershus<-read.csv('data/Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
 
 # NOTE: files are in data/clipped_las
 
 # Import clipped files ----------------------------------------------------
 #Trondelag
-bratsberg_b       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_b.las')
-bratsberg_ub      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/bratsberg_ub.las')
-hi_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_b.las')
-hi_tydal_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/hi_tydal_ub.las')
-malvik_b          <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_b.las')
-malvik_ub         <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/malvik_ub.las')
-namdalseid_1kub_b <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/namdalseid_1kub_b.las')
-namdalseid_1kub_ub<- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/namdalseid_1kub_ub.las')
-nsb_verdal_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/nsb_verdal_b.las')
-nsb_verdal_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/nsb_verdal_ub.las')
-selbu_flub_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_flub_b.las')
-selbu_flub_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_flub_ub.las')
-selbu_kl_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_kl_b.las')
-selbu_kl_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_kl_ub.las')
-selbu_sl_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_sl_b.las')
-selbu_sl_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/selbu_sl_ub.las')
-singsaas_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/singsaas_b.las')
-singsaas_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/singsaas_ub.las')
-sl_tydal_b        <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/sl_tydal_b.las')
-sl_tydal_ub       <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/sl_tydal_ub.las')
-steinkjer_1BBb_b  <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/steinkjer_1BBb_b.las')
-steinkjer_1BBb_ub <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/steinkjer_1BBb_ub.las')
-steinkjer_2BBb_b  <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/steinkjer_2BBb_b.las')
-steinkjer_2BBb_ub <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/steinkjer_2BBb_ub.las')
-sub_namdalseid_b  <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/sub_namdalseid_b.las')
-sub_namdalseid_ub <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/sub_namdalseid_ub.las')
-verdal_1vb_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_1vb_b.las')
-verdal_1vb_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_1vb_ub.las')
-verdal_2vb_b      <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_2vb_b.las')
-verdal_2vb_ub     <- readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Trondelag/clipped_las/verdal_2vb_ub.las')
+bratsberg_b       <- readLAS('data/clipped_las/bratsberg_b.las')
+bratsberg_ub      <- readLAS('data/clipped_las/bratsberg_ub.las')
+hi_tydal_b        <- readLAS('data/clipped_las/hi_tydal_b.las')
+hi_tydal_ub       <- readLAS('data/clipped_las/hi_tydal_ub.las')
+malvik_b          <- readLAS('data/clipped_las/malvik_b.las')
+malvik_ub         <- readLAS('data/clipped_las/malvik_ub.las')
+namdalseid_1kub_b <- readLAS('data/clipped_las/namdalseid_1kub_b.las')
+namdalseid_1kub_ub<- readLAS('data/clipped_las/namdalseid_1kub_ub.las')
+nsb_verdal_b      <- readLAS('data/clipped_las/nsb_verdal_b.las')
+nsb_verdal_ub     <- readLAS('data/clipped_las/nsb_verdal_ub.las')
+selbu_flub_b      <- readLAS('data/clipped_las/selbu_flub_b.las')
+selbu_flub_ub     <- readLAS('data/clipped_las/selbu_flub_ub.las')
+selbu_kl_b        <- readLAS('data/clipped_las/selbu_kl_b.las')
+selbu_kl_ub       <- readLAS('data/clipped_las/selbu_kl_ub.las')
+selbu_sl_b        <- readLAS('data/clipped_las/selbu_sl_b.las')
+selbu_sl_ub       <- readLAS('data/clipped_las/selbu_sl_ub.las')
+singsaas_b        <- readLAS('data/clipped_las/singsaas_b.las')
+singsaas_ub       <- readLAS('data/clipped_las/singsaas_ub.las')
+sl_tydal_b        <- readLAS('data/clipped_las/sl_tydal_b.las')
+sl_tydal_ub       <- readLAS('data/clipped_las/sl_tydal_ub.las')
+steinkjer_1BBb_b  <- readLAS('data/clipped_las/steinkjer_1BBb_b.las')
+steinkjer_1BBb_ub <- readLAS('data/clipped_las/steinkjer_1BBb_ub.las')
+steinkjer_2BBb_b  <- readLAS('data/clipped_las/steinkjer_2BBb_b.las')
+steinkjer_2BBb_ub <- readLAS('data/clipped_las/steinkjer_2BBb_ub.las')
+sub_namdalseid_b  <- readLAS('data/clipped_las/sub_namdalseid_b.las')
+sub_namdalseid_ub <- readLAS('data/clipped_las/sub_namdalseid_ub.las')
+verdal_1vb_b      <- readLAS('data/clipped_las/verdal_1vb_b.las')
+verdal_1vb_ub     <- readLAS('data/clipped_las/verdal_1vb_ub.las')
+verdal_2vb_b      <- readLAS('data/clipped_las/verdal_2vb_b.las')
+verdal_2vb_ub     <- readLAS('data/clipped_las/verdal_2vb_ub.las')
 #Telemark
-drangedal1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal1_b.las')
-drangedal1_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal1_ub.las')
-drangedal3_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal3_b.las')
-drangedal3_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal3_ub.las')
-drangedal4_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_b.las')
-drangedal4_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/drangedal4_ub.las')
-fritsoe2_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_b.las')
-fritsoe2_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe2_ub.las')
-fritsoe1_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_b.las')
-fritsoe1_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fritsoe1_ub.las')
-fyresdal_b         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fyresdal_b.las')
-fyresdal_ub        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/fyresdal_ub.las')
-kviteseid1_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_b.las')
-kviteseid1_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid1_ub.las')
-kviteseid2_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid2_b.las')
-kviteseid2_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid2_ub.las')
-kviteseid3_b       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid3_b.las')
-kviteseid3_ub      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/kviteseid3_ub.las')
-n_cappelen1_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_1_b.las')
-n_cappelen1_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_1_ub.las')
-n_cappelen2_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_2_b.las')
-n_cappelen2_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/nome_cappelen_2_ub.las')
-notodden3_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden3_b.las')
-notodden3_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden3_ub.las')
-notodden5_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden5_b.las')
-notodden5_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden5_ub.las')
-notodden6_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_b.las')
-notodden6_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Telemark/clipped_las/notodden6_ub.las')
+drangedal1_b       <-readLAS('data/clipped_las/drangedal1_b.las')
+drangedal1_ub      <-readLAS('data/clipped_las/drangedal1_ub.las')
+drangedal3_b       <-readLAS('data/clipped_las/drangedal3_b.las')
+drangedal3_ub      <-readLAS('data/clipped_las/drangedal3_ub.las')
+drangedal4_b       <-readLAS('data/clipped_las/drangedal4_b.las')
+drangedal4_ub      <-readLAS('data/clipped_las/drangedal4_ub.las')
+fritsoe2_b         <-readLAS('data/clipped_las/fritsoe2_b.las')
+fritsoe2_ub        <-readLAS('data/clipped_las/fritsoe2_ub.las')
+fritsoe1_b         <-readLAS('data/clipped_las/fritsoe1_b.las')
+fritsoe1_ub        <-readLAS('data/clipped_las/fritsoe1_ub.las')
+fyresdal_b         <-readLAS('data/clipped_las/fyresdal_b.las')
+fyresdal_ub        <-readLAS('data/clipped_las/fyresdal_ub.las')
+kviteseid1_b       <-readLAS('data/clipped_las/kviteseid1_b.las')
+kviteseid1_ub      <-readLAS('data/clipped_las/kviteseid1_ub.las')
+kviteseid2_b       <-readLAS('data/clipped_las/kviteseid2_b.las')
+kviteseid2_ub      <-readLAS('data/clipped_las/kviteseid2_ub.las')
+kviteseid3_b       <-readLAS('data/clipped_las/kviteseid3_b.las')
+kviteseid3_ub      <-readLAS('data/clipped_las/kviteseid3_ub.las')
+n_cappelen1_b      <-readLAS('data/clipped_las/nome_cappelen_1_b.las')
+n_cappelen1_ub     <-readLAS('data/clipped_las/nome_cappelen_1_ub.las')
+n_cappelen2_b      <-readLAS('data/clipped_las/nome_cappelen_2_b.las')
+n_cappelen2_ub     <-readLAS('data/clipped_las/nome_cappelen_2_ub.las')
+notodden3_b        <-readLAS('data/clipped_las/notodden3_b.las')
+notodden3_ub       <-readLAS('data/clipped_las/notodden3_ub.las')
+notodden5_b        <-readLAS('data/clipped_las/notodden5_b.las')
+notodden5_ub       <-readLAS('data/clipped_las/notodden5_ub.las')
+notodden6_b        <-readLAS('data/clipped_las/notodden6_b.las')
+notodden6_ub       <-readLAS('data/clipped_las/notodden6_ub.las')
 #Hedmark and Akershus
-didrik_holmsen_b   <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/didrik_holmsen_b.las')
-didrik_holmsen_ub  <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/didrik_holmsen_ub.las')
-eidskog_b          <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/eidskog_b.las')
-eidskog_ub         <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/eidskog_ub.las')
-fet3_b             <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/fet3_b.las')
-fet3_ub            <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/fet3_ub.las')
-h_pramhus_b        <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/halvard_pramhus_b.las')
-h_pramhus_ub       <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/halvard_pramhus_ub.las')
-stangesk_aurskog_b <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_aurskog_b.las')
-stangesk_aurskog_ub<-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_aurskog_ub.las')
-stangesk_eidskog_b <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_eidskog_b.las')
-stangesk_eidskog_ub<-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stangeskovene_eidskog_ub.las')
-stig_dahlen_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stig_dahlen_b.las')
-stig_dahlen_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/stig_dahlen_ub.las')
-truls_holm_b      <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/truls_holm_b.las')
-truls_holm_ub     <-readLAS('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose/Hedmark_Akershus/clipped_las/truls_holm_ub.las')
+didrik_holmsen_b   <-readLAS('data/clipped_las/didrik_holmsen_b.las')
+didrik_holmsen_ub  <-readLAS('data/clipped_las/didrik_holmsen_ub.las')
+eidskog_b          <-readLAS('data/clipped_las/eidskog_b.las')
+eidskog_ub         <-readLAS('data/clipped_las/eidskog_ub.las')
+fet3_b             <-readLAS('data/clipped_las/fet3_b.las')
+fet3_ub            <-readLAS('data/clipped_las/fet3_ub.las')
+h_pramhus_b        <-readLAS('data/clipped_las/halvard_pramhus_b.las')
+h_pramhus_ub       <-readLAS('data/clipped_las/halvard_pramhus_ub.las')
+stangesk_aurskog_b <-readLAS('data/clipped_las/stangeskovene_aurskog_b.las')
+stangesk_aurskog_ub<-readLAS('data/clipped_las/stangeskovene_aurskog_ub.las')
+stangesk_eidskog_b <-readLAS('data/clipped_las/stangeskovene_eidskog_b.las')
+stangesk_eidskog_ub<-readLAS('data/clipped_las/stangeskovene_eidskog_ub.las')
+stig_dahlen_b      <-readLAS('data/clipped_las/stig_dahlen_b.las')
+stig_dahlen_ub     <-readLAS('data/clipped_las/stig_dahlen_ub.las')
+truls_holm_b      <-readLAS('data/clipped_las/truls_holm_b.las')
+truls_holm_ub     <-readLAS('data/clipped_las/truls_holm_ub.las')
+sorem_b            <-readLAS('data/clipped_las/sorem_b.las')
+sorem_ub            <-readLAS('data/clipped_las/sorem_ub.las')
+nes1_b            <-readLAS('data/clipped_las/nes1_b.las')
+nes1_ub            <-readLAS('data/clipped_las/nes1_ub.las')
+nes2_b            <-readLAS('data/clipped_las/nes2_b.las')
+nes2_ub            <-readLAS('data/clipped_las/nes2_ub.las')
+kongsvinger1_b    <-readLAS('data/clipped_las/kongsvinger1_b.las')
+kongsvinger1_ub    <-readLAS('data/clipped_las/kongsvinger1_ub.las')
+kongsvinger2_b    <-readLAS('data/clipped_las/kongsvinger2_b.las')
+kongsvinger2_ub    <-readLAS('data/clipped_las/kongsvinger2_ub.las')
+maarud1_b    <-readLAS('data/clipped_las/maarud1_b.las')
+maarud1_ub    <-readLAS('data/clipped_las/maarud1_ub.las')
+maarud2_b    <-readLAS('data/clipped_las/maarud2_b.las')
+maarud2_ub    <-readLAS('data/clipped_las/maarud2_ub.las')
+maarud3_b    <-readLAS('data/clipped_las/maarud3_b.las')
+maarud3_ub    <-readLAS('data/clipped_las/maarud3_ub.las')
+
 
 
 
@@ -3373,6 +3390,313 @@ canopy_diff_truls_holm_ub_20x20 <- (as.raster(canopymod_truls_holm_ub_20x20)-ter
 plot(canopy_diff_truls_holm_ub_20x20)
 
 writeRaster(canopy_diff_truls_holm_ub_20x20,'Hedmark_Akershus/canopy_height_clipped_raster/truls_holm_ub_canopyheight', overwrite=TRUE)
+
+
+# Sørem --------------------------------------------------------------
+
+# sorem_b
+terrainmod_sorem_b  <-grid_terrain(sorem_b, method='knnidw',res=1)
+canopymod_sorem_b   <-grid_canopy(sorem_b,res=1)
+
+terrainmod_sorem_b_resampled <-resample(as.raster(terrainmod_sorem_b), as.raster(canopymod_sorem_b), method='bilinear')
+canopy_diff_sorem_b<-(as.raster(canopymod_sorem_b)-terrainmod_sorem_b_resampled)
+plot(canopy_diff_sorem_b)
+cellStats(canopy_diff_sorem_b,'max')
+
+sorem_b_clip<-sorem_b
+if(cellStats(canopy_diff_sorem_b,'max')>7) {
+  trees_sorem_b<-tree_detection(sorem_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_sorem_b<-extract(canopy_diff_sorem_b,trees_sorem_b[,1:2])
+  
+  lastrees_dalponte(sorem_b,canopy_diff_sorem_b,trees_sorem_b[treeheight_sorem_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_sorem_b<-tree_hulls(sorem_b,type='convex',field='treeID')
+  plot(canopy_diff_sorem_b)
+  plot(treeout_sorem_b,add=T) 
+  
+  bigtrees_sorem_b<-which(extract(canopy_diff_sorem_b,treeout_sorem_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  sorem_b_clip<-lasclip(sorem_b,treeout_sorem_b@polygons[[bigtrees_sorem_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_sorem_b)){
+    print(i)
+    sorem_b_clip<-lasclip(sorem_b_clip,treeout_sorem_b@polygons[[bigtrees_sorem_b[i]]]@Polygons[[1]],inside=F)}
+  plot(sorem_b_clip) 
+  
+  canopy_diff_sorem_b_clip <- (as.raster(grid_canopy(sorem_b_clip,res=0.5))-(crop(as.raster(grid_terrain(sorem_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sorem_b_clip,res=0.5)))))
+  plot(canopy_diff_sorem_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#sorem_las <-  readLAS('data/clipped_las/sorem.las') 
+sorem_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14]))
+sorem_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK1',15:14][sorem_b_order,]))
+sorem_b_cut<-lasclip(sorem_b_clip,sorem_b_poly)
+plot(sorem_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sorem_b_20x20 <-grid_terrain(sorem_b_cut,method='knnidw',res=1)
+canopymod_sorem_b_20x20  <-grid_canopy(sorem_b_cut,res=1)
+
+terrainmod_sorem_b_resampeled_20x20 <- resample(as.raster(terrainmod_sorem_b_20x20), as.raster(canopymod_sorem_b_20x20, method='bilinear'))
+canopy_diff_sorem_b_20x20 <- (as.raster(canopymod_sorem_b_20x20)-terrainmod_sorem_b_resampeled_20x20)
+plot(canopy_diff_sorem_b_20x20)
+
+writeRaster(canopy_diff_sorem_b_20x20,'data/canopy_height_clipped_raster/sorem_b_canopyheight', overwrite=TRUE)
+
+
+# sorem_ub
+terrainmod_sorem_ub <-grid_terrain(sorem_ub,method='knnidw',res=1)
+canopymod_sorem_ub  <-grid_canopy(sorem_ub,res=1)
+
+
+terrainmod_sorem_ub_resampeled <- resample(as.raster(terrainmod_sorem_ub), as.raster(canopymod_sorem_ub, method='bilinear'))
+canopy_diff_sorem_ub <- (as.raster(canopymod_sorem_ub)-terrainmod_sorem_ub_resampeled)
+plot(canopy_diff_sorem_ub)
+cellStats(canopy_diff_sorem_ub,'max')
+
+sorem_ub_clip<-sorem_ub
+if(cellStats(canopy_diff_sorem_ub,'max')>7) {
+trees_sorem_ub<-tree_detection(sorem_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+treeheight_sorem_ub<-extract(canopy_diff_sorem_ub,trees_sorem_ub[,1:2])
+
+lastrees_dalponte(sorem_ub,canopy_diff_sorem_ub,trees_sorem_ub[treeheight_sorem_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+
+treeout_sorem_ub<-tree_hulls(sorem_ub,type='convex',field='treeID')
+plot(canopy_diff_sorem_ub)
+plot(treeout_sorem_ub,add=T) 
+
+bigtrees_sorem_ub<-which(extract(canopy_diff_sorem_ub,treeout_sorem_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+
+sorem_ub_clip<-lasclip(sorem_ub,treeout_sorem_ub@polygons[[bigtrees_sorem_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+for(i in 2:length(bigtrees_sorem_ub)){
+  print(i)
+  sorem_ub_clip<-lasclip(sorem_ub_clip,treeout_sorem_ub@polygons[[bigtrees_sorem_ub[i]]]@Polygons[[1]],inside=F)}
+plot(sorem_ub_clip) 
+
+canopy_diff_sorem_ub_clip <- (as.raster(grid_canopy(sorem_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(sorem_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(sorem_ub_clip,res=0.5)))))
+plot(canopy_diff_sorem_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+sorem_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14]))
+sorem_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='SK2',15:14][sorem_ub_order,]))
+sorem_ub_cut<-lasclip(sorem_ub_clip,sorem_ub_poly)
+plot(sorem_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_sorem_ub_20x20 <-grid_terrain(sorem_ub_cut,method='knnidw',res=1)
+canopymod_sorem_ub_20x20  <-grid_canopy(sorem_ub_cut,res=1)
+
+terrainmod_sorem_ub_resampeled_20x20 <- resample(as.raster(terrainmod_sorem_ub_20x20), as.raster(canopymod_sorem_ub_20x20, method='bilinear'))
+canopy_diff_sorem_ub_20x20 <- (as.raster(canopymod_sorem_ub_20x20)-terrainmod_sorem_ub_resampeled_20x20)
+plot(canopy_diff_sorem_ub_20x20)
+
+writeRaster(canopy_diff_sorem_ub_20x20,'data/canopy_height_clipped_raster/sorem_ub_canopyheight', overwrite=TRUE)
+
+
+# Nes1 --------------------------------------------------------------
+
+# nes1_b
+terrainmod_nes1_b  <-grid_terrain(nes1_b, method='knnidw',res=1)
+canopymod_nes1_b   <-grid_canopy(nes1_b,res=1)
+
+terrainmod_nes1_b_resampled <-resample(as.raster(terrainmod_nes1_b), as.raster(canopymod_nes1_b), method='bilinear')
+canopy_diff_nes1_b<-(as.raster(canopymod_nes1_b)-terrainmod_nes1_b_resampled)
+plot(canopy_diff_nes1_b)
+cellStats(canopy_diff_nes1_b,'max')
+
+nes1_b_clip<-nes1_b
+if(cellStats(canopy_diff_nes1_b,'max')>7) {
+  trees_nes1_b<-tree_detection(nes1_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_nes1_b<-extract(canopy_diff_nes1_b,trees_nes1_b[,1:2])
+  
+  lastrees_dalponte(nes1_b,canopy_diff_nes1_b,trees_nes1_b[treeheight_nes1_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_nes1_b<-tree_hulls(nes1_b,type='convex',field='treeID')
+  plot(canopy_diff_nes1_b)
+  plot(treeout_nes1_b,add=T) 
+  
+  bigtrees_nes1_b<-which(extract(canopy_diff_nes1_b,treeout_nes1_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  nes1_b_clip<-lasclip(nes1_b,treeout_nes1_b@polygons[[bigtrees_nes1_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_nes1_b)){
+    print(i)
+    nes1_b_clip<-lasclip(nes1_b_clip,treeout_nes1_b@polygons[[bigtrees_nes1_b[i]]]@Polygons[[1]],inside=F)}
+  plot(nes1_b_clip) 
+  
+  canopy_diff_nes1_b_clip <- (as.raster(grid_canopy(nes1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(nes1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(nes1_b_clip,res=0.5)))))
+  plot(canopy_diff_nes1_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#nes1_las <-  readLAS('data/clipped_las/nes1.las') 
+nes1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14]))
+nes1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD2',15:14][nes1_b_order,]))
+nes1_b_cut<-lasclip(nes1_b_clip,nes1_b_poly)
+plot(nes1_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_nes1_b_20x20 <-grid_terrain(nes1_b_cut,method='knnidw',res=1)
+canopymod_nes1_b_20x20  <-grid_canopy(nes1_b_cut,res=1)
+
+terrainmod_nes1_b_resampeled_20x20 <- resample(as.raster(terrainmod_nes1_b_20x20), as.raster(canopymod_nes1_b_20x20, method='bilinear'))
+canopy_diff_nes1_b_20x20 <- (as.raster(canopymod_nes1_b_20x20)-terrainmod_nes1_b_resampeled_20x20)
+plot(canopy_diff_nes1_b_20x20)
+
+writeRaster(canopy_diff_nes1_b_20x20,'data/canopy_height_clipped_raster/nes1_b_canopyheight', overwrite=TRUE)
+
+
+# nes1_ub
+terrainmod_nes1_ub <-grid_terrain(nes1_ub,method='knnidw',res=1)
+canopymod_nes1_ub  <-grid_canopy(nes1_ub,res=1)
+
+
+terrainmod_nes1_ub_resampeled <- resample(as.raster(terrainmod_nes1_ub), as.raster(canopymod_nes1_ub, method='bilinear'))
+canopy_diff_nes1_ub <- (as.raster(canopymod_nes1_ub)-terrainmod_nes1_ub_resampeled)
+plot(canopy_diff_nes1_ub)
+cellStats(canopy_diff_nes1_ub,'max')
+
+nes1_ub_clip<-nes1_ub
+if(cellStats(canopy_diff_nes1_ub,'max')>7) {
+  trees_nes1_ub<-tree_detection(nes1_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_nes1_ub<-extract(canopy_diff_nes1_ub,trees_nes1_ub[,1:2])
+  
+  lastrees_dalponte(nes1_ub,canopy_diff_nes1_ub,trees_nes1_ub[treeheight_nes1_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_nes1_ub<-tree_hulls(nes1_ub,type='convex',field='treeID')
+  plot(canopy_diff_nes1_ub)
+  plot(treeout_nes1_ub,add=T) 
+  
+  bigtrees_nes1_ub<-which(extract(canopy_diff_nes1_ub,treeout_nes1_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  nes1_ub_clip<-lasclip(nes1_ub,treeout_nes1_ub@polygons[[bigtrees_nes1_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_nes1_ub)){
+    print(i)
+    nes1_ub_clip<-lasclip(nes1_ub_clip,treeout_nes1_ub@polygons[[bigtrees_nes1_ub[i]]]@Polygons[[1]],inside=F)}
+  plot(nes1_ub_clip) 
+  
+  canopy_diff_nes1_ub_clip <- (as.raster(grid_canopy(nes1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(nes1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(nes1_ub_clip,res=0.5)))))
+  plot(canopy_diff_nes1_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+nes1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14]))
+nes1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='DD1',15:14][nes1_ub_order,]))
+nes1_ub_cut<-lasclip(nes1_ub_clip,nes1_ub_poly)
+plot(nes1_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_nes1_ub_20x20 <-grid_terrain(nes1_ub_cut,method='knnidw',res=1)
+canopymod_nes1_ub_20x20  <-grid_canopy(nes1_ub_cut,res=1)
+
+terrainmod_nes1_ub_resampeled_20x20 <- resample(as.raster(terrainmod_nes1_ub_20x20), as.raster(canopymod_nes1_ub_20x20, method='bilinear'))
+canopy_diff_nes1_ub_20x20 <- (as.raster(canopymod_nes1_ub_20x20)-terrainmod_nes1_ub_resampeled_20x20)
+plot(canopy_diff_nes1_ub_20x20)
+
+writeRaster(canopy_diff_nes1_ub_20x20,'data/canopy_height_clipped_raster/nes1_ub_canopyheight', overwrite=TRUE)
+
+# Nes2 --------------------------------------------------------------
+
+# nes2_b
+terrainmod_nes2_b  <-grid_terrain(nes2_b, method='knnidw',res=1)
+canopymod_nes2_b   <-grid_canopy(nes2_b,res=1)
+
+terrainmod_nes2_b_resampled <-resample(as.raster(terrainmod_nes2_b), as.raster(canopymod_nes2_b), method='bilinear')
+canopy_diff_nes2_b<-(as.raster(canopymod_nes2_b)-terrainmod_nes2_b_resampled)
+plot(canopy_diff_nes2_b)
+cellStats(canopy_diff_nes2_b,'max')
+
+nes2_b_clip<-nes2_b
+if(cellStats(canopy_diff_nes2_b,'max')>7) {
+  trees_nes2_b<-tree_detection(nes2_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_nes2_b<-extract(canopy_diff_nes2_b,trees_nes2_b[,1:2])
+  
+  lastrees_dalponte(nes2_b,canopy_diff_nes2_b,trees_nes2_b[treeheight_nes2_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_nes2_b<-tree_hulls(nes2_b,type='convex',field='treeID')
+  plot(canopy_diff_nes2_b)
+  plot(treeout_nes2_b,add=T) 
+  
+  bigtrees_nes2_b<-which(extract(canopy_diff_nes2_b,treeout_nes2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  nes2_b_clip<-lasclip(nes2_b,treeout_nes2_b@polygons[[bigtrees_nes2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_nes2_b)){
+    print(i)
+    nes2_b_clip<-lasclip(nes2_b_clip,treeout_nes2_b@polygons[[bigtrees_nes2_b[i]]]@Polygons[[1]],inside=F)}
+  plot(nes2_b_clip) 
+  
+  canopy_diff_nes2_b_clip <- (as.raster(grid_canopy(nes2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(nes2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(nes2_b_clip,res=0.5)))))
+  plot(canopy_diff_nes2_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#nes2_las <-  readLAS('data/clipped_las/nes2.las') 
+nes2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14]))
+nes2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL2',15:14][nes2_b_order,]))
+nes2_b_cut<-lasclip(nes2_b_clip,nes2_b_poly)
+plot(nes2_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_nes2_b_20x20 <-grid_terrain(nes2_b_cut,method='knnidw',res=1)
+canopymod_nes2_b_20x20  <-grid_canopy(nes2_b_cut,res=1)
+
+terrainmod_nes2_b_resampeled_20x20 <- resample(as.raster(terrainmod_nes2_b_20x20), as.raster(canopymod_nes2_b_20x20, method='bilinear'))
+canopy_diff_nes2_b_20x20 <- (as.raster(canopymod_nes2_b_20x20)-terrainmod_nes2_b_resampeled_20x20)
+plot(canopy_diff_nes2_b_20x20)
+
+writeRaster(canopy_diff_nes2_b_20x20,'data/canopy_height_clipped_raster/nes2_b_canopyheight', overwrite=TRUE)
+
+
+# nes2_ub
+terrainmod_nes2_ub <-grid_terrain(nes2_ub,method='knnidw',res=1)
+canopymod_nes2_ub  <-grid_canopy(nes2_ub,res=1)
+
+
+terrainmod_nes2_ub_resampeled <- resample(as.raster(terrainmod_nes2_ub), as.raster(canopymod_nes2_ub, method='bilinear'))
+canopy_diff_nes2_ub <- (as.raster(canopymod_nes2_ub)-terrainmod_nes2_ub_resampeled)
+plot(canopy_diff_nes2_ub)
+cellStats(canopy_diff_nes2_ub,'max')
+
+nes2_ub_clip<-nes2_ub
+if(cellStats(canopy_diff_nes2_ub,'max')>7) {
+  trees_nes2_ub<-tree_detection(nes2_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_nes2_ub<-extract(canopy_diff_nes2_ub,trees_nes2_ub[,1:2])
+  
+  lastrees_dalponte(nes2_ub,canopy_diff_nes2_ub,trees_nes2_ub[treeheight_nes2_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_nes2_ub<-tree_hulls(nes2_ub,type='convex',field='treeID')
+  plot(canopy_diff_nes2_ub)
+  plot(treeout_nes2_ub,add=T) 
+  
+  bigtrees_nes2_ub<-which(extract(canopy_diff_nes2_ub,treeout_nes2_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  nes2_ub_clip<-lasclip(nes2_ub,treeout_nes2_ub@polygons[[bigtrees_nes2_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_nes2_ub)){
+    print(i)
+    nes2_ub_clip<-lasclip(nes2_ub_clip,treeout_nes2_ub@polygons[[bigtrees_nes2_ub[i]]]@Polygons[[1]],inside=F)}
+  plot(nes2_ub_clip) 
+  
+  canopy_diff_nes2_ub_clip <- (as.raster(grid_canopy(nes2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(nes2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(nes2_ub_clip,res=0.5)))))
+  plot(canopy_diff_nes2_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+nes2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14]))
+nes2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='OL1',15:14][nes2_ub_order,]))
+nes2_ub_cut<-lasclip(nes2_ub_clip,nes2_ub_poly)
+plot(nes2_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_nes2_ub_20x20 <-grid_terrain(nes2_ub_cut,method='knnidw',res=1)
+canopymod_nes2_ub_20x20  <-grid_canopy(nes2_ub_cut,res=1)
+
+terrainmod_nes2_ub_resampeled_20x20 <- resample(as.raster(terrainmod_nes2_ub_20x20), as.raster(canopymod_nes2_ub_20x20, method='bilinear'))
+canopy_diff_nes2_ub_20x20 <- (as.raster(canopymod_nes2_ub_20x20)-terrainmod_nes2_ub_resampeled_20x20)
+plot(canopy_diff_nes2_ub_20x20)
+
+writeRaster(canopy_diff_nes2_ub_20x20,'data/canopy_height_clipped_raster/nes2_ub_canopyheight', overwrite=TRUE)
+
+
+
+
+
 
 
 
