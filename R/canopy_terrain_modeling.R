@@ -3897,10 +3897,306 @@ plot(canopy_diff_kongsvinger2_ub_20x20)
 writeRaster(canopy_diff_kongsvinger2_ub_20x20,'data/canopy_height_clipped_raster/kongsvinger2_ub_canopyheight', overwrite=TRUE)
 
 
+# maarud1 --------------------------------------------------------------
+
+# maarud1_b
+terrainmod_maarud1_b  <-grid_terrain(maarud1_b, method='knnidw',res=1)
+canopymod_maarud1_b   <-grid_canopy(maarud1_b,res=1)
+
+terrainmod_maarud1_b_resampled <-resample(as.raster(terrainmod_maarud1_b), as.raster(canopymod_maarud1_b), method='bilinear')
+canopy_diff_maarud1_b<-(as.raster(canopymod_maarud1_b)-terrainmod_maarud1_b_resampled)
+plot(canopy_diff_maarud1_b)
+cellStats(canopy_diff_maarud1_b,'max')
+
+maarud1_b_clip<-maarud1_b
+if(cellStats(canopy_diff_maarud1_b,'max')>7) {
+  trees_maarud1_b<-tree_detection(maarud1_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud1_b<-extract(canopy_diff_maarud1_b,trees_maarud1_b[,1:2])
+  
+  lastrees_dalponte(maarud1_b,canopy_diff_maarud1_b,trees_maarud1_b[treeheight_maarud1_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud1_b<-tree_hulls(maarud1_b,type='convex',field='treeID')
+  plot(canopy_diff_maarud1_b)
+  plot(treeout_maarud1_b,add=T) 
+  
+  bigtrees_maarud1_b<-which(extract(canopy_diff_maarud1_b,treeout_maarud1_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud1_b_clip<-lasclip(maarud1_b,treeout_maarud1_b@polygons[[bigtrees_maarud1_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud1_b)){
+    print(i)
+    maarud1_b_clip<-lasclip(maarud1_b_clip,treeout_maarud1_b@polygons[[bigtrees_maarud1_b[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud1_b_clip) 
+  
+  canopy_diff_maarud1_b_clip <- (as.raster(grid_canopy(maarud1_b_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud1_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud1_b_clip,res=0.5)))))
+  plot(canopy_diff_maarud1_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#maarud1_las <-  readLAS('data/clipped_las/maarud1.las') 
+maarud1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.2',15:14]))
+maarud1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.2',15:14][maarud1_b_order,]))
+maarud1_b_cut<-lasclip(maarud1_b_clip,maarud1_b_poly)
+plot(maarud1_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud1_b_20x20 <-grid_terrain(maarud1_b_cut,method='knnidw',res=1)
+canopymod_maarud1_b_20x20  <-grid_canopy(maarud1_b_cut,res=1)
+
+terrainmod_maarud1_b_resampeled_20x20 <- resample(as.raster(terrainmod_maarud1_b_20x20), as.raster(canopymod_maarud1_b_20x20, method='bilinear'))
+canopy_diff_maarud1_b_20x20 <- (as.raster(canopymod_maarud1_b_20x20)-terrainmod_maarud1_b_resampeled_20x20)
+plot(canopy_diff_maarud1_b_20x20)
+
+writeRaster(canopy_diff_maarud1_b_20x20,'data/canopy_height_clipped_raster/maarud1_b_canopyheight', overwrite=TRUE)
 
 
+# maarud1_ub
+terrainmod_maarud1_ub <-grid_terrain(maarud1_ub,method='knnidw',res=1)
+canopymod_maarud1_ub  <-grid_canopy(maarud1_ub,res=1)
 
 
+terrainmod_maarud1_ub_resampeled <- resample(as.raster(terrainmod_maarud1_ub), as.raster(canopymod_maarud1_ub, method='bilinear'))
+canopy_diff_maarud1_ub <- (as.raster(canopymod_maarud1_ub)-terrainmod_maarud1_ub_resampeled)
+plot(canopy_diff_maarud1_ub)
+cellStats(canopy_diff_maarud1_ub,'max')
+
+maarud1_ub_clip<-maarud1_ub
+if(cellStats(canopy_diff_maarud1_ub,'max')>7) {
+  trees_maarud1_ub<-tree_detection(maarud1_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud1_ub<-extract(canopy_diff_maarud1_ub,trees_maarud1_ub[,1:2])
+  
+  lastrees_dalponte(maarud1_ub,canopy_diff_maarud1_ub,trees_maarud1_ub[treeheight_maarud1_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud1_ub<-tree_hulls(maarud1_ub,type='convex',field='treeID')
+  plot(canopy_diff_maarud1_ub)
+  plot(treeout_maarud1_ub,add=T) 
+  
+  bigtrees_maarud1_ub<-which(extract(canopy_diff_maarud1_ub,treeout_maarud1_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud1_ub_clip<-lasclip(maarud1_ub,treeout_maarud1_ub@polygons[[bigtrees_maarud1_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud1_ub)){
+    print(i)
+    maarud1_ub_clip<-lasclip(maarud1_ub_clip,treeout_maarud1_ub@polygons[[bigtrees_maarud1_ub[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud1_ub_clip) 
+  
+  canopy_diff_maarud1_ub_clip <- (as.raster(grid_canopy(maarud1_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud1_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud1_ub_clip,res=0.5)))))
+  plot(canopy_diff_maarud1_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+maarud1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.1',15:14]))
+maarud1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.1',15:14][maarud1_ub_order,]))
+maarud1_ub_cut<-lasclip(maarud1_ub_clip,maarud1_ub_poly)
+plot(maarud1_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud1_ub_20x20 <-grid_terrain(maarud1_ub_cut,method='knnidw',res=1)
+canopymod_maarud1_ub_20x20  <-grid_canopy(maarud1_ub_cut,res=1)
+
+terrainmod_maarud1_ub_resampeled_20x20 <- resample(as.raster(terrainmod_maarud1_ub_20x20), as.raster(canopymod_maarud1_ub_20x20, method='bilinear'))
+canopy_diff_maarud1_ub_20x20 <- (as.raster(canopymod_maarud1_ub_20x20)-terrainmod_maarud1_ub_resampeled_20x20)
+plot(canopy_diff_maarud1_ub_20x20)
+
+writeRaster(canopy_diff_maarud1_ub_20x20,'data/canopy_height_clipped_raster/maarud1_ub_canopyheight', overwrite=TRUE)
+
+
+# maarud2 --------------------------------------------------------------
+
+# maarud2_b
+terrainmod_maarud2_b  <-grid_terrain(maarud2_b, method='knnidw',res=1)
+canopymod_maarud2_b   <-grid_canopy(maarud2_b,res=1)
+
+terrainmod_maarud2_b_resampled <-resample(as.raster(terrainmod_maarud2_b), as.raster(canopymod_maarud2_b), method='bilinear')
+canopy_diff_maarud2_b<-(as.raster(canopymod_maarud2_b)-terrainmod_maarud2_b_resampled)
+plot(canopy_diff_maarud2_b)
+cellStats(canopy_diff_maarud2_b,'max')
+
+maarud2_b_clip<-maarud2_b
+if(cellStats(canopy_diff_maarud2_b,'max')>7) {
+  trees_maarud2_b<-tree_detection(maarud2_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud2_b<-extract(canopy_diff_maarud2_b,trees_maarud2_b[,1:2])
+  
+  lastrees_dalponte(maarud2_b,canopy_diff_maarud2_b,trees_maarud2_b[treeheight_maarud2_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud2_b<-tree_hulls(maarud2_b,type='convex',field='treeID')
+  plot(canopy_diff_maarud2_b)
+  plot(treeout_maarud2_b,add=T) 
+  
+  bigtrees_maarud2_b<-which(extract(canopy_diff_maarud2_b,treeout_maarud2_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud2_b_clip<-lasclip(maarud2_b,treeout_maarud2_b@polygons[[bigtrees_maarud2_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud2_b)){
+    print(i)
+    maarud2_b_clip<-lasclip(maarud2_b_clip,treeout_maarud2_b@polygons[[bigtrees_maarud2_b[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud2_b_clip) 
+  
+  canopy_diff_maarud2_b_clip <- (as.raster(grid_canopy(maarud2_b_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud2_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud2_b_clip,res=0.5)))))
+  plot(canopy_diff_maarud2_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#maarud2_las <-  readLAS('data/clipped_las/maarud2.las') 
+maarud2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.2',15:14]))
+maarud2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.2',15:14][maarud2_b_order,]))
+maarud2_b_cut<-lasclip(maarud2_b_clip,maarud2_b_poly)
+plot(maarud2_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud2_b_20x20 <-grid_terrain(maarud2_b_cut,method='knnidw',res=1)
+canopymod_maarud2_b_20x20  <-grid_canopy(maarud2_b_cut,res=1)
+
+terrainmod_maarud2_b_resampeled_20x20 <- resample(as.raster(terrainmod_maarud2_b_20x20), as.raster(canopymod_maarud2_b_20x20, method='bilinear'))
+canopy_diff_maarud2_b_20x20 <- (as.raster(canopymod_maarud2_b_20x20)-terrainmod_maarud2_b_resampeled_20x20)
+plot(canopy_diff_maarud2_b_20x20)
+
+writeRaster(canopy_diff_maarud2_b_20x20,'data/canopy_height_clipped_raster/maarud2_b_canopyheight', overwrite=TRUE)
+
+
+# maarud2_ub
+terrainmod_maarud2_ub <-grid_terrain(maarud2_ub,method='knnidw',res=1)
+canopymod_maarud2_ub  <-grid_canopy(maarud2_ub,res=1)
+
+
+terrainmod_maarud2_ub_resampeled <- resample(as.raster(terrainmod_maarud2_ub), as.raster(canopymod_maarud2_ub, method='bilinear'))
+canopy_diff_maarud2_ub <- (as.raster(canopymod_maarud2_ub)-terrainmod_maarud2_ub_resampeled)
+plot(canopy_diff_maarud2_ub)
+cellStats(canopy_diff_maarud2_ub,'max')
+
+maarud2_ub_clip<-maarud2_ub
+if(cellStats(canopy_diff_maarud2_ub,'max')>7) {
+  trees_maarud2_ub<-tree_detection(maarud2_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud2_ub<-extract(canopy_diff_maarud2_ub,trees_maarud2_ub[,1:2])
+  
+  lastrees_dalponte(maarud2_ub,canopy_diff_maarud2_ub,trees_maarud2_ub[treeheight_maarud2_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud2_ub<-tree_hulls(maarud2_ub,type='convex',field='treeID')
+  plot(canopy_diff_maarud2_ub)
+  plot(treeout_maarud2_ub,add=T) 
+  
+  bigtrees_maarud2_ub<-which(extract(canopy_diff_maarud2_ub,treeout_maarud2_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud2_ub_clip<-lasclip(maarud2_ub,treeout_maarud2_ub@polygons[[bigtrees_maarud2_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud2_ub)){
+    print(i)
+    maarud2_ub_clip<-lasclip(maarud2_ub_clip,treeout_maarud2_ub@polygons[[bigtrees_maarud2_ub[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud2_ub_clip) 
+  
+  canopy_diff_maarud2_ub_clip <- (as.raster(grid_canopy(maarud2_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud2_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud2_ub_clip,res=0.5)))))
+  plot(canopy_diff_maarud2_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+maarud2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.1',15:14]))
+maarud2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.1',15:14][maarud2_ub_order,]))
+maarud2_ub_cut<-lasclip(maarud2_ub_clip,maarud2_ub_poly)
+plot(maarud2_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud2_ub_20x20 <-grid_terrain(maarud2_ub_cut,method='knnidw',res=1)
+canopymod_maarud2_ub_20x20  <-grid_canopy(maarud2_ub_cut,res=1)
+
+terrainmod_maarud2_ub_resampeled_20x20 <- resample(as.raster(terrainmod_maarud2_ub_20x20), as.raster(canopymod_maarud2_ub_20x20, method='bilinear'))
+canopy_diff_maarud2_ub_20x20 <- (as.raster(canopymod_maarud2_ub_20x20)-terrainmod_maarud2_ub_resampeled_20x20)
+plot(canopy_diff_maarud2_ub_20x20)
+
+writeRaster(canopy_diff_maarud2_ub_20x20,'data/canopy_height_clipped_raster/maarud2_ub_canopyheight', overwrite=TRUE)
+
+# maarud3 --------------------------------------------------------------
+
+# maarud3_b
+terrainmod_maarud3_b  <-grid_terrain(maarud3_b, method='knnidw',res=1)
+canopymod_maarud3_b   <-grid_canopy(maarud3_b,res=1)
+
+terrainmod_maarud3_b_resampled <-resample(as.raster(terrainmod_maarud3_b), as.raster(canopymod_maarud3_b), method='bilinear')
+canopy_diff_maarud3_b<-(as.raster(canopymod_maarud3_b)-terrainmod_maarud3_b_resampled)
+plot(canopy_diff_maarud3_b)
+cellStats(canopy_diff_maarud3_b,'max')
+
+maarud3_b_clip<-maarud3_b
+if(cellStats(canopy_diff_maarud3_b,'max')>7) {
+  trees_maarud3_b<-tree_detection(maarud3_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud3_b<-extract(canopy_diff_maarud3_b,trees_maarud3_b[,1:2])
+  
+  lastrees_dalponte(maarud3_b,canopy_diff_maarud3_b,trees_maarud3_b[treeheight_maarud3_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud3_b<-tree_hulls(maarud3_b,type='convex',field='treeID')
+  plot(canopy_diff_maarud3_b)
+  plot(treeout_maarud3_b,add=T) 
+  
+  bigtrees_maarud3_b<-which(extract(canopy_diff_maarud3_b,treeout_maarud3_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud3_b_clip<-lasclip(maarud3_b,treeout_maarud3_b@polygons[[bigtrees_maarud3_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud3_b)){
+    print(i)
+    maarud3_b_clip<-lasclip(maarud3_b_clip,treeout_maarud3_b@polygons[[bigtrees_maarud3_b[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud3_b_clip) 
+  
+  canopy_diff_maarud3_b_clip <- (as.raster(grid_canopy(maarud3_b_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud3_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud3_b_clip,res=0.5)))))
+  plot(canopy_diff_maarud3_b_clip)
+}
+
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+#maarud3_las <-  readLAS('data/clipped_las/maarud3.las') 
+maarud3_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.2',15:14]))
+maarud3_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.2',15:14][maarud3_b_order,]))
+maarud3_b_cut<-lasclip(maarud3_b_clip,maarud3_b_poly)
+plot(maarud3_b_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud3_b_20x20 <-grid_terrain(maarud3_b_cut,method='knnidw',res=1)
+canopymod_maarud3_b_20x20  <-grid_canopy(maarud3_b_cut,res=1)
+
+terrainmod_maarud3_b_resampeled_20x20 <- resample(as.raster(terrainmod_maarud3_b_20x20), as.raster(canopymod_maarud3_b_20x20, method='bilinear'))
+canopy_diff_maarud3_b_20x20 <- (as.raster(canopymod_maarud3_b_20x20)-terrainmod_maarud3_b_resampeled_20x20)
+plot(canopy_diff_maarud3_b_20x20)
+
+writeRaster(canopy_diff_maarud3_b_20x20,'data/canopy_height_clipped_raster/maarud3_b_canopyheight', overwrite=TRUE)
+
+
+# maarud3_ub
+terrainmod_maarud3_ub <-grid_terrain(maarud3_ub,method='knnidw',res=1)
+canopymod_maarud3_ub  <-grid_canopy(maarud3_ub,res=1)
+
+
+terrainmod_maarud3_ub_resampeled <- resample(as.raster(terrainmod_maarud3_ub), as.raster(canopymod_maarud3_ub, method='bilinear'))
+canopy_diff_maarud3_ub <- (as.raster(canopymod_maarud3_ub)-terrainmod_maarud3_ub_resampeled)
+plot(canopy_diff_maarud3_ub)
+cellStats(canopy_diff_maarud3_ub,'max')
+
+maarud3_ub_clip<-maarud3_ub
+if(cellStats(canopy_diff_maarud3_ub,'max')>7) {
+  trees_maarud3_ub<-tree_detection(maarud3_ub,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+  treeheight_maarud3_ub<-extract(canopy_diff_maarud3_ub,trees_maarud3_ub[,1:2])
+  
+  lastrees_dalponte(maarud3_ub,canopy_diff_maarud3_ub,trees_maarud3_ub[treeheight_maarud3_ub>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+  
+  treeout_maarud3_ub<-tree_hulls(maarud3_ub,type='convex',field='treeID')
+  plot(canopy_diff_maarud3_ub)
+  plot(treeout_maarud3_ub,add=T) 
+  
+  bigtrees_maarud3_ub<-which(extract(canopy_diff_maarud3_ub,treeout_maarud3_ub,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
+  
+  maarud3_ub_clip<-lasclip(maarud3_ub,treeout_maarud3_ub@polygons[[bigtrees_maarud3_ub[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
+  for(i in 2:length(bigtrees_maarud3_ub)){
+    print(i)
+    maarud3_ub_clip<-lasclip(maarud3_ub_clip,treeout_maarud3_ub@polygons[[bigtrees_maarud3_ub[i]]]@Polygons[[1]],inside=F)}
+  plot(maarud3_ub_clip) 
+  
+  canopy_diff_maarud3_ub_clip <- (as.raster(grid_canopy(maarud3_ub_clip,res=0.5))-(crop(as.raster(grid_terrain(maarud3_ub_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(maarud3_ub_clip,res=0.5)))))
+  plot(canopy_diff_maarud3_ub_clip)
+}
+#Cutting the 32x32m square(with big trees removed) to 20x20 m
+maarud3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.1',15:14]))
+maarud3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.1',15:14][maarud3_ub_order,]))
+maarud3_ub_cut<-lasclip(maarud3_ub_clip,maarud3_ub_poly)
+plot(maarud3_ub_cut) #20x20 m area as point cloud
+
+#Make new canopy height model for 20x20 m square
+terrainmod_maarud3_ub_20x20 <-grid_terrain(maarud3_ub_cut,method='knnidw',res=1)
+canopymod_maarud3_ub_20x20  <-grid_canopy(maarud3_ub_cut,res=1)
+
+terrainmod_maarud3_ub_resampeled_20x20 <- resample(as.raster(terrainmod_maarud3_ub_20x20), as.raster(canopymod_maarud3_ub_20x20, method='bilinear'))
+canopy_diff_maarud3_ub_20x20 <- (as.raster(canopymod_maarud3_ub_20x20)-terrainmod_maarud3_ub_resampeled_20x20)
+plot(canopy_diff_maarud3_ub_20x20)
+
+writeRaster(canopy_diff_maarud3_ub_20x20,'data/canopy_height_clipped_raster/maarud3_ub_canopyheight', overwrite=TRUE)
 
 
 
