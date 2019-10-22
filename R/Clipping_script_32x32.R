@@ -1927,3 +1927,47 @@ kongsvinger1_ub_outerpoly<-kongsvinger1_ub_outerpoly$`1`
 plot(kongsvinger1_ub_outerpoly) 
 
 writeLAS(kongsvinger1_ub_outerpoly,'data/clipped_las/kongsvinger1_ub.las')
+
+
+# Kongsvinger 2 --------------------------------------------------------------
+kongsvinger2_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\JCDB_2019_5p_0_25m\\1097\\data\\eksport_193567_1097_1.laz') 
+kongsvinger2_las 
+plot(kongsvinger2_las)
+
+#kongsvinger2_b
+kongsvinger2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='JCD2',15:14]))
+kongsvinger2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='JCD2',15:14][kongsvinger2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+kongsvinger2_b_pl <- Polygons(list(kongsvinger2_b_poly),1)
+kongsvinger2_b_sp <- SpatialPolygons(list(kongsvinger2_b_pl))
+kongsvinger2_b_polybuf <- gBuffer(kongsvinger2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_kongsvinger2_b<-data.frame(ID=1)
+rownames(df1_kongsvinger2_b)<-'buffer' 
+kongsvinger2_b_spdf <- SpatialPolygonsDataFrame(kongsvinger2_b_polybuf,data=df1_kongsvinger2_b,match.ID = TRUE)
+
+kongsvinger2_b_outerpoly<-lasclip(kongsvinger2_las,kongsvinger2_b_spdf)
+kongsvinger2_b_outerpoly<-kongsvinger2_b_outerpoly$`1`
+plot(kongsvinger2_b_outerpoly) 
+
+writeLAS(kongsvinger2_b_outerpoly,'data/clipped_las/kongsvinger2_b.las')
+
+#kongsvinger2_ub
+kongsvinger2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='JCD1',15:14]))
+kongsvinger2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='JCD1',15:14][kongsvinger2_ub_order,]))
+
+kongsvinger2_ub_pl <- Polygons(list(kongsvinger2_ub_poly),1)
+kongsvinger2_ub_sp <- SpatialPolygons(list(kongsvinger2_ub_pl))
+kongsvinger2_ub_polybuf <- gBuffer(kongsvinger2_ub_sp, width=6)
+
+df1_kongsvinger2_ub<-data.frame(ID=1)
+rownames(df1_kongsvinger2_ub)<-'buffer'
+kongsvinger2_ub_spdf <- SpatialPolygonsDataFrame(kongsvinger2_ub_polybuf,data=df1_kongsvinger2_ub,match.ID = TRUE)
+
+kongsvinger2_ub_outerpoly<-lasclip(kongsvinger2_las,kongsvinger2_ub_spdf)
+kongsvinger2_ub_outerpoly<-kongsvinger2_ub_outerpoly$`1`
+plot(kongsvinger2_ub_outerpoly) 
+
+writeLAS(kongsvinger2_ub_outerpoly,'data/clipped_las/kongsvinger2_ub.las')
