@@ -1971,3 +1971,132 @@ kongsvinger2_ub_outerpoly<-kongsvinger2_ub_outerpoly$`1`
 plot(kongsvinger2_ub_outerpoly) 
 
 writeLAS(kongsvinger2_ub_outerpoly,'data/clipped_las/kongsvinger2_ub.las')
+
+# Maarud 1 --------------------------------------------------------------
+maarud1_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\M1B_2019_5p_0_25m\\1097\\data\\eksport_193568_1097_1.laz') 
+maarud1_las 
+plot(maarud1_las)
+
+#maarud1_b
+maarud1_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.2',15:14]))
+maarud1_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.2',15:14][maarud1_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+maarud1_b_pl <- Polygons(list(maarud1_b_poly),1)
+maarud1_b_sp <- SpatialPolygons(list(maarud1_b_pl))
+maarud1_b_polybuf <- gBuffer(maarud1_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_maarud1_b<-data.frame(ID=1)
+rownames(df1_maarud1_b)<-'buffer' 
+maarud1_b_spdf <- SpatialPolygonsDataFrame(maarud1_b_polybuf,data=df1_maarud1_b,match.ID = TRUE)
+
+maarud1_b_outerpoly<-lasclip(maarud1_las,maarud1_b_spdf)
+maarud1_b_outerpoly<-maarud1_b_outerpoly$`1`
+plot(maarud1_b_outerpoly) 
+
+writeLAS(maarud1_b_outerpoly,'data/clipped_las/maarud1_b.las')
+
+#maarud1_ub
+maarud1_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.1',15:14]))
+maarud1_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M1.1',15:14][maarud1_ub_order,]))
+
+maarud1_ub_pl <- Polygons(list(maarud1_ub_poly),1)
+maarud1_ub_sp <- SpatialPolygons(list(maarud1_ub_pl))
+maarud1_ub_polybuf <- gBuffer(maarud1_ub_sp, width=6)
+
+df1_maarud1_ub<-data.frame(ID=1)
+rownames(df1_maarud1_ub)<-'buffer'
+maarud1_ub_spdf <- SpatialPolygonsDataFrame(maarud1_ub_polybuf,data=df1_maarud1_ub,match.ID = TRUE)
+
+maarud1_ub_outerpoly<-lasclip(maarud1_las,maarud1_ub_spdf)
+maarud1_ub_outerpoly<-maarud1_ub_outerpoly$`1`
+plot(maarud1_ub_outerpoly) 
+
+writeLAS(maarud1_ub_outerpoly,'data/clipped_las/maarud1_ub.las')
+
+# Maarud 2 --------------------------------------------------------------
+maarud2_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\M2B_2019_5p_0_25m\\1097\\data\\eksport_193603_1097_1.laz') 
+maarud2_las 
+plot(maarud2_las)
+
+#maarud2_b
+maarud2_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.2',15:14]))
+maarud2_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.2',15:14][maarud2_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+maarud2_b_pl <- Polygons(list(maarud2_b_poly),1)
+maarud2_b_sp <- SpatialPolygons(list(maarud2_b_pl))
+maarud2_b_polybuf <- gBuffer(maarud2_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_maarud2_b<-data.frame(ID=1)
+rownames(df1_maarud2_b)<-'buffer' 
+maarud2_b_spdf <- SpatialPolygonsDataFrame(maarud2_b_polybuf,data=df1_maarud2_b,match.ID = TRUE)
+
+maarud2_b_outerpoly<-lasclip(maarud2_las,maarud2_b_spdf)
+maarud2_b_outerpoly<-maarud2_b_outerpoly$`1`
+plot(maarud2_b_outerpoly) 
+
+writeLAS(maarud2_b_outerpoly,'data/clipped_las/maarud2_b.las')
+
+#maarud2_ub
+maarud2_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.1',15:14]))
+maarud2_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M2.1',15:14][maarud2_ub_order,]))
+
+maarud2_ub_pl <- Polygons(list(maarud2_ub_poly),1)
+maarud2_ub_sp <- SpatialPolygons(list(maarud2_ub_pl))
+maarud2_ub_polybuf <- gBuffer(maarud2_ub_sp, width=6)
+
+df1_maarud2_ub<-data.frame(ID=1)
+rownames(df1_maarud2_ub)<-'buffer'
+maarud2_ub_spdf <- SpatialPolygonsDataFrame(maarud2_ub_polybuf,data=df1_maarud2_ub,match.ID = TRUE)
+
+maarud2_ub_outerpoly<-lasclip(maarud2_las,maarud2_ub_spdf)
+maarud2_ub_outerpoly<-maarud2_ub_outerpoly$`1`
+plot(maarud2_ub_outerpoly) 
+
+writeLAS(maarud2_ub_outerpoly,'data/clipped_las/maarud2_ub.las')
+
+# Maarud 3 --------------------------------------------------------------
+maarud3_las <-  readLAS('T:\\vm\\inh\\botanisk\\Bruker\\James\\Ingrid LAS files\\hedmark_new_las_version\\M3B_2019_5p_0_25m\\1097\\data\\eksport_193574_1097_1.laz') 
+maarud3_las 
+plot(maarud3_las)
+
+#maarud3_b
+maarud3_b_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.2',15:14]))
+maarud3_b_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.2',15:14][maarud3_b_order,]))
+
+#Make it a spatial polygon, and then expand polygon to include overhanging trees
+maarud3_b_pl <- Polygons(list(maarud3_b_poly),1)
+maarud3_b_sp <- SpatialPolygons(list(maarud3_b_pl))
+maarud3_b_polybuf <- gBuffer(maarud3_b_sp, width=6) #buffer: 6 m on each side
+
+#The polygon is now a spatial polygon, need to make it a SpatialPolygonsDataFrame
+df1_maarud3_b<-data.frame(ID=1)
+rownames(df1_maarud3_b)<-'buffer' 
+maarud3_b_spdf <- SpatialPolygonsDataFrame(maarud3_b_polybuf,data=df1_maarud3_b,match.ID = TRUE)
+
+maarud3_b_outerpoly<-lasclip(maarud3_las,maarud3_b_spdf)
+maarud3_b_outerpoly<-maarud3_b_outerpoly$`1`
+plot(maarud3_b_outerpoly) 
+
+writeLAS(maarud3_b_outerpoly,'data/clipped_las/maarud3_b.las')
+
+#maarud3_ub
+maarud3_ub_order<-chull(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.1',15:14]))
+maarud3_ub_poly<-Polygon(as.matrix(plotcoords_hedmark_akershus[plotcoords_hedmark_akershus$Uthegningi=='M3.1',15:14][maarud3_ub_order,]))
+
+maarud3_ub_pl <- Polygons(list(maarud3_ub_poly),1)
+maarud3_ub_sp <- SpatialPolygons(list(maarud3_ub_pl))
+maarud3_ub_polybuf <- gBuffer(maarud3_ub_sp, width=6)
+
+df1_maarud3_ub<-data.frame(ID=1)
+rownames(df1_maarud3_ub)<-'buffer'
+maarud3_ub_spdf <- SpatialPolygonsDataFrame(maarud3_ub_polybuf,data=df1_maarud3_ub,match.ID = TRUE)
+
+maarud3_ub_outerpoly<-lasclip(maarud3_las,maarud3_ub_spdf)
+maarud3_ub_outerpoly<-maarud3_ub_outerpoly$`1`
+plot(maarud3_ub_outerpoly) 
+
+writeLAS(maarud3_ub_outerpoly,'data/clipped_las/maarud3_ub.las')
