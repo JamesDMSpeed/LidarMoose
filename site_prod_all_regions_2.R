@@ -644,6 +644,14 @@ Hedmark <- c(
   "Stangeskovene Aurskog",
   "Stig Dahlen",
   "Truls Holm",
+  "Sørum 1",
+  "Nes 1",
+  "Nes 2",
+  "Kongsvinger 1",
+  "Kongsvinger 2",
+  "Maarud 1",
+  "Maarud 2",
+  "Maarud 3",
   "Fet3",
   "Eidskog",
   "Halvard Pramhus",
@@ -742,6 +750,7 @@ combined$max_annual_inc_tonns_ha <- combined$max_annual_inc_tonns_ha/maks
 productivity <- select(combined, 
                        Region, LocalityName, Productivity = max_annual_inc_tonns_ha)
 write.csv(productivity, 'Site_prod_all_regions.csv')
+write.csv(productivity, 'Site_prod_all_regions_new.csv')
 #save(productivity, file="M:\\Anders L Kolstad\\R\\R_projects\\succession_paper\\prod_index_telemark_and_trondelag.RData")
 
 plot(productivity$LocalityName, productivity$Productivity)

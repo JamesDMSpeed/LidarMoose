@@ -1,5 +1,7 @@
 
 # Top ---------------------------------------------------------------------
+setwd('C:/Users/Ingrid/Documents/Master - Sustherb/LidarMoose')
+getwd()
 
 require(lidR)
 require(raster)
