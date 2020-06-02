@@ -187,26 +187,29 @@ summary {
 <h2>Analaysis of Lidar data at moose exclosure sites</h2>
 <p>This was originally Ingrid Bekken Snøan’s <a href="https://ntnuopen.ntnu.no/ntnu-xmlui/handle/11250/2618099?locale-attribute=no">master project</a> that was submitted and approved in 2019. The work was continuated by Ingrid and the other contributors to make a manuscript ready for publication.</p>
 </div>
-<div id="simplified-workflow" class="section level2">
-<h2>Simplified workflow</h2>
+<div id="workflow-and-issuestasks" class="section level2">
+<h2>Workflow and issues/tasks</h2>
 <ol style="list-style-type: decimal">
-<li>Get LiDAR data from hoydedata.no</li>
-</ol>
+<li>Get LiDAR data from hoydedata.no
 <ul>
 <li>1 x 1 km around each site</li>
-<li>Files are here: <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files</code></li>
+<li>They come as compreesed laz files (I think) and are stored in <code>data/laz/</code>.</li>
 </ul>
-<ol start="2" style="list-style-type: decimal">
-<li><p>Convert laz to las</p></li>
-<li>Clip las files with a 6m buffer around each plot</li>
-</ol>
+<p>New laz files for Hedemark was added October 2019, and are found at <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\hedmark_new_las_version</code>. (I’m not sure if these are added to the <code>data/laz/</code> folder.) There are 36 files in <code>data/laz</code> (+ one called ex1.laz). Total possible number of sites is (15+16+16) 47, so we’re missing 11 sites.</p></li>
+<li>Convert laz (compressed) to las (uncompressed)
+<ul>
+<li>Files are here: <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\</code></li>
+</ul></li>
+<li>Clip las files with a 6m buffer around each plot
 <ul>
 <li><a href="https://github.com/JamesDMSpeed/LidarMoose/issues/9">Issue 9</a>: Imprecise plot coordinates.</li>
-<li>Files are in: <code>data/clipped_las</code></li>
-<li><p>James added Sorem, Nes 1 &amp; 2, and Maarud 1, 2 &amp; 3 in Nowember 2019</p>
-<p>There are two script files that look very similar: <code>Clipping script.R</code> and <code>Clipping_script_32x32x.R</code>. These are very long, and should perhaps be shortened with a for-loop. That will also fix the <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/7">directories problem</a>.</p></li>
+<li>Files are in: <code>data/clipped_las</code>.</li>
 </ul>
-<ol start="4" style="list-style-type: decimal">
+92 items in folder, incl. ex_las and ex2.las. That would imply 45 sites, 9 more than we have laz files for. Not sure what’s going on there.
+<ul>
+<li>James added Sorem, Nes 1 &amp; 2, and Maarud 1, 2 &amp; 3 in Nowember 2019</li>
+</ul>
+<p>There are two script files that look very similar: <code>Clipping script.R</code> and <code>Clipping_script_32x32x.R</code>. Assuming the latter is the most recent (it looks that way). These are very long scripts, and should perhaps be shortened with a for-loop. That will also fix the <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/7">directories problem</a>. To do that the three files with plot coordinated need to be standardised (see <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/10">issue 10</a>).</p></li>
 <li>Make a canopy model
 <ul>
 <li>highest points, measured in meters above sea level</li>
@@ -236,13 +239,13 @@ summary {
 <li>Remove the 6m buffers
 <ul>
 <li>Resulting canopy height models (raster files) are stored in <code>data/canopy_height_clipped_raster</code></li>
-</ul></li>
+</ul>
+<p>This folder contains too many files. This is because of a script called <code>Resolution.R</code> which produces canopy height models for the sites h_pramhus and verdal_1vb at different (higher?) resolution. These are saved with the ending ‘05’. In addition there are las files for these sites with the ending ‘0’ that I don’t know where come from. I don’t think any of tese should be used, that they were just for testing. They’re not imported by the <code>canopy_terrain_modelling.R</code> script.</p></li>
 <li>Get summary data from the canopy height models
 <ul>
 <li>See: <code>AutomatedDataSummaryfromCanopyHeight.R</code></li>
-<li>median</li>
-<li>median absoloute deviation (MAD)</li>
-<li>relative MAD (MAD/median)</li>
+<li>depracated: <code>Making table.R</code></li>
+<li>Extract: median, median absoloute deviation (MAD), relative MAD (MAD/median)</li>
 </ul></li>
 <li>Prepare field-based data
 <ul>

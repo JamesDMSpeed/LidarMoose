@@ -8,9 +8,9 @@ require(raster)
 require(rasterVis)
 require(rgeos)
 
-plotcoords<-read.csv('Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
-plotcoords_telemark<-read.csv('Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
-plotcoords_hedmark_akershus<-read.csv('Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
+plotcoords<-read.csv('data/troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+plotcoords_telemark<-read.csv('data/Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
+plotcoords_hedmark_akershus<-read.csv('data/Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
 
 
 # Trondelag ---------------------------------------------------------------
