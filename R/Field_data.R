@@ -3,88 +3,111 @@
 
 
 # Loading and tidying field data ------------------------------------------
+library(readr)
 
 
-library(readxl)
-density <- read_excel("data/density.xlsx")
+density <- read_csv("data/density.csv")
 # Downloaded from Natron 3 june 2020 and includes 2019 data. 
 
 names(density)
 
 #Make col with years
-head(density$`_Date`)
-density$`_Date` <- as.Date(density$`_Date`, "%d/%m/%Y")
-dat3$year <- format(as.Date(dat3$`_Date`, format="%d/%m/%Y"),"%Y")
-
-# Remove years that are not from the same year as LIDAR data for each site
-#Select data from year of interest
-#Trøndelag
-# dat4 <- dat3[!(dat3$LocalityName=='Bratsberg'& dat3$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Singsås' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Malvik' & dat4$year!='2016'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Selbu_Flub' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Selbu_kl' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='sl_tydal' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Hi_tydal' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Sl_Tydal' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='steinkjer_1BBb' & dat4$year!='2011'),]
-# dat4 <- dat4[!(dat4$LocalityName=='steinkjer_2BBb' & dat4$year!='2011'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Nsb_Verdal' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='verdal_1vb' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='verdal_2VB' & dat4$year!='2015'),]
-# dat4 <- dat4[!(dat4$LocalityName=='namdalseid_1kub' & dat4$year!='2010'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Sub_Namdalseid' & dat4$year!='2010'),]
-# 
-# #Telemark
-# dat4 <- dat4[!(dat4$LocalityName=='Fritsøe1' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Fritsøe2' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Nome_Cappelen1' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Nome_Cappelen2' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Notodden3' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Notodden5' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Notodden6' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Drangedal1' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Drangedal3' & dat4$year!='2016'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Drangedal4' & dat4$year!='2016'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid1' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid2' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Kviteseid3' & dat4$year!='2017'),]
-# dat4 <- dat4[!(dat4$LocalityName=='Furesdal' & dat4$year!='2017'),]
-# 
-# #Hedmark_Akershus
-# dat4 <- dat4[!(dat4 $LocalityName=='Didrik Holmsen' & dat4 $year!='2018'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Stangeskovene Aurskog' & dat4 $year!='2018'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Stig Dæhlen' & dat4 $year!='2017'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Truls Holm' & dat4 $year!='2017'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Fet 3' & dat4 $year!='2016'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Eidskog' & dat4 $year!='2016'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Halvard Pramhus' & dat4 $year!='2016'),]
-# dat4  <- dat4 [!(dat4 $LocalityName=='Stangeskovene Eidskog' & dat4 $year!='2016'),]
-# 
+summary(density$eventDate)
+density$year <- format(density$eventDate,"%Y")
+summary(as.numeric(density$year))
+hist(as.numeric(density$year))
 
 
 
 
-# untable for å lage en rad for hvert individ.
+#Select data from the years that we also have LiDAR data for
+# Get metadata
+sustherbsites<-read.table('Metadata_stats.csv',header=T,sep=',')
+#table(  sustherbsites$LocalityCode,    sustherbsites$LiDAR.data.from.year)
+table(  sustherbsites$LocalityName,    sustherbsites$LiDAR.data.from.year)
+# OK - this is updated with the 2019 data
+
+# find common link between dataset to do matching
+unique(density$locality)           # 42
+unique(sustherbsites$LocalityName) # 45
+unique(sustherbsites$Region.x) # 45
+
+  unique(density$locality[density$siteNumber %in% unique(sustherbsites$LocalityCode)])
+  unique(density$locality[!density$siteNumber %in% unique(sustherbsites$LocalityCode)])
+  
+View(density[density$locality == "Telemark | Notodden1 | Winter browsing" , ])
+# We don't have LiDAR data for Notodden 1 and 4, so that fine that they are not included in the sustherbsites dataset.
+# The other four sites are just spelt differently
+
+density$siteNumber[density$locality == "Trøndelag | steinkjer_1B | Winter browsing"][1] #1BB
+density$siteNumber[density$locality == "Trøndelag | steinkjer_2B | Winter browsing"][1] #2BB
+density$siteNumber[density$locality == "Trøndelag | verdal_1v | Winter browsing"][1]    #1VB
+density$siteNumber[density$locality == "Trøndelag | verdal_2v | Winter browsing"][1]    #2vb
+
+sustherbsites$LocalityCode[sustherbsites$LocalityName == "verdal_1vb"][1]               #1VBB    
+sustherbsites$LocalityCode[sustherbsites$LocalityName == "verdal_2VB"][1]               #2VBB
+sustherbsites$LocalityCode[sustherbsites$LocalityName == "steinkjer_1BBb"][1]           #1BBB
+sustherbsites$LocalityCode[sustherbsites$LocalityName == "steinkjer_2BBb"][1]           #2BBB   
+
+density$siteNumber[density$locality == "Trøndelag | steinkjer_1B | Winter browsing"] <- "1BBB"
+density$siteNumber[density$locality == "Trøndelag | steinkjer_2B | Winter browsing"] <- "2BBB"
+density$siteNumber[density$locality == "Trøndelag | verdal_1v | Winter browsing"]    <- "1VBB"
+density$siteNumber[density$locality == "Trøndelag | verdal_2v | Winter browsing"]    <- "2VBB"
+
+unique(density$locality[!density$siteNumber %in% unique(sustherbsites$LocalityCode)])
+#OK
+
+density <- density[!density$locality %in% c("Telemark | Notodden1 | Winter browsing", 
+                                            "Telemark | Notodden4 | Winter browsing"),]
+
+density$test <- sustherbsites$LiDAR.data.from.year[match(density$siteNumber, sustherbsites$LocalityCode)]
+summary(density$test)
+head(density[c("siteNumber", "year", "test")])
+
+density <- density[density$year == density$test,]
+head(density[c("siteNumber", "year", "test")])
+summary(as.numeric(density$year))
+
+
+# untable to make one row per observation
 library(reshape)
-dat4 <- reshape::untable(dat3, num = dat3$Quantity)
+hist(density$individualCount)
+# Individuals within same subplot and height class is on the same time and aggregated into this column
+mean(density$individualCount) # 3.087634
+# That means the following should tripple the dataset length ...:
+dat <- reshape::untable(density, num = density$individualCount)
+# it worked
 
 
 
-# konvertere height_class til m
-max(dat4$Height_class_50cm, na.rm = T)
-#max =9
-dat4$height_m <- ifelse(dat4$Height_class_50cm=='1', 0.25,
-                        ifelse(dat4$Height_class_50cm=='2', 0.75,
-                               ifelse(dat4$Height_class_50cm=='3', 1.25,
-                                      ifelse(dat4$Height_class_50cm=='4', 1.75,
-                                             ifelse(dat4$Height_class_50cm=='5', 2.25,
-                                                    ifelse(dat4$Height_class_50cm=='6', 2.75, 
-                                                           ifelse(dat4$Height_class_50cm=='7', 3.25,
-                                                                  ifelse(dat4$Height_class_50cm=='8', 3.75, 4.25))))))))
+
+# let's convert height classes into the center value for each class
+dat$hc <-  dat$`height class 50cm (categorical)`
+summary(dat$hc) # no na's. Classes range from 1 (0-50 cm) to 9
+
+dat$height_c <- ifelse(dat$hc=='1', 0.25,
+                        ifelse(dat$hc=='2', 0.75,
+                               ifelse(dat$hc=='3', 1.25,
+                                      ifelse(dat$hc=='4', 1.75,
+                                             ifelse(dat$hc=='5', 2.25,
+                                                    ifelse(dat$hc=='6', 2.75, 
+                                                           ifelse(dat$hc=='7', 3.25,
+                                                                  ifelse(dat$hc=='8', 3.75, 4.25))))))))
+
+summary(dat$height_c)
 
 
-# aggregate to plot, calculate median height plot
+
+# aggregate to plot-level ####
+
+datAgg <- stats::aggregate(data = dat,
+                           height_c ~ siteNumber + stationNumber,
+                                                FUN = function(x) c(median = median(x), mean = mean(x)))
+
+head(datAgg)
+# next aggregate to 20x20 level
+
+head(datAgg)
 
 # Make new dataframe ------------------------------------------------------
 
