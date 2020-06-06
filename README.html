@@ -195,61 +195,51 @@ summary {
 <li>1 x 1 km around each site</li>
 <li>They come as compreesed laz files (I think) and are stored in <code>data/laz/</code>.</li>
 </ul>
-<p>New laz files for Hedemark was added October 2019, and are found at <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\hedmark_new_las_version</code>. (I’m not sure if these are added to the <code>data/laz/</code> folder.) There are 36 files in <code>data/laz</code> (+ one called ex1.laz). Total possible number of sites is (15+16+16) 47, so we’re missing 11 sites.</p></li>
+<p>Eight new laz files for Hedemark was added October 2019, and are found at <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\hedmark_new_las_version</code>. (These are not added to the <code>data/laz/</code> folder.) There are 36 files in <code>data/laz</code> (+ one called ex1.laz). Thats one less than what Ingrid used in the thesis (she used 37). With the 8 that was added that brings us up to 45. Total possible number of sites is (15+16+16) 47.</p></li>
 <li>Convert laz (compressed) to las (uncompressed)
 <ul>
 <li>Files are here: <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\</code></li>
+<li>I think this was done using laszip.exe by Ingrid, but James imported laz straight into R using <code>readLAS()</code> (se Clipping_script_32x32.R line 1760 or site Sørem 1).</li>
 </ul></li>
 <li>Clip las files with a 6m buffer around each plot
 <ul>
 <li><a href="https://github.com/JamesDMSpeed/LidarMoose/issues/9">Issue 9</a>: Imprecise plot coordinates.</li>
 <li>Files are in: <code>data/clipped_las</code>.</li>
-</ul>
-92 items in folder, incl. ex_las and ex2.las. That would imply 45 sites, 9 more than we have laz files for. Not sure what’s going on there.
-<ul>
 <li>James added Sorem, Nes 1 &amp; 2, and Maarud 1, 2 &amp; 3 in Nowember 2019</li>
 </ul>
-<p>There are two script files that look very similar: <code>Clipping script.R</code> and <code>Clipping_script_32x32x.R</code>. Assuming the latter is the most recent (it looks that way). These are very long scripts, and should perhaps be shortened with a for-loop. That will also fix the <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/7">directories problem</a>. To do that the three files with plot coordinated need to be standardised (see <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/10">issue 10</a>).</p></li>
-<li>Make a canopy model
+<p>There are two script files that look very similar: <code>Clipping script.R</code> and <code>Clipping_script_32x32x.R</code>. Assuming the latter is the most recent (it looks that way since James wrote in it in October 2019). These are very long scripts, and could potentially be shortened with a for-loop. That will also fix the <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/7">directories problem</a>. To do that the three files with plot coordinated need to be standardised (see <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/10">issue 10</a>). Probably it’s too much work at this stage.</p></li>
+<li><code>canopy_terrain_modeling.R</code>
 <ul>
-<li>highest points, measured in meters above sea level</li>
-</ul></li>
-</ol>
-<p>This step, as well as 5, 6, 7, and 8, is done inside <code>canopy_terrain_modeling.R</code>. The script can be automated.</p>
-<ol start="5" style="list-style-type: decimal">
-<li><p>Make a terrain model</p></li>
-<li>Make a canopy height model
-<ul>
-<li>subtracting the terrain model from the canopy model</li>
-<li>resolution set to 1m</li>
-</ul></li>
-<li>Remove large trees</li>
-</ol>
-<ul>
-<li>These functions were used:
-<ul>
-<li><code>lidR::tree_detection()</code></li>
-<li><code>lidR::lastrees_dalponte()</code></li>
-<li><code>lidR::tree_hulls()</code></li>
-<li><code>lidR::lasclip()</code></li>
-</ul></li>
-<li>Trees over 7m tall were cut away. This might be too low now with the more recent LiDAR data from 2019?</li>
+<li>Make canopy-, terrain-, and canopy height models for the 32 x 32 plot</li>
+<li>Resolution is set to 1m</li>
+<li>Identify trees above 5 m and remove tose above 7 m. This might be too low a threshold now with the more recent LiDAR data from 2019?</li>
+<li>Remove the 6m buffers</li>
+<li>Remake the canopy model</li>
+<li>Write to: <code>data/canopy_height_clipped_raster</code></li>
 </ul>
-<ol start="8" style="list-style-type: decimal">
-<li>Remove the 6m buffers
-<ul>
-<li>Resulting canopy height models (raster files) are stored in <code>data/canopy_height_clipped_raster</code></li>
-</ul>
-<p>This folder contains too many files. This is because of a script called <code>Resolution.R</code> which produces canopy height models for the sites h_pramhus and verdal_1vb at different (higher?) resolution. These are saved with the ending ‘05’. In addition there are las files for these sites with the ending ‘0’ that I don’t know where come from. I don’t think any of tese should be used, that they were just for testing. They’re not imported by the <code>canopy_terrain_modelling.R</code> script.</p></li>
+<p>This folder contains too many files. This is because of a script called <code>Resolution.R</code> which produces canopy height models for the sites h_pramhus and verdal_1vb at different (higher?) resolution. These are saved with the ending ‘05’. In addition there are las files for these sites with the ending ‘0’ that I don’t know where come from. I don’t think any of tese should be used, that they were just for testing. They’re not imported by the <code>canopy_terrain_modelling.R</code> script. I have moved them to the subfolder <code>trash/</code></p></li>
 <li>Get summary data from the canopy height models
 <ul>
 <li>See: <code>AutomatedDataSummaryfromCanopyHeight.R</code></li>
 <li>depracated: <code>Making table.R</code></li>
-<li>Extract: median, median absoloute deviation (MAD), relative MAD (MAD/median)</li>
+<li>Extract: median, median absoloute deviation (MAD), relative MAD (MAD/median).</li>
 </ul></li>
 <li>Prepare field-based data
 <ul>
-<li>The script is called <code>Field_data.r</code> but it’s very long</li>
+<li><code>Field_data.r</code></li>
+<li>Writes to <code>MyData5.csv</code> and <code>Data_prod_field</code>. Extracted variables are mean and median yearly growth.</li>
+<li>We need to update the sustherb fiedl-based data set and rerun this script (perhaps simplify it a bit). See <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/11">issue 11</a>.</li>
+</ul></li>
+<li>Calculate site productivity’
+<ul>
+<li><code>site_prod_all_regions_2.R</code></li>
+<li>writes to: <code>data/Site_prod_all_regions.csv</code>.</li>
+</ul>
+<p>Uses harvested tree biomass data to make allometric models and calculate standing biomass and subsequantly annual biomass increments (growth, but not height growth). Productivity is mean annual biomass increment for either the exclosure (usually) or the open plot (if it grew faster).</p></li>
+<li><p>Combine LiDAR data with site metadata.</p></li>
+<li>Analyses
+<ul>
+<li>….</li>
 </ul></li>
 </ol>
 </div>

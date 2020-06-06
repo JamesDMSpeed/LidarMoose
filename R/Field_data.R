@@ -1,33 +1,19 @@
-# eksempelskript til Ingrid
+# This script prepares the sustherb density data set for comparison agains LiDAR data.
+# It is a modification of the script that Ingrid used whihc is moved to trach/Field_data_old.R
 
 
 # Loading and tidying field data ------------------------------------------
 
 
 library(readxl)
-sustherb_densityDataset_Dump06022019 <- read_excel("E:/sustherb_densityDataset_Dump06022019.xlsx")
-View(sustherb_densityDataset_Dump06022019)
+density <- read_excel("data/density.xlsx")
+# Downloaded from Natron 3 june 2020 and includes 2019 data. 
 
-dat <- sustherb_densityDataset_Dump06022019
-
-#Removing all the empty col
-colnames(dat)
-dat <- dat[,1:15]
-
-#Filtrer
-#Remove Tingvoll & Gloppen
-dat1 <- dat[!(dat$Region=='Tingvoll'),]
-dat2 <- dat1[!(dat1$Region)=='Gloppen',]
-
-#Remove sites not in the project
-study_sites<-c('BRB','BRUB','HIB','HIUB' ,'MAB','MAUB', '1KB','1KUB','1NSB','1NSUB','FLB','FLUB','KLB','KLUB','SLB','SLUB', 'LAB','LAUB','SEB','SEUB','1BBB','1BBUB','2BBB','2BBUB','1SB','1SUB','1VBB','1VBUB','2VBB','2VBUB','1DRB','1DRUB','3DRB','3DRUB','4DRB','4DRUB','1FRB','1FRUB','2FRB','2FRUB','1FYB','1FYUB','1KVB','1KVUB','2KVB','2KVUB','3KVB','3KVUB','1CAB','1CAUB','2CAB','2CAUB','3NOB','3NOUB','5NOB','5NOUB','6NOB','6NOUB','DHB','DHUB','STSKNB','STSKNUB','FKB','FKUB','HPB','HPUB','SSAB','SSAUB','SSBB','SSBUB','SDB','SDUB','THB','THUB')
-
-dat3 <- dat2[(dat2$LocalityCode%in%study_sites),]
-
-
+names(density)
 
 #Make col with years
-dat3$`_Date` <- as.Date(dat3$`_Date`, "%d.%m.%Y")
+head(density$`_Date`)
+density$`_Date` <- as.Date(density$`_Date`, "%d/%m/%Y")
 dat3$year <- format(as.Date(dat3$`_Date`, format="%d/%m/%Y"),"%Y")
 
 # Remove years that are not from the same year as LIDAR data for each site
