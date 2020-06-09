@@ -1,0 +1,123 @@
+---
+title: "Analysis"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# An analysis using LiDAR data to detect moose browsing effects, with ground truthing
+
+```{r}
+library(readr)
+library(ggplot2)
+```
+
+## Get compiled dataset (see compile.R)
+
+
+```{r}
+dat <- read_csv("../data/compiledDataset.csv")
+head(dat)
+```
+
+
+## A quick data check
+```{r}
+table(dat$Treatment, dat$Clear.cut)
+```
+
+```{r}
+table(dat$Year.initiated, dat$LiDAR.data.from.year)
+```
+
+```{r}
+table(dat$plot_density_m2, dat$resolution_m)
+```
+Something odd there...
+
+```{r}
+table(dat$region, dat$Treatment)
+```
+
+```{r}
+table(dat$LocalityName, dat$Treatment)
+```
+Looks good.
+
+
+## Plots etc
+Lets first compute canopy growth per year since exclosure
+```{r}
+dat$canopygrowth <- dat$md/dat$YrsSinceExclosure
+summary(dat$canopygrowth)
+```
+The numbers are in meters I'm pretty sure
+
+```{r}
+dat$Treatment <- as.factor(dat$Treatment)
+levels(dat$Treatment) <- c('Open plot','Exclosure')
+(chg_treat <- ggplot(dat, aes(x=Treatment, y=canopygrowth, group=LocalityName))+
+  geom_line()+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Treatment')+
+  scale_linetype_manual(breaks = c("Exclosure", "Open plot"), 
+                        labels = c("Open plots", "Exclosures"), values=c(1,2))+
+  scale_x_discrete(limits = c('Open plot', 'Exclosure'), 
+                   breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))+
+  theme_bw()+
+  theme(text = element_text(size = 20))+
+  ylim(0, 0.4))
+```
+
+Remove sites with top productivity and plot the interaction Treatment X Productivity
+```{r}
+dat2 <- dat[dat$prod<0.8,]
+dim(dat2)
+```
+Lost 4 rows, i.e two localities
+
+
+Lets use loess as it makes less assumptions about the shape of the relationship:
+```{r}
+(chg_prod <- ggplot(data = dat2,
+                    aes(x = prod, y = canopygrowth))+
+  geom_point(aes(colour= Treatment, shape=region))+
+   geom_smooth(aes(colour= Treatment),
+               method = "loess", formula =  'y ~ x')+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment", shape="Region")+
+  theme(text = element_text(size = 20))+
+  ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+)
+```
+There's a relationship there it seems like, but perhaps not linear. Also note that allthe really productive sites are in Hedmark:
+
+```{r}
+table(round(dat$prod, 1), dat$region)
+```
+
+```{r}
+boxplot(dat2$prod~dat2$region)
+```
+
+We need a model to describe the interaction between treatment and productivity. The response is a continous but strictly positive variable so either a gaussian or gamma familiy would be appropriate. It looks like the variation increases with productivity, so perhaps gamma.
+```{r}
+library(glmmTMB)
+dat2$region <- as.factor(dat2$region)
+mod <- glmmTMB(canopygrowth ~ Treatment * prod + (1|region) + (1|LocalityName), 
+  data = dat2,  family = Gamma)
+summary(mod)
+```
+
+
+
+
+

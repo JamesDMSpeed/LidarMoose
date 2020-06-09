@@ -52,7 +52,8 @@ This was originally Ingrid Bekken Snøan's [master project](https://ntnuopen.ntn
     * writes to `data/compiledDataset.csv`
 
 1. Analyses
-    * `analysis.R`
+    * `analysis.Rdm`
+    * deparacated: `AnalysisNov2019.R` and `Plots and analysis.R`
 
 
 
