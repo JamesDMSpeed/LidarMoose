@@ -35,7 +35,6 @@ This was originally Ingrid Bekken Snøan's [master project](https://ntnuopen.ntn
     * depracated: `Making table.R`
     * Extract: median, median absoloute deviation (MAD), relative MAD (MAD/median).
 
-
 1. Prepare field-based data
     * `Field_data.r`
     * Writes to `MyData5.csv` and `Data_prod_field`. Extracted variables are mean and median tree height at the 20x20 plot level, which is then divied by experimental duration to give yearly growth that is comparable to the LiDAR data.
@@ -47,10 +46,13 @@ This was originally Ingrid Bekken Snøan's [master project](https://ntnuopen.ntn
 
     Uses harvested tree biomass data to make allometric models and calculate standing biomass and subsequantly annual biomass increments (growth, but not height growth). Productivity is mean annual biomass increment for either the exclosure (usually) or the open plot (if it grew faster).
 
-1. Combine LiDAR data with site metadata.
+1. Combine LiDAR data with all other data types/sources.
+    * `compile.R`
+    * depracated: `Merge_script.R`, `merge data frames.R`, `AnalysisNov2019.R` (first part)
+    * writes to `data/compiledDataset.csv`
 
 1. Analyses
-    * ....
+    * `analysis.R`
 
 
 

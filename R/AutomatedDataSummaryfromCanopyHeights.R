@@ -3,7 +3,7 @@ library(raster)
 
 #List files and read in
 lf1<-list.files('data/canopy_height_clipped_raster/',pattern='*canopyheight.grd',full.names = T)
-# 90 grd-files found. That means 45 sites, which is too many!
+# 90 grd-files found. That means 45 sites, which is more than we have field data for!
 
 canopymods<-lapply(lf1,raster::raster)
 
@@ -25,10 +25,18 @@ names(canopymods)[[i]] <- sub(
 }
 
 
-MySummary <- function(i) c(mn = mean(getValues(i), na.rm=T), md = median(getValues(i), na.rm=T), sd= cellStats(i, stat='sd', na.rm=T), min= min(getValues(i), na.rm=T),max= max(getValues(i), na.rm=T), first_qu= quantile(i, 0.25, na.rm=T), third_qu= quantile(i, 0.75, na.rm=T),
+MySummary <- function(i) c(mn = mean(getValues(i), na.rm=T), 
+                           md = median(getValues(i), na.rm=T), 
+                           sd= cellStats(i, stat='sd', na.rm=T), 
+                           min= min(getValues(i), na.rm=T),
+                           max= max(getValues(i), na.rm=T), 
+                           first_qu= quantile(i, 0.25, na.rm=T), 
+                           third_qu= quantile(i, 0.75, na.rm=T),
                            mad=mad(getValues(i),na.rm=T))
 
 
 dat1<-data.frame(t(sapply(canopymods,MySummary,USE.NAMES = T)))
-dat1
+dat1$site <- rownames(dat1)
+dat1 <- dat1[,c(ncol(dat1), 1:ncol(dat1)-1)]
 
+write.csv(dat1, 'data/LiDAR_values.csv', row.names = F)

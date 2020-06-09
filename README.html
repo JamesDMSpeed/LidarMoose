@@ -193,7 +193,6 @@ summary {
 <li>Get LiDAR data from hoydedata.no
 <ul>
 <li>1 x 1 km around each site</li>
-<li>They come as compreesed laz files (I think) and are stored in <code>data/laz/</code>.</li>
 </ul>
 <p>Eight new laz files for Hedemark was added October 2019, and are found at <code>T:\vm\inh\botanisk\Bruker\James\Ingrid LAS files\hedmark_new_las_version</code>. (These are not added to the <code>data/laz/</code> folder.) There are 36 files in <code>data/laz</code> (+ one called ex1.laz). Thats one less than what Ingrid used in the thesis (she used 37). With the 8 that was added that brings us up to 45. Total possible number of sites is (15+16+16) 47.</p></li>
 <li>Convert laz (compressed) to las (uncompressed)
@@ -212,7 +211,7 @@ summary {
 <ul>
 <li>Make canopy-, terrain-, and canopy height models for the 32 x 32 plot</li>
 <li>Resolution is set to 1m</li>
-<li>Identify trees above 5 m and remove tose above 7 m. This might be too low a threshold now with the more recent LiDAR data from 2019?</li>
+<li>Identify trees above 5 m and remove those above 7 m. This might be too low a threshold now with the more recent LiDAR data from 2019?</li>
 <li>Remove the 6m buffers</li>
 <li>Remake the canopy model</li>
 <li>Write to: <code>data/canopy_height_clipped_raster</code></li>
@@ -227,8 +226,8 @@ summary {
 <li>Prepare field-based data
 <ul>
 <li><code>Field_data.r</code></li>
-<li>Writes to <code>MyData5.csv</code> and <code>Data_prod_field</code>. Extracted variables are mean and median yearly growth.</li>
-<li>We need to update the sustherb fiedl-based data set and rerun this script (perhaps simplify it a bit). See <a href="https://github.com/JamesDMSpeed/LidarMoose/issues/11">issue 11</a>.</li>
+<li>Writes to <code>MyData5.csv</code> and <code>Data_prod_field</code>. Extracted variables are mean and median tree height at the 20x20 plot level, which is then divied by experimental duration to give yearly growth that is comparable to the LiDAR data.</li>
+<li>Sustherb density dataset is downloaded from Natron and includes data from 2019</li>
 </ul></li>
 <li>Calculate site productivity’
 <ul>
@@ -236,10 +235,15 @@ summary {
 <li>writes to: <code>data/Site_prod_all_regions.csv</code>.</li>
 </ul>
 <p>Uses harvested tree biomass data to make allometric models and calculate standing biomass and subsequantly annual biomass increments (growth, but not height growth). Productivity is mean annual biomass increment for either the exclosure (usually) or the open plot (if it grew faster).</p></li>
-<li><p>Combine LiDAR data with site metadata.</p></li>
+<li>Combine LiDAR data with all other data types/sources.
+<ul>
+<li><code>compile.R</code></li>
+<li>depracated: <code>Merge_script.R</code>, <code>merge data frames.R</code>, <code>AnalysisNov2019.R</code> (first part)</li>
+<li>writes to <code>data/compiledDataset.csv</code></li>
+</ul></li>
 <li>Analyses
 <ul>
-<li>….</li>
+<li><code>analysis.R</code></li>
 </ul></li>
 </ol>
 </div>
