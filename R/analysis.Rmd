@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(readr)
 library(ggplot2)
+library(glmmTMB)
 ```
 
 ## Get compiled dataset (see compile.R)
@@ -47,7 +48,7 @@ table(dat$LocalityName, dat$Treatment)
 Looks good.
 
 
-## Plots etc
+## Canopy growth per year
 Lets first compute canopy growth per year since exclosure
 ```{r}
 dat$canopygrowth <- dat$md/dat$YrsSinceExclosure
@@ -67,8 +68,9 @@ levels(dat$Treatment) <- c('Open plot','Exclosure')
                    breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))+
   theme_bw()+
   theme(text = element_text(size = 20))+
-  ylim(0, 0.4))
+  ylim(0, 0.45))
 ```
+
 
 Remove sites with top productivity and plot the interaction Treatment X Productivity
 ```{r}
@@ -98,7 +100,7 @@ Lets use loess as it makes less assumptions about the shape of the relationship:
                              legend.text = element_text(size=12))
 )
 ```
-There's a relationship there it seems like, but perhaps not linear. Also note that allthe really productive sites are in Hedmark:
+There's a relationship there it seems like, but perhaps not linear. Also note that all the really productive sites are in Hedmark:
 
 ```{r}
 table(round(dat$prod, 1), dat$region)
@@ -107,17 +109,314 @@ table(round(dat$prod, 1), dat$region)
 ```{r}
 boxplot(dat2$prod~dat2$region)
 ```
-
-We need a model to describe the interaction between treatment and productivity. The response is a continous but strictly positive variable so either a gaussian or gamma familiy would be appropriate. It looks like the variation increases with productivity, so perhaps gamma.
+Lets investigate the effect of region a bit more.
 ```{r}
-library(glmmTMB)
-dat2$region <- as.factor(dat2$region)
-mod <- glmmTMB(canopygrowth ~ Treatment * prod + (1|region) + (1|LocalityName), 
-  data = dat2,  family = Gamma)
-summary(mod)
+ggplot(data = dat2,
+  aes(x = prod, y = canopygrowth, colour = region))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme_bw()+
+  #scale_color_manual(values = c("gray0", "gray50", "grey100"))+
+  labs(colour="Region")+
+  theme(text = element_text(size = 12))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+
+```
+This plot tells us there is no justification for a random slope model.
+
+Let's get some summary stats. 
+
+```{r}
+m <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = mean)
+# And standard error:
+source('se.R')
+s <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = se)
+(sumStats <- data.frame("mean canopy growth per year" = round(m, 3),
+                        "standard error of the mean" = round(s, 3))) 
 ```
 
 
+We need a model to describe the interaction between treatment and productivity. The response is continous and both positive and negative variable can occur, so a gaussian familiy would be appropriate.
+```{r}
+library(glmmTMB) # using this package even though I dont need all its finesse...
+dat2$region <- as.factor(dat2$region)
+mod1 <- glmmTMB(canopygrowth ~ Treatment * prod + (1|region),
+  data = dat2,  family = gaussian)
+```
+
+```{r}
+mod2 <- glmmTMB(canopygrowth ~ Treatment * prod ,
+  data = dat2,  family = gaussian)
+
+```
+
+```{r}
+AIC(mod1, mod2)
+```
+Model 2 is slightly better, suggesting we drop the random intercept.
+What does ANOVA say about this?
+```{r}
+anova(mod1, mod2)
+```
+They are not different, so we can drop the random intercept. The only reason for keeping it is if we want to argue it's part of the design, which it is. However, I don't think that's more important than having a parsimoinous model. 
 
 
+```{r}
+summary(mod2)
+```
+Significant interaction term, so we're keeping this full model.
+We can also see what the random effect would've give us:
+```{r}
+ranef(mod1)
+```
+, and it's not very much.
+
+```{r}
+plot(resid(mod2), fitted(mod2))
+```
+
+```{r}
+par(mfrow=c(2,2))
+qqnorm(resid(mod2))
+plot(resid(mod2)~ dat2$region)
+plot(resid(mod2), dat2$prod)
+plot(resid(mod2)~ dat2$Treatment)
+
+```
+Looks like everything is in order.
+
+
+```{r}
+(intPlot <- ggplot(data = dat2,
+                    aes(x = prod, y = canopygrowth, colour= Treatment))+
+  geom_point()+
+   geom_smooth(method = "lm")+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+)
+```
+So here we're modelling a linear function of productivity. We could try adding a quadratic term. 
+
+```{r}
+mod3 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2),
+  data = dat2,  family = gaussian)
+```
+
+```{r}
+AIC(mod2, mod3)
+```
+This gave no improvement.
+
+We can also make these nice violin plots, even though the main pot should show the interaction effect like the plot above does.
+```{r}
+(viol <- ggplot(data = dat2, aes(x = Treatment, y = canopygrowth))+
+  geom_violin(fill = "grey")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2))
+```
+
+## Compare LiDAR and field data
+First, let's calculate canopy growth as we did for the LiDAR data
+
+```{r}
+dat2$canopygrowth_f <- dat2$field_median/dat2$YrsSinceExclosure
+```
+
+```{r}
+summary(dat2$canopygrowth_f)
+```
+```{r}
+par(mfrow=c(2,2), mar=c(4,4,1,1))
+plot(dat2$canopygrowth_f, ylab="Median")
+plot(dat2$canopygrowth_f~dat2$Treatment, xlab="", ylab="Median")
+plot(dat2$canopygrowth_f~dat2$prod, xlab="Productivity", ylab="Median")
+plot(dat2$canopygrowth_f~dat2$region, xlab="", ylab="Median")
+
+```
+Appears the annual median tree growth of a site (median of the median of a circle) is around 0.1, or precisely:
+```{r}
+median(dat2$canopygrowth_f)
+```
+Also, it is greater in exclosures and increases with productivity, and is highest in Hedmark. Very similar to the LiDAR data.
+```{r}
+m2 <- tapply(dat2$canopygrowth_f, dat2$Treatment, FUN = mean)
+s2 <- tapply(dat2$canopygrowth_f, dat2$Treatment, FUN = se)
+(sumStats <- data.frame("mean canopy growth per year" = round(m2, 3),
+                        "standard error of the mean" = round(s2, 3))) 
+```
+
+We don't want to analyse the field data alone, or by itself. That we have done in other papers and with more data. Here we are only interested in 'ground-truthing' the LiDAR data. So..:
+
+```{r}
+(corPlot <- ggplot(data = dat2,
+                    aes(x = canopygrowth, y = canopygrowth_f, colour= Treatment))+
+  geom_point()+
+   geom_smooth(method = "lm")+
+  labs(y=expression(paste('Field-based canopy height growth (m year'^'-1', ')')), x=expression(paste('LiDAR-based canopy height growth (m year'^'-1', ')')))+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+)
+```
+
+Perhaps the correation strength differes between treatment, but not very much.
+
+```{r}
+ggplot(data = dat2,
+                    aes(x = canopygrowth, y = canopygrowth_f, colour= region))+
+  geom_point()+
+   geom_smooth(method = "lm")+
+  labs(y=expression(paste('Field-based canopy height growth (m year'^'-1', ')')), x=expression(paste('LiDAR-based canopy height growth (m year'^'-1', ')')))+
+  theme_bw()+
+  
+  labs(colour="Region")+
+  theme(text = element_text(size = 12))+
+  ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+
+```
+Also it differs a bit between region. 
+
+
+Also, we can look at the effect that experimental duratio has had on the correlation:
+
+```{r}
+dat2$diff <- dat2$canopygrowth-dat2$canopygrowth_f
+hist(dat2$diff)
+```
+
+```{r}
+ggplot(data = dat2,
+        aes(x = YrsSinceExclosure, y = diff))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y="LiDAR-data minus field-based data",
+         x="Years since exclosure")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+```
+It looks like older difference between LiDAR and field-based data.
+
+I would like to see if the correlation depends on LiDAR resolution, but then we should figure out what this is about:
+```{r}
+table(dat2$plot_density_m2, dat2$resolution_m)
+```
+It's not clear which is derived from which, but I think its plot density that is the original.
+
+```{r, echo=F}
+ggplot(data = dat2,
+        aes(x = plot_density_m2, y = diff))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y="LiDAR-data minus field-based data",
+         x="Plot density (points per m2)")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+```
+No big difference.
+
+Note that we are not seein if the slope is close to 1 or not. We assume it will be. It's correlation strength that matters.
+
+```{r}
+cor(dat2$canopygrowth, dat2$canopygrowth_f)
+```
+And it's not very high.
+We can use a more sophisticated model to see where the field-based data is better or worse at predicting LiDAR results.
+
+```{r}
+moddiff <- glmmTMB(canopygrowth~canopygrowth_f
+                   +region+canopygrowth_f:region
+                   +YrsSinceExclosure+YrsSinceExclosure:canopygrowth_f
+                   +plot_density_m2+plot_density_m2:canopygrowth_f
+                   +Treatment+Treatment:canopygrowth_f,
+                   family=gaussian,
+                   data=dat2)
+summary(moddiff)
+```
+Nothing significant.
+Applying dredge:
+```{r}
+library(MuMIn)
+dredge(moddiff, beta="none", rank = "AICc")
+```
+And the best model is...:
+```{r}
+moddiff2 <- glmmTMB(canopygrowth~canopygrowth_f
+                   +YrsSinceExclosure+YrsSinceExclosure:canopygrowth_f
+                   +plot_density_m2
+                   +Treatment,
+                   family=gaussian,
+                   data=dat2)
+summary(moddiff2)
+```
+Interpretation: Field-based data have a medium correlation to LiDAR data (0.5ish). The coorelation is dependent on Years since exclosure (probably this could be exchanged with tree height?) and LiDAR data is more likely to underestimate canopy growth at short experimental durations (see figure above). Similarly, lower LiDAR resolution induces underestimates in the same way. Field-based data is also not able to explain the variation induced by the fencing treatemtn. This could be a three way ineraction as well, including years since exclusion. Not sure if it should be included here actually.
+
+Validation 
+```{r}
+par(mfrow=c(1,2), mar = c(4,4,1,1))
+plot(resid(moddiff2), fitted(moddiff2))
+qqnorm(resid(moddiff2))
+
+```
+```{r}
+par(mfrow=c(3,2), mar = c(4,4,1,1))
+plot(resid(moddiff2)~ dat2$region)
+plot(resid(moddiff2), dat2$prod)
+plot(resid(moddiff2)~ dat2$Treatment)
+plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
+plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
+plot(resid(moddiff2)~ dat2$plot_density_m2)
+
+```
+Looks Ok
+
+We also want to analyse MAD, and correlations between Lidar and field based treatment-differences.
 
