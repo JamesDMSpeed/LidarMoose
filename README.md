@@ -52,7 +52,7 @@ This was originally Ingrid Bekken Snøan's [master project](https://ntnuopen.ntn
     * writes to `data/compiledDataset.csv`
 
 1. Analyses
-    * `analysis.Rdm`
+    * `analysis.Rdm` writes to pdf (see `R/analysis.pdf` for how the analyses are going)
     * deparacated: `AnalysisNov2019.R` and `Plots and analysis.R`
 
 
