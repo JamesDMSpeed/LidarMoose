@@ -1,14 +1,41 @@
-# TOP ####
+
+# TOP / packages ----------------------------------------------------------
+
 
 require(lidR)
 require(raster)
 require(rasterVis)
+require(rasterVis)
+require(sp)
+library(rgl)
+library(lattice)
+library(grid)
+library(ggplot2)
+library(stringr)
+# Coordinates -------------------------------------------------------------
 
-plotcoords<-read.csv('data/Troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
+
+plotcoords<-read.csv('data/troendelag_20m_flater_pkt.csv',header=T,sep=';',dec=',')
 plotcoords_telemark<-read.csv('data/Koordinater_20x20_Telemark.csv',header=T,sep=';',dec=',')
 plotcoords_hedmark_akershus<-read.csv('data/Koordinater_20x20_Hedmark_Akershus.csv',header=T,sep=';',dec=',')
+plotcoords$region <- "Trondelag"
+plotcoords_telemark$region <- "Telemark"
+plotcoords_hedmark_akershus$region <- "Hedmark"
 
+head(plotcoords)
+str(plotcoords)
+head(plotcoords_telemark)
+head(plotcoords_hedmark_akershus)
+names(plotcoords_hedmark_akershus)
+
+myCols <- c("Name", "utm32ost", "utm32nord", "region")
+myCoords <- rbind(plotcoords[,myCols],
+                  setNames(plotcoords_telemark[,c("flatenavn", "utm32east", "utm32north", "region")],myCols),
+                  setNames(plotcoords_hedmark_akershus[,c("Uthegningi", "utm32east", "utm32north", "region")],myCols))
 # NOTE: files are in data/clipped_las
+length(unique(myCoords$Name))
+
+# I need to match the site names with the LAS file names
 
 # Import clipped files ----------------------------------------------------
 #Trondelag
@@ -86,109 +113,330 @@ stangesk_eidskog_b <-readLAS('data/clipped_las/stangeskovene_eidskog_b.las')
 stangesk_eidskog_ub<-readLAS('data/clipped_las/stangeskovene_eidskog_ub.las')
 stig_dahlen_b      <-readLAS('data/clipped_las/stig_dahlen_b.las')
 stig_dahlen_ub     <-readLAS('data/clipped_las/stig_dahlen_ub.las')
-truls_holm_b      <-readLAS('data/clipped_las/truls_holm_b.las')
-truls_holm_ub     <-readLAS('data/clipped_las/truls_holm_ub.las')
+truls_holm_b       <-readLAS('data/clipped_las/truls_holm_b.las')
+truls_holm_ub      <-readLAS('data/clipped_las/truls_holm_ub.las')
 sorem_b            <-readLAS('data/clipped_las/sorem_b.las')
-sorem_ub            <-readLAS('data/clipped_las/sorem_ub.las')
-nes1_b            <-readLAS('data/clipped_las/nes1_b.las')
+sorem_ub           <-readLAS('data/clipped_las/sorem_ub.las')
+nes1_b             <-readLAS('data/clipped_las/nes1_b.las')
 nes1_ub            <-readLAS('data/clipped_las/nes1_ub.las')
-nes2_b            <-readLAS('data/clipped_las/nes2_b.las')
+nes2_b             <-readLAS('data/clipped_las/nes2_b.las')
 nes2_ub            <-readLAS('data/clipped_las/nes2_ub.las')
-kongsvinger1_b    <-readLAS('data/clipped_las/kongsvinger1_b.las')
+kongsvinger1_b     <-readLAS('data/clipped_las/kongsvinger1_b.las')
 kongsvinger1_ub    <-readLAS('data/clipped_las/kongsvinger1_ub.las')
-kongsvinger2_b    <-readLAS('data/clipped_las/kongsvinger2_b.las')
+kongsvinger2_b     <-readLAS('data/clipped_las/kongsvinger2_b.las')
 kongsvinger2_ub    <-readLAS('data/clipped_las/kongsvinger2_ub.las')
-maarud1_b    <-readLAS('data/clipped_las/maarud1_b.las')
-maarud1_ub    <-readLAS('data/clipped_las/maarud1_ub.las')
-maarud2_b    <-readLAS('data/clipped_las/maarud2_b.las')
-maarud2_ub    <-readLAS('data/clipped_las/maarud2_ub.las')
-maarud3_b    <-readLAS('data/clipped_las/maarud3_b.las')
-maarud3_ub    <-readLAS('data/clipped_las/maarud3_ub.las')
+maarud1_b          <-readLAS('data/clipped_las/maarud1_b.las')
+maarud1_ub         <-readLAS('data/clipped_las/maarud1_ub.las')
+maarud2_b          <-readLAS('data/clipped_las/maarud2_b.las')
+maarud2_ub         <-readLAS('data/clipped_las/maarud2_ub.las')
+maarud3_b          <-readLAS('data/clipped_las/maarud3_b.las')
+maarud3_ub         <-readLAS('data/clipped_las/maarud3_ub.las')
+
+
+sites <- c(
+  "bratsberg_b",      
+  "bratsberg_ub",      
+  "hi_tydal_b",        
+  "hi_tydal_ub",       
+  "malvik_b",          
+  "malvik_ub",         
+  "namdalseid_1kub_b",
+  "namdalseid_1kub_ub",
+  "nsb_verdal_b      ",
+  "nsb_verdal_ub     ",
+  "selbu_flub_b      ",
+  "selbu_flub_ub     ",
+  "selbu_kl_b        ",
+  "selbu_kl_ub       ",
+  "selbu_sl_b        ",
+  "selbu_sl_ub       ",
+  "singsaas_b        ",
+  "singsaas_ub       ",
+  "sl_tydal_b        ",
+  "sl_tydal_ub       ",
+  "steinkjer_1BBb_b  ",
+  "steinkjer_1BBb_ub ",
+  "steinkjer_2BBb_b  ",
+  "steinkjer_2BBb_ub ",
+  "sub_namdalseid_b  ",
+  "sub_namdalseid_ub ",
+  "verdal_1vb_b      ",
+  "verdal_1vb_ub     ",
+  "verdal_2vb_b      ",
+  "verdal_2vb_ub     ",
+  
+  "drangedal1_b       ",
+  "drangedal1_ub      ",
+  "drangedal3_b       ",
+  "drangedal3_ub      ",
+  "drangedal4_b       ",
+  "drangedal4_ub      ",
+  "fritsoe2_b         ",
+  "fritsoe2_ub        ",
+  "fritsoe1_b         ",
+  "fritsoe1_ub        ",
+  "fyresdal_b         ",
+  "fyresdal_ub        ",
+  "kviteseid1_b       ",
+  "kviteseid1_ub      ",
+  "kviteseid2_b       ",
+  "kviteseid2_ub      ",
+  "kviteseid3_b       ",
+  "kviteseid3_ub      ",
+  "n_cappelen1_b      ",
+  "n_cappelen1_ub     ",
+  "n_cappelen2_b      ",
+  "n_cappelen2_ub     ",
+  "notodden3_b        ",
+  "notodden3_ub       ",
+  "notodden5_b        ",
+  "notodden5_ub       ",
+  "notodden6_b        ",
+  "notodden6_ub       ",
+  
+  "didrik_holmsen_b   ",
+  "didrik_holmsen_ub  ",
+  "eidskog_b          ",
+  "eidskog_ub         ",
+  "fet3_b             ",
+  "fet3_ub            ",
+  "h_pramhus_b        ",
+  "h_pramhus_ub       ",
+  "stangesk_aurskog_b ",
+  "stangesk_aurskog_ub",
+  "stangesk_eidskog_b ",
+  "stangesk_eidskog_ub",
+  "stig_dahlen_b      ",
+  "stig_dahlen_ub     ",
+  "truls_holm_b       ",
+  "truls_holm_ub      ",
+  "sorem_b            ",
+  "sorem_ub           ",
+  "nes1_b             ",
+  "nes1_ub            ",
+  "nes2_b             ",
+  "nes2_ub            ",
+  "kongsvinger1_b     ",
+  "kongsvinger1_ub    ",
+  "kongsvinger2_b     ",
+  "kongsvinger2_ub    ",
+  "maarud1_b          ",
+  "maarud1_ub         ",
+  "maarud2_b          ",
+  "maarud2_ub         ",
+  "maarud3_b          ",
+  "maarud3_ub         "
+)
+sites <- str_trim(sites, side = "both")
+# Settings ---------------------------------------------------------------
+threshold <-10
+
+myX <- "East, UTM32"
+myY <- "North, UTM32"
 
 
 
 
-# Threshold ---------------------------------------------------------------
-
-
-threshold <-7
-
+# Export example point cloud ----------------------------------------------------------
+#plot(bratsberg_b)
+#rgl.postscript("output/bratsbergBrowsedPlot.eps", "eps", drawText = FALSE)
 
 
 
 
-# Trøndelag ---------------------------------------------------------------
-#Making canopy models in different colours for poster
-require(rasterVis)
-require(sp)
-levelplot(canopy_diff_bratsberg_b,margin=F,scales=list(draw=F))
-mytheme<-custom.theme(region=(height.colors(50)))
-mytheme$panel.background$col='black'
+# Terrain and canopy models ---------------------------------------------------------------
+# Using k-nearest neighbour with inverse-distance weighing for terrain models
 
-bratsberg_b_pl <- Polygons(list(bratsberg_b_poly),1)
-bratsberg_b_sp <- SpatialPolygons(list(bratsberg_b_pl))
-bratsberg_ub_pl <- Polygons(list(bratsberg_ub_poly),1)
-bratsberg_ub_sp <- SpatialPolygons(list(bratsberg_ub_pl))
+# Example
+#terrainmod_bratsberg_b  <- grid_terrain(bratsberg_b, 
+#                                        algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+#                                        res=1)
+#tiff("output/terrainModel.tif", res = 300, units = "in", width = 7, height = 7)
+#plot(terrainmod_bratsberg_b, xlab=myX, ylab=myY)
+#dev.off()
 
-detach(package:ggplot2)
-levelplot(canopy_diff_bratsberg_b,par.settings=mytheme,margin=F,scales=list(draw=F))+
-  layer(sp.polygons(bratsberg_b_sp))+
-  layer(sp.polygons(treeout_bratsberg_b,col='white',lwd=2,lty=2))
+# For the canopy models,
+# use terrainmodel as reference to ensure exual extent
+# point to raster method - takes the highest value in each cell
 
-levelplot(canopy_diff_bratsberg_ub,par.settings=mytheme,margin=F,scales=list(draw=F))+
-  layer(sp.polygons(bratsberg_ub_sp))+
-  layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+# Example
+#canopymod_bratsberg_b   <- grid_canopy(bratsberg_b,
+#                                       res=terrainmod_bratsberg_b, # use terrainmodel as reference
+#                                       p2r())                      # point to raster method - takes the highest value in each cell
+#tiff("output/canopyModel.tif", res = 300, units = "in", width = 7, height = 7)
+#plot(canopymod_bratsberg_b, xlab=myX, ylab=myY)
+#dev.off()
 
-levelplot(canopy_diff_bratsberg_b_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))+
-  layer(sp.polygons(bratsberg_ub_sp))
-  #layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+# then we make the canopy difference raster
+#canopy_diff_bratsberg_b <- canopymod_bratsberg_b-terrainmod_bratsberg_b
+#tiff("output/canopyDiffModel.tif", res = 300, units = "in", width = 7, height = 7)
+#plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+#dev.off()
+#
+#tiff("output/terrainAndCanopyExample.tif", res = 300, units = "in", width = 4, height = 12)
+#par(mfrow=c(3,1))
+#plot(terrainmod_bratsberg_b, xlab=myX, ylab=myY)
+#plot(canopymod_bratsberg_b, xlab=myX, ylab=myY)
+#plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+#dev.off()
 
-levelplot(canopy_diff_bratsberg_ub_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))
-  #layer(sp.polygons(bratsberg_ub_sp))
-#layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+for(i in sites){
+  print(i)
+  temp <- get(i)
+  TM <- grid_terrain(temp, 
+                      algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+                      res=1)
+  CM <- grid_canopy(temp, 
+                     res=get(paste0("TM_", i)),
+                     p2r())
+  CDiff <- CM-TM
+  
+  assign(paste0("TM_", i),TM)
+  assign(paste0("CM_", i), CM)
+  assign(paste0("CDiff_", i), CDiff)
+  
+  # Remove big trees --------------------------------------------------------
+  # first, detect all trees using local maximum filter
+  #Detect all trees )local maxima) with moving window of 3m
+  trees <- find_trees(temp,lmf(ws = 4, hmin= 7 , shape = "square"))
+  # Get the heights of these trees 
+  treeheight <- extract(CDiff,trees[,1:2])
+  
+  # Then we add a column treeID to the LAS file where we mark points 
+  # that are part of trees above the threshold. 
+  # We'll use the Silva2016 algorthim, tuning the exclusion and 
+  # max_cr_factor to appropriate levels
+  seg <- segment_trees(temp,silva2016(CDiff,
+            trees[treeheight>=threshold,],
+            exclusion=0.2,
+            max_cr_factor=0.5))
+  
+  #Make hulls around the trees
+  treeout <- delineate_crowns(temp, type='convex', attribute='treeID')
+  
+  # remove points that are part of these trees
+  clip <- filter_poi(temp,
+              is.na(temp@data$treeID))
+  
+  # Prepare for cutting extent
+  myHull<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
+  myPoly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][myHull,]))
+}
 
-# Bratsberg ---------------------------------------------------------------
- 
-#Bratsberg_b
-terrainmod_bratsberg_b  <-grid_terrain(bratsberg_b, method='knnidw',res=1)
-canopymod_bratsberg_b   <-grid_canopy(bratsberg_b,res=1)
 
 
-#Resample so that they have equal extent, and plot difference
-terrainmod_bratsberg_b_resampled <-resample(as.raster(terrainmod_bratsberg_b), as.raster(canopymod_bratsberg_b), method='bilinear')
-canopy_diff_bratsberg_b<-(as.raster(canopymod_bratsberg_b)-terrainmod_bratsberg_b_resampled)
-plot(canopy_diff_bratsberg_b)
 
-#Remove large trees, first detect and create treeID
-trees_bratsberg_b<-tree_detection(bratsberg_b,ws=5,hmin=5)#Detect all trees >5m with moving window of 5m 
+
+
+
+# Remove big trees --------------------------------------------------------
+
+# first, detect all trees using local maximum filter
+trees_bratsberg_b <- find_trees(bratsberg_b,lmf(ws = 4, hmin= 7 , shape = "square"))#Detect all trees with moving window of 3m
+# I cannot set a detection threshold becaaus the Z column is in masl, not references to the ground level
+par(mfrow=c(1,1))
+
+#tiff("output/treesWith4mWindow.tif", res = 300, units = "in", width = 7, height = 7)
+plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+plot(trees_bratsberg_b, add=T)
+#dev.off()
+
+
+
+# Get the heights of these trees 
 treeheight_bratsberg_b<-extract(canopy_diff_bratsberg_b,trees_bratsberg_b[,1:2])
 
-lastrees_dalponte(bratsberg_b,canopy_diff_bratsberg_b,trees_bratsberg_b[treeheight_bratsberg_b>=5,],th_seed=0.05,th_cr=0.1)#Dalponte algorthim... Using the canopy height difference (not canopy model)
+#tiff("output/treesaboveThreshold10m.tif", res = 300, units = "in", width = 7, height = 7)
+plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+plot(trees_bratsberg_b[treeheight_bratsberg_b>=threshold,], add=T)
+#dev.off()
+
+# Then we add a column treeID to the LAS file where we mark points that are part of trees above the threshold. 
+# We'll use the Silva2016 algorthim, tuning the exclusion and max_cr_factor to appropriate levels
+bratsberg_b <- segment_trees(bratsberg_b,silva2016(canopy_diff_bratsberg_b, 
+                                                      trees_bratsberg_b[treeheight_bratsberg_b>=threshold,],
+                                                   exclusion=0.2,
+                                                   max_cr_factor=0.5)) # now a 10m tree can only have a 5m diameter
+#bratsberg_b@data$treeID[1:500]
 
 #Make hulls around the trees
-treeout_bratsberg_b<-tree_hulls(bratsberg_b,type='convex',field='treeID')
+treeout_bratsberg_b <- delineate_crowns(bratsberg_b,type='convex',attribute='treeID')
 plot(canopy_diff_bratsberg_b)
 plot(treeout_bratsberg_b,add=T) 
 
-bigtrees_bratsberg_b<-which(extract(canopy_diff_bratsberg_b,treeout_bratsberg_b,fun=max,na.rm=T)>threshold) #identify trees larger than 7m
 
-bratsberg_b_clip<-lasclip(bratsberg_b,treeout_bratsberg_b@polygons[[bigtrees_bratsberg_b[1]]]@Polygons[[1]],inside=F) #remove trees larger than 7m
-for(i in 2:length(bigtrees_bratsberg_b)){
-  print(i)
-  bratsberg_b_clip<-lasclip(bratsberg_b_clip,treeout_bratsberg_b@polygons[[bigtrees_bratsberg_b[i]]]@Polygons[[1]],inside=F)}
-plot(bratsberg_b_clip) #point cloud without large trees
+# remove points that are part of these trees
+bratsberg_b_clip <- filter_poi(bratsberg_b,
+                               is.na(bratsberg_b@data$treeID)) 
 
-canopy_diff_bratsberg_b_clip <- (as.raster(grid_canopy(bratsberg_b_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_b_clip,method='knnidw',res=0.5)),as.raster(grid_canopy(bratsberg_b_clip,res=0.5)))))
-plot(canopy_diff_bratsberg_b_clip)
+plot(bratsberg_b_clip)
+#rgl.postscript("output/bratsbergBrowsedPlotLargeTreesRemovedAbove.eps", "eps", drawText = FALSE)
 
-#Cutting the 32x32m square(with big trees removed) to 20x20 m
+
+#canopy_diff_bratsberg_b_clip <- (as.raster(grid_canopy(bratsberg_b_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_b_clip,method='knnidw',res=0.5#)),as.raster(grid_canopy(bratsberg_b_clip,res=0.5)))))
+#plot(canopy_diff_bratsberg_b_clip)
+
+#Cutting the 32x32m square(with big trees removed) to 18x18 m
+
 bratsberg_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
 bratsberg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][bratsberg_b_order,]))
-bratsberg_b_cut<-lasclip(bratsberg_b_clip,bratsberg_b_poly)
-plot(bratsberg_b_cut) #20x20 m area as point cloud
 
-#Make new canopy height model for 20x20 m square
-terrainmod_bratsberg_b_20x20 <-grid_terrain(bratsberg_b_cut,method='knnidw',res=1)
+# Calculate 2m buffen inn from the fence
+p <-  Polygon(bratsberg_b_poly@coords)
+ps = Polygons(list(p),1)
+sps = SpatialPolygons(list(ps))
+plot(sps)
+sps2 <- gBuffer(sps, width = -2)
+plot(sps2, add=T)
+
+#tiff("output/whatToCut.tif", res = 300, units = "in", width = 7, height = 7)
+plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+points(bratsberg_b_poly@coords)
+lines(bratsberg_b_poly@coords)
+plot(treeout_bratsberg_b,add=T)
+plot(sps2, add=T, lwd=2)
+#dev.off()
+
+
+#bratsberg_b_poly2 <- sp::SpatialPolygons(bratsberg_b_poly@coords)
+bratsberg_b_cut<-clip_roi(bratsberg_b_clip,sps2)
+plot(bratsberg_b_cut) #18x18 m area as point cloud
+
+
+# subtract the height of the terrainmodel from the points' z-values
+bratsberg_b_cut@data$terrainHeight <- extract(terrainmod_bratsberg_b, 
+                                          data.frame(x=bratsberg_b_cut@data$X, 
+                                          y=bratsberg_b_cut@data$Y))
+
+
+
+# Extract stats -----------------------------------------------------------
+
+
+LASstats <- data.frame(
+  plot = "bratsberg_b",
+  mean = mean(mydf$z2),
+  n    = length(mydf$z2)
+)
+
+# PLOT --------------------------------------------------------------------
+
+
+library(ggplot2)
+ggplot(mydf, aes(z2, stat(density))) +
+  geom_freqpoly(binwidth = 0.1)+
+  coord_flip()+
+  theme_classic()
+
+treeheight_bratsberg_ub<-extract(canopy_diff_bratsberg_ub,trees_bratsberg_ub[,1:2])
+
+
+#Make new canopy height model for 18x18 m square
+terrainmod_bratsberg_b18  <- grid_terrain(bratsberg_b_cut, 
+                                        algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+                                        res=1)
+plot(terrainmod_bratsberg_b18)
+terrainmod_bratsberg_b_18x18 <-grid_terrain(bratsberg_b_cut,method='knnidw',res=1)
 canopymod_bratsberg_b_20x20  <-grid_canopy(bratsberg_b_cut,res=1)
 
 terrainmod_bratsberg_b_resampeled_20x20 <- resample(as.raster(terrainmod_bratsberg_b_20x20), as.raster(canopymod_bratsberg_b_20x20, method='bilinear'))
@@ -4270,3 +4518,34 @@ plot(as.raster(grid_canopy(bclip,res=0.5))-(crop(as.raster(grid_terrain(bclip,me
 
 test <- raster('Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight')
 plot(test)
+
+
+# Poster ------------------------------------------------------------------
+
+#Making canopy models in different colours for poster
+
+levelplot(canopy_diff_bratsberg_b,margin=F,scales=list(draw=F))
+mytheme<-custom.theme(region=(height.colors(50)))
+mytheme$panel.background$col='black'
+
+bratsberg_b_pl <- Polygons(list(bratsberg_b_poly),1)
+bratsberg_b_sp <- SpatialPolygons(list(bratsberg_b_pl))
+bratsberg_ub_pl <- Polygons(list(bratsberg_ub_poly),1)
+bratsberg_ub_sp <- SpatialPolygons(list(bratsberg_ub_pl))
+
+detach(package:ggplot2)
+levelplot(canopy_diff_bratsberg_b,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_b_sp))+
+  layer(sp.polygons(treeout_bratsberg_b,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_ub,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_ub_sp))+
+  layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_b_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))+
+  layer(sp.polygons(bratsberg_ub_sp))
+#layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
+
+levelplot(canopy_diff_bratsberg_ub_20x20,par.settings=mytheme,margin=F,scales=list(draw=F))
+#layer(sp.polygons(bratsberg_ub_sp))
+#layer(sp.polygons(treeout_bratsberg_ub,col='white',lwd=2,lty=2))
