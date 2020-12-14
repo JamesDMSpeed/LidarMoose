@@ -12,6 +12,10 @@ library(lattice)
 library(grid)
 library(ggplot2)
 library(stringr)
+library(readr)
+library(rgeos)
+
+
 # Coordinates -------------------------------------------------------------
 
 
@@ -22,115 +26,124 @@ plotcoords$region <- "Trondelag"
 plotcoords_telemark$region <- "Telemark"
 plotcoords_hedmark_akershus$region <- "Hedmark"
 
-head(plotcoords)
-str(plotcoords)
-head(plotcoords_telemark)
-head(plotcoords_hedmark_akershus)
-names(plotcoords_hedmark_akershus)
+#unique(plotcoords_telemark$flatenavn)
+(unique(plotcoords$Name)[1])
+unique(plotcoords_telemark$flatenavn)
+
+plotcoords_telemark$flatenavn <- as.character(plotcoords_telemark$flatenavn)
+plotcoords_telemark$flatenavn[plotcoords_telemark$flatenavn == "Fritz\xf8e 2 UB"] <- "Fritsoe_2_UB"
+plotcoords_telemark$flatenavn[plotcoords_telemark$flatenavn == "Fritz\xf8e 2 B"] <- "Fritsoe_2_B"
+plotcoords_telemark$flatenavn[plotcoords_telemark$flatenavn == "Fritz\xf8e 1 UB"] <- "Fritsoe_1_UB"
+plotcoords_telemark$flatenavn[plotcoords_telemark$flatenavn == "Fritz\xf8e 1 B"] <- "Fritsoe_1_B"
+
 
 myCols <- c("Name", "utm32ost", "utm32nord", "region")
 myCoords <- rbind(plotcoords[,myCols],
                   setNames(plotcoords_telemark[,c("flatenavn", "utm32east", "utm32north", "region")],myCols),
                   setNames(plotcoords_hedmark_akershus[,c("Uthegningi", "utm32east", "utm32north", "region")],myCols))
 # NOTE: files are in data/clipped_las
-length(unique(myCoords$Name))
-
+#length(unique(myCoords$Name))
+rm(plotcoords); rm(plotcoords_hedmark_akershus);rm(plotcoords_telemark)
 # I need to match the site names with the LAS file names
+link <- read_csv("data/LASnamesAndCoordNames.csv")
+myCoords$LASname <- link$las[match(myCoords$Name, link$coords)]
+rm(link); rm(myCols)
+
 
 # Import clipped files ----------------------------------------------------
 #Trondelag
-bratsberg_b       <- readLAS('data/clipped_las/bratsberg_b.las')
-bratsberg_ub      <- readLAS('data/clipped_las/bratsberg_ub.las')
-hi_tydal_b        <- readLAS('data/clipped_las/hi_tydal_b.las')
-hi_tydal_ub       <- readLAS('data/clipped_las/hi_tydal_ub.las')
-malvik_b          <- readLAS('data/clipped_las/malvik_b.las')
-malvik_ub         <- readLAS('data/clipped_las/malvik_ub.las')
-namdalseid_1kub_b <- readLAS('data/clipped_las/namdalseid_1kub_b.las')
-namdalseid_1kub_ub<- readLAS('data/clipped_las/namdalseid_1kub_ub.las')
-nsb_verdal_b      <- readLAS('data/clipped_las/nsb_verdal_b.las')
-nsb_verdal_ub     <- readLAS('data/clipped_las/nsb_verdal_ub.las')
-selbu_flub_b      <- readLAS('data/clipped_las/selbu_flub_b.las')
-selbu_flub_ub     <- readLAS('data/clipped_las/selbu_flub_ub.las')
-selbu_kl_b        <- readLAS('data/clipped_las/selbu_kl_b.las')
-selbu_kl_ub       <- readLAS('data/clipped_las/selbu_kl_ub.las')
-selbu_sl_b        <- readLAS('data/clipped_las/selbu_sl_b.las')
-selbu_sl_ub       <- readLAS('data/clipped_las/selbu_sl_ub.las')
-singsaas_b        <- readLAS('data/clipped_las/singsaas_b.las')
-singsaas_ub       <- readLAS('data/clipped_las/singsaas_ub.las')
-sl_tydal_b        <- readLAS('data/clipped_las/sl_tydal_b.las')
-sl_tydal_ub       <- readLAS('data/clipped_las/sl_tydal_ub.las')
-steinkjer_1BBb_b  <- readLAS('data/clipped_las/steinkjer_1BBb_b.las')
-steinkjer_1BBb_ub <- readLAS('data/clipped_las/steinkjer_1BBb_ub.las')
-steinkjer_2BBb_b  <- readLAS('data/clipped_las/steinkjer_2BBb_b.las')
-steinkjer_2BBb_ub <- readLAS('data/clipped_las/steinkjer_2BBb_ub.las')
-sub_namdalseid_b  <- readLAS('data/clipped_las/sub_namdalseid_b.las')
-sub_namdalseid_ub <- readLAS('data/clipped_las/sub_namdalseid_ub.las')
-verdal_1vb_b      <- readLAS('data/clipped_las/verdal_1vb_b.las')
-verdal_1vb_ub     <- readLAS('data/clipped_las/verdal_1vb_ub.las')
-verdal_2vb_b      <- readLAS('data/clipped_las/verdal_2vb_b.las')
-verdal_2vb_ub     <- readLAS('data/clipped_las/verdal_2vb_ub.las')
-#Telemark
-drangedal1_b       <-readLAS('data/clipped_las/drangedal1_b.las')
-drangedal1_ub      <-readLAS('data/clipped_las/drangedal1_ub.las')
-drangedal3_b       <-readLAS('data/clipped_las/drangedal3_b.las')
-drangedal3_ub      <-readLAS('data/clipped_las/drangedal3_ub.las')
-drangedal4_b       <-readLAS('data/clipped_las/drangedal4_b.las')
-drangedal4_ub      <-readLAS('data/clipped_las/drangedal4_ub.las')
-fritsoe2_b         <-readLAS('data/clipped_las/fritsoe2_b.las')
-fritsoe2_ub        <-readLAS('data/clipped_las/fritsoe2_ub.las')
-fritsoe1_b         <-readLAS('data/clipped_las/fritsoe1_b.las')
-fritsoe1_ub        <-readLAS('data/clipped_las/fritsoe1_ub.las')
-fyresdal_b         <-readLAS('data/clipped_las/fyresdal_b.las')
-fyresdal_ub        <-readLAS('data/clipped_las/fyresdal_ub.las')
-kviteseid1_b       <-readLAS('data/clipped_las/kviteseid1_b.las')
-kviteseid1_ub      <-readLAS('data/clipped_las/kviteseid1_ub.las')
-kviteseid2_b       <-readLAS('data/clipped_las/kviteseid2_b.las')
-kviteseid2_ub      <-readLAS('data/clipped_las/kviteseid2_ub.las')
-kviteseid3_b       <-readLAS('data/clipped_las/kviteseid3_b.las')
-kviteseid3_ub      <-readLAS('data/clipped_las/kviteseid3_ub.las')
-n_cappelen1_b      <-readLAS('data/clipped_las/nome_cappelen_1_b.las')
-n_cappelen1_ub     <-readLAS('data/clipped_las/nome_cappelen_1_ub.las')
-n_cappelen2_b      <-readLAS('data/clipped_las/nome_cappelen_2_b.las')
-n_cappelen2_ub     <-readLAS('data/clipped_las/nome_cappelen_2_ub.las')
-notodden3_b        <-readLAS('data/clipped_las/notodden3_b.las')
-notodden3_ub       <-readLAS('data/clipped_las/notodden3_ub.las')
-notodden5_b        <-readLAS('data/clipped_las/notodden5_b.las')
-notodden5_ub       <-readLAS('data/clipped_las/notodden5_ub.las')
-notodden6_b        <-readLAS('data/clipped_las/notodden6_b.las')
-notodden6_ub       <-readLAS('data/clipped_las/notodden6_ub.las')
-#Hedmark and Akershus
-didrik_holmsen_b   <-readLAS('data/clipped_las/didrik_holmsen_b.las')
-didrik_holmsen_ub  <-readLAS('data/clipped_las/didrik_holmsen_ub.las')
-eidskog_b          <-readLAS('data/clipped_las/eidskog_b.las')
-eidskog_ub         <-readLAS('data/clipped_las/eidskog_ub.las')
-fet3_b             <-readLAS('data/clipped_las/fet3_b.las')
-fet3_ub            <-readLAS('data/clipped_las/fet3_ub.las')
-h_pramhus_b        <-readLAS('data/clipped_las/halvard_pramhus_b.las')
-h_pramhus_ub       <-readLAS('data/clipped_las/halvard_pramhus_ub.las')
-stangesk_aurskog_b <-readLAS('data/clipped_las/stangeskovene_aurskog_b.las')
-stangesk_aurskog_ub<-readLAS('data/clipped_las/stangeskovene_aurskog_ub.las')
-stangesk_eidskog_b <-readLAS('data/clipped_las/stangeskovene_eidskog_b.las')
-stangesk_eidskog_ub<-readLAS('data/clipped_las/stangeskovene_eidskog_ub.las')
-stig_dahlen_b      <-readLAS('data/clipped_las/stig_dahlen_b.las')
-stig_dahlen_ub     <-readLAS('data/clipped_las/stig_dahlen_ub.las')
-truls_holm_b       <-readLAS('data/clipped_las/truls_holm_b.las')
-truls_holm_ub      <-readLAS('data/clipped_las/truls_holm_ub.las')
-sorem_b            <-readLAS('data/clipped_las/sorem_b.las')
-sorem_ub           <-readLAS('data/clipped_las/sorem_ub.las')
-nes1_b             <-readLAS('data/clipped_las/nes1_b.las')
-nes1_ub            <-readLAS('data/clipped_las/nes1_ub.las')
-nes2_b             <-readLAS('data/clipped_las/nes2_b.las')
-nes2_ub            <-readLAS('data/clipped_las/nes2_ub.las')
-kongsvinger1_b     <-readLAS('data/clipped_las/kongsvinger1_b.las')
-kongsvinger1_ub    <-readLAS('data/clipped_las/kongsvinger1_ub.las')
-kongsvinger2_b     <-readLAS('data/clipped_las/kongsvinger2_b.las')
-kongsvinger2_ub    <-readLAS('data/clipped_las/kongsvinger2_ub.las')
-maarud1_b          <-readLAS('data/clipped_las/maarud1_b.las')
-maarud1_ub         <-readLAS('data/clipped_las/maarud1_ub.las')
-maarud2_b          <-readLAS('data/clipped_las/maarud2_b.las')
-maarud2_ub         <-readLAS('data/clipped_las/maarud2_ub.las')
-maarud3_b          <-readLAS('data/clipped_las/maarud3_b.las')
-maarud3_ub         <-readLAS('data/clipped_las/maarud3_ub.las')
+#bratsberg_b       <- readLAS('data/clipped_las/bratsberg_b.las')
+#bratsberg_ub      <- readLAS('data/clipped_las/bratsberg_ub.las')
+#hi_tydal_b        <- readLAS('data/clipped_las/hi_tydal_b.las')
+#hi_tydal_ub       <- readLAS('data/clipped_las/hi_tydal_ub.las')
+#malvik_b          <- readLAS('data/clipped_las/malvik_b.las')
+#malvik_ub         <- readLAS('data/clipped_las/malvik_ub.las')
+#namdalseid_1kub_b <- readLAS('data/clipped_las/namdalseid_1kub_b.las')
+#namdalseid_1kub_ub<- readLAS('data/clipped_las/namdalseid_1kub_ub.las')
+#nsb_verdal_b      <- readLAS('data/clipped_las/nsb_verdal_b.las')
+#nsb_verdal_ub     <- readLAS('data/clipped_las/nsb_verdal_ub.las')
+#selbu_flub_b      <- readLAS('data/clipped_las/selbu_flub_b.las')
+#selbu_flub_ub     <- readLAS('data/clipped_las/selbu_flub_ub.las')
+#selbu_kl_b        <- readLAS('data/clipped_las/selbu_kl_b.las')
+#selbu_kl_ub       <- readLAS('data/clipped_las/selbu_kl_ub.las')
+#selbu_sl_b        <- readLAS('data/clipped_las/selbu_sl_b.las')
+#selbu_sl_ub       <- readLAS('data/clipped_las/selbu_sl_ub.las')
+#singsaas_b        <- readLAS('data/clipped_las/singsaas_b.las')
+#singsaas_ub       <- readLAS('data/clipped_las/singsaas_ub.las')
+#sl_tydal_b        <- readLAS('data/clipped_las/sl_tydal_b.las')
+#sl_tydal_ub       <- readLAS('data/clipped_las/sl_tydal_ub.las')
+#steinkjer_1BBb_b  <- readLAS('data/clipped_las/steinkjer_1BBb_b.las')
+#steinkjer_1BBb_ub <- readLAS('data/clipped_las/steinkjer_1BBb_ub.las')
+#steinkjer_2BBb_b  <- readLAS('data/clipped_las/steinkjer_2BBb_b.las')
+#steinkjer_2BBb_ub <- readLAS('data/clipped_las/steinkjer_2BBb_ub.las')
+#sub_namdalseid_b  <- readLAS('data/clipped_las/sub_namdalseid_b.las')
+#sub_namdalseid_ub <- readLAS('data/clipped_las/sub_namdalseid_ub.las')
+#verdal_1vb_b      <- readLAS('data/clipped_las/verdal_1vb_b.las')
+#verdal_1vb_ub     <- readLAS('data/clipped_las/verdal_1vb_ub.las')
+#verdal_2vb_b      <- readLAS('data/clipped_las/verdal_2vb_b.las')
+#verdal_2vb_ub     <- readLAS('data/clipped_las/verdal_2vb_ub.las')
+##Telemark
+#drangedal1_b       <-readLAS('data/clipped_las/drangedal1_b.las')
+#drangedal1_ub      <-readLAS('data/clipped_las/drangedal1_ub.las')
+#drangedal3_b       <-readLAS('data/clipped_las/drangedal3_b.las')
+#drangedal3_ub      <-readLAS('data/clipped_las/drangedal3_ub.las')
+#drangedal4_b       <-readLAS('data/clipped_las/drangedal4_b.las')
+#drangedal4_ub      <-readLAS('data/clipped_las/drangedal4_ub.las')
+#fritsoe2_b         <-readLAS('data/clipped_las/fritsoe2_b.las')
+#fritsoe2_ub        <-readLAS('data/clipped_las/fritsoe2_ub.las')
+#fritsoe1_b         <-readLAS('data/clipped_las/fritsoe1_b.las')
+#fritsoe1_ub        <-readLAS('data/clipped_las/fritsoe1_ub.las')
+#fyresdal_b         <-readLAS('data/clipped_las/fyresdal_b.las')
+#fyresdal_ub        <-readLAS('data/clipped_las/fyresdal_ub.las')
+#kviteseid1_b       <-readLAS('data/clipped_las/kviteseid1_b.las')
+#kviteseid1_ub      <-readLAS('data/clipped_las/kviteseid1_ub.las')
+#kviteseid2_b       <-readLAS('data/clipped_las/kviteseid2_b.las')
+#kviteseid2_ub      <-readLAS('data/clipped_las/kviteseid2_ub.las')
+#kviteseid3_b       <-readLAS('data/clipped_las/kviteseid3_b.las')
+#kviteseid3_ub      <-readLAS('data/clipped_las/kviteseid3_ub.las')
+#n_cappelen1_b      <-readLAS('data/clipped_las/n_cappelen1_b.las') # altered file names from nome_cap...
+#n_cappelen1_ub     <-readLAS('data/clipped_las/n_cappelen1_ub.las')
+#n_cappelen2_b      <-readLAS('data/clipped_las/n_cappelen2_b.las')
+#n_cappelen2_ub     <-readLAS('data/clipped_las/n_cappelen2_ub.las')
+#notodden3_b        <-readLAS('data/clipped_las/notodden3_b.las')
+#notodden3_ub       <-readLAS('data/clipped_las/notodden3_ub.las')
+#notodden5_b        <-readLAS('data/clipped_las/notodden5_b.las')
+#notodden5_ub       <-readLAS('data/clipped_las/notodden5_ub.las')
+#notodden6_b        <-readLAS('data/clipped_las/notodden6_b.las')
+#notodden6_ub       <-readLAS('data/clipped_las/notodden6_ub.las')
+##Hedmark and Akershus
+#didrik_holmsen_b   <-readLAS('data/clipped_las/didrik_holmsen_b.las')
+#didrik_holmsen_ub  <-readLAS('data/clipped_las/didrik_holmsen_ub.las')
+#eidskog_b          <-readLAS('data/clipped_las/eidskog_b.las')
+#eidskog_ub         <-readLAS('data/clipped_las/eidskog_ub.las')
+#fet3_b             <-readLAS('data/clipped_las/fet3_b.las')
+#fet3_ub            <-readLAS('data/clipped_las/fet3_ub.las')
+#h_pramhus_b        <-readLAS('data/clipped_las/h_pramhus_b.las') # Altered name from halvard_pramhus...
+#h_pramhus_ub       <-readLAS('data/clipped_las/h_pramhus_ub.las')
+#stangesk_aurskog_b <-readLAS('data/clipped_las/stangesk_aurskog_b.las') # Altered names from Stangeskogene...
+#stangesk_aurskog_ub<-readLAS('data/clipped_las/stangesk_aurskog_ub.las')
+#stangesk_eidskog_b <-readLAS('data/clipped_las/stangesk_eidskog_b.las')
+#stangesk_eidskog_ub<-readLAS('data/clipped_las/stangesk_eidskog_ub.las')
+#stig_dahlen_b      <-readLAS('data/clipped_las/stig_dahlen_b.las')
+#stig_dahlen_ub     <-readLAS('data/clipped_las/stig_dahlen_ub.las')
+#truls_holm_b       <-readLAS('data/clipped_las/truls_holm_b.las')
+#truls_holm_ub      <-readLAS('data/clipped_las/truls_holm_ub.las')
+#sorem_b            <-readLAS('data/clipped_las/sorem_b.las')
+#sorem_ub           <-readLAS('data/clipped_las/sorem_ub.las')
+#nes1_b             <-readLAS('data/clipped_las/nes1_b.las')
+#nes1_ub            <-readLAS('data/clipped_las/nes1_ub.las')
+#nes2_b             <-readLAS('data/clipped_las/nes2_b.las')
+#nes2_ub            <-readLAS('data/clipped_las/nes2_ub.las')
+#kongsvinger1_b     <-readLAS('data/clipped_las/kongsvinger1_b.las')
+#kongsvinger1_ub    <-readLAS('data/clipped_las/kongsvinger1_ub.las')
+#kongsvinger2_b     <-readLAS('data/clipped_las/kongsvinger2_b.las')
+#kongsvinger2_ub    <-readLAS('data/clipped_las/kongsvinger2_ub.las')
+#maarud1_b          <-readLAS('data/clipped_las/maarud1_b.las')
+#maarud1_ub         <-readLAS('data/clipped_las/maarud1_ub.las')
+#maarud2_b          <-readLAS('data/clipped_las/maarud2_b.las')
+#maarud2_ub         <-readLAS('data/clipped_las/maarud2_ub.las')
+#maarud3_b          <-readLAS('data/clipped_las/maarud3_b.las')
+#maarud3_ub         <-readLAS('data/clipped_las/maarud3_ub.las')
 
 
 sites <- c(
@@ -228,11 +241,166 @@ sites <- c(
   "maarud3_ub         "
 )
 sites <- str_trim(sites, side = "both")
+
+
+
+
+#write.csv(sites, 'data/LASnames.csv')
+#write.csv(unique(myCoords$Name), 'data/CoordinateNames.csv')
+
 # Settings ---------------------------------------------------------------
 threshold <-10
 
 myX <- "East, UTM32"
 myY <- "North, UTM32"
+
+
+
+
+LASstats <- data.frame(
+  plot = as.character(NULL),
+  trt  = as.character(NULL),
+  mean = as.numeric(NULL),
+  median    = as.numeric(NULL),
+  sd    = as.numeric(NULL),
+  min    = as.numeric(NULL),
+  max    = as.numeric(NULL),    # max and min makes no sense for point clouds
+  first_qu    = as.numeric(NULL),
+  third_qu    = as.numeric(NULL),
+  ninetieth      = as.numeric(NULL),
+  mad    = as.numeric(NULL),
+  rmad    = as.numeric(NULL),
+  pf70    = as.numeric(NULL),
+  df1    = as.numeric(NULL),
+  dl2    = as.numeric(NULL)
+)
+
+
+
+
+for(i in sites){
+  print(i)
+  #temp <- get(i) # use this option if you've load all LAS already 
+  temp <- readLAS(paste0('data/clipped_las/', i, '.las'))
+  
+  
+ 
+  
+  # Terrain model
+  TM <- grid_terrain(temp, 
+                     algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+                     res=1)
+  
+  # Canopy model for identifying trees
+  CM <- grid_canopy(temp, 
+                    res=TM,
+                    p2r())
+  
+  # Subtract ground height to get actuiall height (used for excluding large trees)
+  CDiff <- CM-TM
+  # plot(CDiff)
+  
+  # Remove big trees --------------------------------------------------------
+  # first, detect all trees using local maximum filter
+  #Detect all trees )local maxima) with moving window of 3m
+  trees <- find_trees(temp,lmf(ws = 4, hmin= 7 , shape = "square"))
+  # Get the heights of these trees 
+  treeheight <- extract(CDiff,trees[,1:2])
+  
+  #plot(CDiff)
+  #plot(trees, add=T, pch=1)
+  #plot(trees[treeheight>=threshold,], add=T)
+  
+  # Then we add a column treeID to the LAS file where we mark points 
+  # that are part of trees above the threshold. 
+  # We'll use the Silva2016 algorthim, tuning the exclusion and 
+  # max_cr_factor to appropriate levels
+  temp <- segment_trees(temp,silva2016(CDiff,
+            trees[treeheight>=threshold,],
+            exclusion=0.2,
+            max_cr_factor=0.5))
+  
+  #Make hulls around the trees for plotting
+  #if(any(!is.na(temp@data$treeID))){
+  #treeout <- delineate_crowns(temp, type='convex', attribute='treeID')}
+  
+  # remove points that are part of these trees
+  temp <- filter_poi(temp,
+              is.na(temp@data$treeID))
+  
+  # Prepare for cutting extent
+  tempCoords <- myCoords[myCoords$LASname==i,c('utm32ost', "utm32nord")]
+  tempCoords <- tempCoords[!is.na(tempCoords$utm32ost),]
+  
+  myHull<-chull(as.matrix(tempCoords))
+  myPoly<-Polygon(as.matrix(tempCoords[myHull,]))
+  
+  
+  # Calculate 2m buffen inn from the fence
+  p <-  Polygon(myPoly@coords)
+  ps = Polygons(list(p),1)
+  sps = SpatialPolygons(list(ps))
+  sps2 <- gBuffer(sps, width = -2)
+  
+  # clip
+  temp <- clip_roi(temp, sps2)
+ 
+  
+  # subtract the height of the terrainmodel from the points' z-values
+  temp@data$terrainHeight <- extract(TM, 
+                                     data.frame(x=temp@data$X, 
+                                                y=temp@data$Y))
+  temp@data$canopyHeight <- temp@data$Z - temp@data$terrainHeight
+  
+  hgt <- temp@data$canopyHeight
+  
+  # Calculating nessesary metrics for est biomass (Næsset et al 2011)
+  hgt_firstReturns <- temp@data$canopyHeight[temp@data$ReturnNumber==1]
+  hgt_lastReturns  <- temp@data$canopyHeight[temp@data$ReturnNumber==max(temp@data$ReturnNumber)]
+  
+  relDens1stRanged  <- 
+    hgt_firstReturns[hgt_firstReturns > 2 & 
+    hgt_firstReturns < stats::quantile(hgt_firstReturns, 0.95, na.rm=T)]
+  lim <- stats::quantile(relDens1stRanged, 0.1, na.rm = T)
+  densityFirst1 <- length(relDens1stRanged[relDens1stRanged>lim])/length(hgt_firstReturns)
+
+  relDensLastRanged  <- 
+    hgt_lastReturns[hgt_lastReturns > 2 & 
+                      hgt_lastReturns < stats::quantile(hgt_lastReturns, 0.95, na.rm=T)]
+  lim2 <- stats::quantile(relDensLastRanged, 0.2, na.rm = T)
+  densityLast2 <- length(relDensLastRanged[relDensLastRanged>lim])/length(hgt_lastReturns)
+
+  # Extract stats
+   xLASstats <- data.frame(
+    plot    = i,
+    trt     = word(i, -1, sep = "_"),
+    mean    = mean(hgt, na.rm=T),
+    n       = length(hgt),
+    median  = median(hgt, na.rm=T),
+    sd      = sd(hgt, na.rm=T),
+    min     = min(hgt, na.rm=T),
+    max     = max(hgt, na.rm=T), 
+    ninetieth    = stats::quantile(hgt, 0.9, na.rm=T),
+    first_qu= stats::quantile(hgt, 0.25, na.rm=T), 
+    third_qu= stats::quantile(hgt, 0.75, na.rm=T),
+    mad     = mad(hgt,na.rm=T),
+    rmad    = mad(hgt,na.rm=T)/mean(hgt, na.rm=T),
+    pf70    = stats::quantile(hgt_firstReturns, 0.7, na.rm=T),
+    df1     = densityFirst1,
+    dl2     = densityLast2
+   
+  )
+  
+   LASstats <- rbind(LASstats, xLASstats)
+  #assign(paste0("CDiff_", i), CDiff)
+  #assign(paste0("TM_", i),TM)
+  #assign(paste0("CM_", i), CM)
+}
+
+#saveRDS(LASstats, 'data/LASstats.R')
+#LASstats <- readRDS('data/LASstats.R')
+
+# Example run through -----------------------------------------------------
 
 
 
@@ -279,53 +447,6 @@ myY <- "North, UTM32"
 #plot(canopymod_bratsberg_b, xlab=myX, ylab=myY)
 #plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
 #dev.off()
-
-for(i in sites){
-  print(i)
-  temp <- get(i)
-  TM <- grid_terrain(temp, 
-                      algorithm = knnidw(k = 10, p = 2, rmax = 50), 
-                      res=1)
-  CM <- grid_canopy(temp, 
-                     res=get(paste0("TM_", i)),
-                     p2r())
-  CDiff <- CM-TM
-  
-  assign(paste0("TM_", i),TM)
-  assign(paste0("CM_", i), CM)
-  assign(paste0("CDiff_", i), CDiff)
-  
-  # Remove big trees --------------------------------------------------------
-  # first, detect all trees using local maximum filter
-  #Detect all trees )local maxima) with moving window of 3m
-  trees <- find_trees(temp,lmf(ws = 4, hmin= 7 , shape = "square"))
-  # Get the heights of these trees 
-  treeheight <- extract(CDiff,trees[,1:2])
-  
-  # Then we add a column treeID to the LAS file where we mark points 
-  # that are part of trees above the threshold. 
-  # We'll use the Silva2016 algorthim, tuning the exclusion and 
-  # max_cr_factor to appropriate levels
-  seg <- segment_trees(temp,silva2016(CDiff,
-            trees[treeheight>=threshold,],
-            exclusion=0.2,
-            max_cr_factor=0.5))
-  
-  #Make hulls around the trees
-  treeout <- delineate_crowns(temp, type='convex', attribute='treeID')
-  
-  # remove points that are part of these trees
-  clip <- filter_poi(temp,
-              is.na(temp@data$treeID))
-  
-  # Prepare for cutting extent
-  myHull<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
-  myPoly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][myHull,]))
-}
-
-
-
-
 
 
 
@@ -414,8 +535,9 @@ bratsberg_b_cut@data$terrainHeight <- extract(terrainmod_bratsberg_b,
 
 
 LASstats <- data.frame(
-  plot = "bratsberg_b",
-  mean = mean(mydf$z2),
+  plot = i,
+  trt  = word(i, -1, sep = "_"),
+  mean = mean(temp$z2),
   n    = length(mydf$z2)
 )
 
