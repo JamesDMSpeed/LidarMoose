@@ -1,6 +1,6 @@
 # compile the comple dataset for numerical analyses
 
-# There's been a bit of a mess with many similarly names dataset. This script collects all the
+# There's been a bit of a mess with many similarly names datasets. This script collects all the
 # variables we are going to use, and write it to the file compDat.csv.
 
 library(readr)
@@ -10,14 +10,14 @@ library(sp)
 library(raster)
 library(rgdal)
 
-# there is a file 'Metadata_stats.csv' made in 'Marge_script.R' which takes data from 
+# there is a file 'Metadata_stats.csv' made in 'Merge_script.R' which takes data from 
 # sites_info_new.csv. This file doesn't exist and there's no mention of it on gitHub. 
 # I think James made it by updating data/SustHerb Sites Info.csv with 2019 data. 
 # I have to assume it's correct, but I can make some test.
 sustherbsites<-read.table('Metadata_stats.csv',header=T,sep=',')
 names(sustherbsites)
 # I'm just keeping the meta data, and importing the LiDAR summary stats later
-sustherbsites <-   select(sustherbsites,
+sustherbsites <-   dplyr::select(sustherbsites,
                           LocalityCode,
                           LocalityName,
                           Treatment,
@@ -80,16 +80,18 @@ summary(comDat$field_median) #  No NA's and no zeros
 # OK
 
 
-# Get LiDAR summary data (made in AutomatedDataSummaryfromc.....R) ----------------------------
-LiDAR_values <- read_csv("data/LiDAR_values.csv")
-# The site identifyer is 'site' whihc is similar to comDat$locality_and_treatment
+# Here I used to get get LiDAR summary data (made in AutomatedDataSummaryfromc.....R) ----------------------------
+#LiDAR_values <- read_csv("data/LiDAR_values.csv")
+# Now we're using this other datset made in canopy_terrain_modelling.R
+LASstats <- readRDS('data/LASstats.R')
+# The site identifyer is 'plot' which is similar to comDat$locality_and_treatment
 # Checking that comDat$locality_and_treatment is correct:
  # View(comDat[,c("LocalityName", "Treatment", "locality_and_treatment")])
 # Seems like it.
 
-comDat <- merge(comDat, LiDAR_values, 
+comDat <- merge(comDat, LASstats, 
                  by.x = "locality_and_treatment",
-                 by.y = "site")
+                 by.y = "plot")
 
 
 

@@ -244,7 +244,6 @@ sites <- str_trim(sites, side = "both")
 
 
 
-
 #write.csv(sites, 'data/LASnames.csv')
 #write.csv(unique(myCoords$Name), 'data/CoordinateNames.csv')
 
@@ -267,7 +266,7 @@ LASstats <- data.frame(
   max    = as.numeric(NULL),    # max and min makes no sense for point clouds
   first_qu    = as.numeric(NULL),
   third_qu    = as.numeric(NULL),
-  ninetieth      = as.numeric(NULL),
+  ninetyfive      = as.numeric(NULL),
   mad    = as.numeric(NULL),
   rmad    = as.numeric(NULL),
   pf70    = as.numeric(NULL),
@@ -276,53 +275,71 @@ LASstats <- data.frame(
 )
 
 
+#i <- "singsaas_b"
+# FOR-loop ----------------------------------------------------------------
+
 
 
 for(i in sites){
   print(i)
+  
+  rm(df1Lim); rm(dl2Lim)
+  
   #temp <- get(i) # use this option if you've load all LAS already 
   temp <- readLAS(paste0('data/clipped_las/', i, '.las'))
   
-  
+  # normalise with tin model
+  temp <- normalize_height(temp, tin())
  
-  
-  # Terrain model
-  TM <- grid_terrain(temp, 
-                     algorithm = knnidw(k = 10, p = 2, rmax = 50), 
-                     res=1)
-  
   # Canopy model for identifying trees
   CM <- grid_canopy(temp, 
-                    res=TM,
+                    res=1,
                     p2r())
   
-  # Subtract ground height to get actuiall height (used for excluding large trees)
-  CDiff <- CM-TM
-  # plot(CDiff)
+  # plot(CM)
+  
+  
+  
   
   # Remove big trees --------------------------------------------------------
-  # first, detect all trees using local maximum filter
-  #Detect all trees )local maxima) with moving window of 3m
-  trees <- find_trees(temp,lmf(ws = 4, hmin= 7 , shape = "square"))
-  # Get the heights of these trees 
-  treeheight <- extract(CDiff,trees[,1:2])
+  # oddly, segment_trees dont work if there is just one tree
+  # So we need to do a littel cheat
+  # first, detect trees above 1m
+  trees <- find_trees(temp,lmf(ws = 8, hmin= 1 , shape = "square"))
+  # Then 
+  if(nrow(trees@data[trees@data$Z>threshold,]) !=1){
+    trees <- trees[trees$Z>threshold,]
+  }else{trees <- trees[c(
+                         which(trees@data$Z == min(trees@data$Z)),
+                         which(trees@data$Z == max(trees@data$Z))
+                         ),]
   
-  #plot(CDiff)
-  #plot(trees, add=T, pch=1)
-  #plot(trees[treeheight>=threshold,], add=T)
+  }
+
+  #plot(CM);plot(trees, add=T, pch=1);plot(trees, add=T)
   
   # Then we add a column treeID to the LAS file where we mark points 
   # that are part of trees above the threshold. 
-  # We'll use the Silva2016 algorthim, tuning the exclusion and 
-  # max_cr_factor to appropriate levels
-  temp <- segment_trees(temp,silva2016(CDiff,
-            trees[treeheight>=threshold,],
-            exclusion=0.2,
-            max_cr_factor=0.5))
+  # We'll use the dalponte2016 algorthim
+  temp <- segment_trees(temp,
+           dalponte2016(
+            chm=CM,
+            treetops=trees,
+            th_tree = 4,
+            th_seed = 0.35,
+            th_cr = 0.55,
+            max_cr = 6,
+            ID = "treeID"
+            )
+            )
+
+  
   
   #Make hulls around the trees for plotting
   #if(any(!is.na(temp@data$treeID))){
-  #treeout <- delineate_crowns(temp, type='convex', attribute='treeID')}
+  #treeout <- delineate_crowns(temp, type='convex', attribute='treeID')
+  #}
+  #plot(CM); plot(treeout, add=T)
   
   # remove points that are part of these trees
   temp <- filter_poi(temp,
@@ -346,56 +363,95 @@ for(i in sites){
   temp <- clip_roi(temp, sps2)
  
   
-  # subtract the height of the terrainmodel from the points' z-values
-  temp@data$terrainHeight <- extract(TM, 
-                                     data.frame(x=temp@data$X, 
-                                                y=temp@data$Y))
-  temp@data$canopyHeight <- temp@data$Z - temp@data$terrainHeight
+ 
   
-  hgt <- temp@data$canopyHeight
+ 
   
   # Calculating nessesary metrics for est biomass (Næsset et al 2011)
-  hgt_firstReturns <- temp@data$canopyHeight[temp@data$ReturnNumber==1]
-  hgt_lastReturns  <- temp@data$canopyHeight[temp@data$ReturnNumber==max(temp@data$ReturnNumber)]
+  # The following is perhaps correct(?) 
+  # but some pulses dont have returnNumber == 1, but start from 2, 3 or even 4
+  # singleOrFirstOfMany <- temp@data$Z[temp@data$ReturnNumber==1]
   
-  relDens1stRanged  <- 
-    hgt_firstReturns[hgt_firstReturns > 2 & 
-    hgt_firstReturns < stats::quantile(hgt_firstReturns, 0.95, na.rm=T)]
-  lim <- stats::quantile(relDens1stRanged, 0.1, na.rm = T)
-  densityFirst1 <- length(relDens1stRanged[relDens1stRanged>lim])/length(hgt_firstReturns)
-
-  relDensLastRanged  <- 
-    hgt_lastReturns[hgt_lastReturns > 2 & 
-                      hgt_lastReturns < stats::quantile(hgt_lastReturns, 0.95, na.rm=T)]
-  lim2 <- stats::quantile(relDensLastRanged, 0.2, na.rm = T)
-  densityLast2 <- length(relDensLastRanged[relDensLastRanged>lim])/length(hgt_lastReturns)
+  # create column 'pulseID'
+  temp <- retrieve_pulses(temp)
+  
+  # Set max returns to 4, as Næsset
+  table(temp@data$ReturnNumber)
+  temp@data$ReturnNumber[temp@data$ReturnNumber>4] <- 4
+  table(temp@data$ReturnNumber)
+  
+  myMin <- aggregate(data=temp@data, ReturnNumber~pulseID, FUN = min)
+  myMax <- aggregate(data=temp@data, ReturnNumber~pulseID, FUN = max)
+  
+  myMin$ID <- paste(myMin$pulseID, myMin$ReturnNumber, sep="-")
+  myMax$ID <- paste(myMax$pulseID, myMax$ReturnNumber, sep="-")
+  temp@data$ID <- paste(temp@data$pulseID, temp@data$ReturnNumber, sep="-")
+  
+  singleOrFirstOfMany <- temp@data$Z[temp@data$ID %in% myMin$ID]
+  singleOrLastOfMany  <- temp@data$Z[temp@data$ID %in% myMax$ID]
+  
+  # cut point below 2m and above 95th quantile
+  singleOrFirstOfManyCut  <- 
+    singleOrFirstOfMany[singleOrFirstOfMany > 2 & 
+        singleOrFirstOfMany < stats::quantile(singleOrFirstOfMany, 0.95, na.rm=T)]
+  singleOrLastOfManyCut  <- 
+    singleOrLastOfMany[singleOrLastOfMany > 2 & 
+                         singleOrLastOfMany < stats::quantile(singleOrLastOfMany, 0.95, na.rm=T)]
+  
+  if(length(singleOrFirstOfManyCut)>0){
+  df1Lim <- 2+(max(singleOrFirstOfManyCut)-min(singleOrFirstOfManyCut))/10 }
+  
+  ifelse(exists("df1Lim"),
+  df1 <- length(singleOrFirstOfManyCut[singleOrFirstOfManyCut>df1Lim])/length(singleOrFirstOfMany),
+  df1 <-0)
+  
+  if(length(singleOrLastOfManyCut)>0){
+  dl2Lim <- 2+((max(singleOrLastOfManyCut)-min(singleOrLastOfManyCut))/10)*2  }
+  
+  ifelse(exists("dl2Lim"), 
+  dl2 <- length(singleOrLastOfManyCut[singleOrLastOfManyCut>dl2Lim])/length(singleOrLastOfManyCut),
+  dl2 <-0)
+  
+  
+  #Scale dependent roughness
+  rumple <- rumple_index(temp@data$X, temp@data$Y, temp@data$Z)
+  #"vertical complexity index"
+  myZ <- temp@data$Z[temp@data$Z>=0]
+  vci <- VCI(myZ, zmax=max(myZ), by = 0.5)
+  summary(temp@data$Z)
+  
 
   # Extract stats
    xLASstats <- data.frame(
     plot    = i,
     trt     = word(i, -1, sep = "_"),
-    mean    = mean(hgt, na.rm=T),
-    n       = length(hgt),
-    median  = median(hgt, na.rm=T),
-    sd      = sd(hgt, na.rm=T),
-    min     = min(hgt, na.rm=T),
-    max     = max(hgt, na.rm=T), 
-    ninetieth    = stats::quantile(hgt, 0.9, na.rm=T),
-    first_qu= stats::quantile(hgt, 0.25, na.rm=T), 
-    third_qu= stats::quantile(hgt, 0.75, na.rm=T),
-    mad     = mad(hgt,na.rm=T),
-    rmad    = mad(hgt,na.rm=T)/mean(hgt, na.rm=T),
-    pf70    = stats::quantile(hgt_firstReturns, 0.7, na.rm=T),
-    df1     = densityFirst1,
-    dl2     = densityLast2
+    mean    = mean(singleOrFirstOfMany, na.rm=T),
+    n       = length(singleOrFirstOfMany),
+    median  = median(singleOrFirstOfMany, na.rm=T),
+    sd      = sd(singleOrFirstOfMany, na.rm=T),
+    min     = min(singleOrFirstOfMany, na.rm=T),
+    max     = max(singleOrFirstOfMany, na.rm=T), 
+    ninetyfive    = stats::quantile(singleOrFirstOfMany, 0.95, na.rm=T),
+    first_qu= stats::quantile(singleOrFirstOfMany, 0.25, na.rm=T), 
+    third_qu= stats::quantile(singleOrFirstOfMany, 0.75, na.rm=T),
+    mad     = mad(singleOrFirstOfMany,na.rm=T),
+    rmad    = mad(singleOrFirstOfMany,na.rm=T)/median(singleOrFirstOfMany, na.rm=T),
+    pf70    = stats::quantile(singleOrFirstOfMany, 0.7, na.rm=T),
+    df1     = df1,
+    dl2     = dl2,
+    rumple  = rumple,
+    vci     = vci
    
   )
   
    LASstats <- rbind(LASstats, xLASstats)
-  #assign(paste0("CDiff_", i), CDiff)
-  #assign(paste0("TM_", i),TM)
-  #assign(paste0("CM_", i), CM)
+  
 }
+
+
+
+# END for-loop ------------------------------------------------------------
+
 
 #saveRDS(LASstats, 'data/LASstats.R')
 #LASstats <- readRDS('data/LASstats.R')
@@ -403,10 +459,9 @@ for(i in sites){
 # Example run through -----------------------------------------------------
 
 
-
-
 # Export example point cloud ----------------------------------------------------------
 #plot(bratsberg_b)
+plot(maarud1_ub)
 #rgl.postscript("output/bratsbergBrowsedPlot.eps", "eps", drawText = FALSE)
 
 
@@ -416,31 +471,52 @@ for(i in sites){
 # Using k-nearest neighbour with inverse-distance weighing for terrain models
 
 # Example
-#terrainmod_bratsberg_b  <- grid_terrain(bratsberg_b, 
-#                                        algorithm = knnidw(k = 10, p = 2, rmax = 50), 
-#                                        res=1)
+myLAS <- maarud1_b
+myLAS2 <- maarud1_ub
+name <- "maarud1_b"
+name2 <- "maarud1_ub"
+
+TM  <- grid_terrain(myLAS, 
+          algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+          res=1)
+TM2  <- grid_terrain(myLAS2, 
+                    algorithm = knnidw(k = 10, p = 2, rmax = 50), 
+                    res=1)
+
 #tiff("output/terrainModel.tif", res = 300, units = "in", width = 7, height = 7)
-#plot(terrainmod_bratsberg_b, xlab=myX, ylab=myY)
+par(mfrow=c(2,1))
+plot(TM, xlab=myX, ylab=myY, main="B")
+plot(TM2, xlab=myX, ylab=myY, main="UB")
 #dev.off()
 
 # For the canopy models,
 # use terrainmodel as reference to ensure exual extent
 # point to raster method - takes the highest value in each cell
 
-# Example
-#canopymod_bratsberg_b   <- grid_canopy(bratsberg_b,
-#                                       res=terrainmod_bratsberg_b, # use terrainmodel as reference
-#                                       p2r())                      # point to raster method - takes the highest value in each cell
+
+CM   <- grid_canopy(myLAS,
+ res=TM, # use terrainmodel as reference
+ p2r())                      # point to raster method - takes the highest value in each cell
+CM2   <- grid_canopy(myLAS2,
+                    res=TM2, 
+                    p2r())                    
+
+
+
 #tiff("output/canopyModel.tif", res = 300, units = "in", width = 7, height = 7)
-#plot(canopymod_bratsberg_b, xlab=myX, ylab=myY)
+plot(CM, xlab=myX, ylab=myY, main="B")
+plot(CM2, xlab=myX, ylab=myY, main="UB")
 #dev.off()
 
 # then we make the canopy difference raster
-#canopy_diff_bratsberg_b <- canopymod_bratsberg_b-terrainmod_bratsberg_b
+CDiff <- CM-TM
+CDiff2 <- CM2-TM2
 #tiff("output/canopyDiffModel.tif", res = 300, units = "in", width = 7, height = 7)
-#plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
+plot(CDiff, xlab=myX, ylab=myY, main="B")
+plot(CDiff2, xlab=myX, ylab=myY, main="UB")
 #dev.off()
-#
+
+
 #tiff("output/terrainAndCanopyExample.tif", res = 300, units = "in", width = 4, height = 12)
 #par(mfrow=c(3,1))
 #plot(terrainmod_bratsberg_b, xlab=myX, ylab=myY)
@@ -453,122 +529,225 @@ for(i in sites){
 # Remove big trees --------------------------------------------------------
 
 # first, detect all trees using local maximum filter
-trees_bratsberg_b <- find_trees(bratsberg_b,lmf(ws = 4, hmin= 7 , shape = "square"))#Detect all trees with moving window of 3m
+trees <- find_trees(myLAS,lmf(ws = 8, hmin= 7 , shape = "square"))
+trees2 <- find_trees(myLAS2,lmf(ws = 8, hmin= 7 , shape = "square"))
+#Detects all trees with moving window of 3m
 # I cannot set a detection threshold becaaus the Z column is in masl, not references to the ground level
-par(mfrow=c(1,1))
 
 #tiff("output/treesWith4mWindow.tif", res = 300, units = "in", width = 7, height = 7)
-plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
-plot(trees_bratsberg_b, add=T)
+plot(CDiff, xlab=myX, ylab=myY, main="B")
+plot(trees, add=T)
+plot(CDiff2, xlab=myX, ylab=myY, main="B")
+plot(trees2, add=T)
 #dev.off()
 
-
-
 # Get the heights of these trees 
-treeheight_bratsberg_b<-extract(canopy_diff_bratsberg_b,trees_bratsberg_b[,1:2])
+treeheight <- extract(CDiff,trees[,1:2])
+treeheight2 <- extract(CDiff2,trees2[,1:2])
 
 #tiff("output/treesaboveThreshold10m.tif", res = 300, units = "in", width = 7, height = 7)
-plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
-plot(trees_bratsberg_b[treeheight_bratsberg_b>=threshold,], add=T)
+plot(CDiff, xlab=myX, ylab=myY, main="B")
+plot(trees[treeheight>=threshold,], add=T)
+plot(CDiff2, xlab=myX, ylab=myY, main="B")
+plot(trees2[treeheight2>=threshold,], add=T)
 #dev.off()
 
 # Then we add a column treeID to the LAS file where we mark points that are part of trees above the threshold. 
-# We'll use the Silva2016 algorthim, tuning the exclusion and max_cr_factor to appropriate levels
-bratsberg_b <- segment_trees(bratsberg_b,silva2016(canopy_diff_bratsberg_b, 
-                                                      trees_bratsberg_b[treeheight_bratsberg_b>=threshold,],
-                                                   exclusion=0.2,
-                                                   max_cr_factor=0.5)) # now a 10m tree can only have a 5m diameter
-#bratsberg_b@data$treeID[1:500]
+# We'll use the dalponte2016 algorthim, tuning the parameters for exlusion and max canopy width
 
-#Make hulls around the trees
-treeout_bratsberg_b <- delineate_crowns(bratsberg_b,type='convex',attribute='treeID')
-plot(canopy_diff_bratsberg_b)
-plot(treeout_bratsberg_b,add=T) 
+
+myLAS <- segment_trees(myLAS,dalponte2016(CDiff, 
+                                       trees[treeheight>=threshold,],
+                                       th_tree = 4,
+                                       th_seed = 0.35,
+                                       th_cr = 0.55,
+                                       max_cr = 6,
+                                       ID = "treeID"))
+myLAS2 <- segment_trees(myLAS2,dalponte2016(CDiff2, 
+                                          trees2[treeheight2>=threshold,],
+                                          th_tree = 4,
+                                          th_seed = 0.35,
+                                          th_cr = 0.55,
+                                          max_cr = 6,
+                                          ID = "treeID"))
+
+treeout <- delineate_crowns(myLAS,type='convex',attribute='treeID')
+treeout2 <- delineate_crowns(myLAS2,type='convex',attribute='treeID')
+
+par(mfrow=c(1,2))
+plot(CDiff, xlab=myX, ylab=myY, main="B")
+plot(trees[treeheight>=threshold,], add=T)
+plot(treeout,add=T) 
+plot(CDiff2, xlab=myX, ylab=myY, main="UB")
+plot(trees2[treeheight2>=threshold,], add=T)
+plot(treeout2,add=T) 
+# a bit coarse
 
 
 # remove points that are part of these trees
-bratsberg_b_clip <- filter_poi(bratsberg_b,
-                               is.na(bratsberg_b@data$treeID)) 
+myLAS <- filter_poi(myLAS,
+           is.na(myLAS@data$treeID)) 
+myLAS2 <- filter_poi(myLAS2,
+                    is.na(myLAS2@data$treeID)) 
 
-plot(bratsberg_b_clip)
-#rgl.postscript("output/bratsbergBrowsedPlotLargeTreesRemovedAbove.eps", "eps", drawText = FALSE)
+plot(myLAS)
+plot(myLAS2)
+#rgl.postscript("output/maarud1UBLargeTreesRemovedAbove.eps", "eps", drawText = FALSE)
 
-
-#canopy_diff_bratsberg_b_clip <- (as.raster(grid_canopy(bratsberg_b_clip,res=0.5))-(crop(as.raster(grid_terrain(bratsberg_b_clip,method='knnidw',res=0.5#)),as.raster(grid_canopy(bratsberg_b_clip,res=0.5)))))
-#plot(canopy_diff_bratsberg_b_clip)
 
 #Cutting the 32x32m square(with big trees removed) to 18x18 m
+# Prepare for cutting extent
+tempCoords  <- myCoords[myCoords$LASname==name,c('utm32ost', "utm32nord")]
+tempCoords  <- tempCoords[!is.na(tempCoords$utm32ost),]
+myHull      <- chull(as.matrix(tempCoords))
+myPoly      <- Polygon(as.matrix(tempCoords[myHull,]))
 
-bratsberg_b_order<-chull(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5]))
-bratsberg_b_poly<-Polygon(as.matrix(plotcoords[plotcoords$Name=='Brb',4:5][bratsberg_b_order,]))
+tempCoords2 <- myCoords[myCoords$LASname==name2,c('utm32ost', "utm32nord")]
+tempCoords2 <- tempCoords2[!is.na(tempCoords2$utm32ost),]
+myHull2     <- chull(as.matrix(tempCoords2))
+myPoly2     <- Polygon(as.matrix(tempCoords2[myHull2,]))
+
 
 # Calculate 2m buffen inn from the fence
-p <-  Polygon(bratsberg_b_poly@coords)
-ps = Polygons(list(p),1)
-sps = SpatialPolygons(list(ps))
-plot(sps)
-sps2 <- gBuffer(sps, width = -2)
-plot(sps2, add=T)
+p    <-  Polygon(myPoly@coords)
+ps   <-  Polygons(list(p),1)
+sps  <-  SpatialPolygons(list(ps))
+sps2 <-  gBuffer(sps, width = -2)
 
-#tiff("output/whatToCut.tif", res = 300, units = "in", width = 7, height = 7)
-plot(canopy_diff_bratsberg_b, xlab=myX, ylab=myY)
-points(bratsberg_b_poly@coords)
-lines(bratsberg_b_poly@coords)
-plot(treeout_bratsberg_b,add=T)
-plot(sps2, add=T, lwd=2)
+p2    <-  Polygon(myPoly2@coords)
+ps2   <-  Polygons(list(p2),1)
+spsx2  <-  SpatialPolygons(list(ps2))
+sps2x2 <-  gBuffer(spsx2, width = -2)
+
+# clip
+myLAS <- clip_roi(myLAS, sps2)
+myLAS2 <- clip_roi(myLAS2, sps2x2)
+
+plot(spsx2)
+plot(sps2x2, add=T)
+
+par(mfrow=c(1,1))
+#tiff("output/whatToCut_maarud1UB.tif", res = 300, units = "in", width = 7, height = 7)
+plot(CDiff2, xlab=myX, ylab=myY)
+points(myPoly2@coords)
+lines(myPoly2@coords)
+plot(treeout2,add=T)
+plot(sps2x2, add=T, lwd=2)
 #dev.off()
 
 
-#bratsberg_b_poly2 <- sp::SpatialPolygons(bratsberg_b_poly@coords)
-bratsberg_b_cut<-clip_roi(bratsberg_b_clip,sps2)
-plot(bratsberg_b_cut) #18x18 m area as point cloud
-
 
 # subtract the height of the terrainmodel from the points' z-values
-bratsberg_b_cut@data$terrainHeight <- extract(terrainmod_bratsberg_b, 
-                                          data.frame(x=bratsberg_b_cut@data$X, 
-                                          y=bratsberg_b_cut@data$Y))
+myLAS@data$terrainHeight <- extract(TM, 
+                data.frame(x=myLAS@data$X, 
+                           y=myLAS@data$Y))
+
+myLAS2@data$terrainHeight <- extract(TM2, 
+                data.frame(x=myLAS2@data$X, 
+                           y=myLAS2@data$Y))
+myLAS@data$relHeight <- myLAS@data$Z - myLAS@data$terrainHeight
+myLAS2@data$relHeight <- myLAS2@data$Z - myLAS2@data$terrainHeight
 
 
-
-# Extract stats -----------------------------------------------------------
-
-
-LASstats <- data.frame(
-  plot = i,
-  trt  = word(i, -1, sep = "_"),
-  mean = mean(temp$z2),
-  n    = length(mydf$z2)
-)
 
 # PLOT --------------------------------------------------------------------
 
+q1 <- stats::quantile(myLAS@data$relHeight[myLAS@data$ReturnNumber==1], 0.95)
+q2 <- stats::quantile(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1], 0.95)
+m1 <- median(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.1
+m2 <- median(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) # 2.9
+sd1 <- sd(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.69
+sd2 <- sd(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) # 1.8
+mad1 <- mad(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.16
+mad2 <- mad(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) #0.1.82
+rmad1 <- mad1/m1 #1.63
+rmad2 <- mad2/m2 #0.6
 
+
+tempdat <- rbind(
+  myLAS@data, myLAS2@data
+)
+tempdat$Treatment <- c(rep("Open Plots", nrow(myLAS@data)), 
+                       rep("Exclosure", nrow(myLAS2@data)))
 library(ggplot2)
-ggplot(mydf, aes(z2, stat(density))) +
-  geom_freqpoly(binwidth = 0.1)+
+(vertTransect <- ggplot(tempdat, aes(relHeight, stat(density), grou=Treatment, lty=Treatment)) +
+  geom_freqpoly(binwidth = 0.3, lwd=1)+
   coord_flip()+
-  theme_classic()
+  theme_classic()+
+  xlim(c(-0.2,9))+
+  ylim(c(0,1))+
+  xlab("LiDAR height (m)") + ylab("Density")+
+    geom_segment(aes(y = 0.25, x = q1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=1,
+                 arrow = arrow(length = unit(0.5, "cm")))+
+    geom_segment(aes(y = 0.75, x = q1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=2)+
+    geom_segment(aes(y = 0.75, x = q2, yend = 0.25, xend = q2),show.legend=FALSE,
+                 arrow = arrow(length = unit(0.5, "cm")))+
+    annotate(geom="text", x=q2+0.2, y=.6, label="95th percentile",
+             color="black")+
+    annotate(geom="text", x=q1+0.2, y=.6, label="95th percentile",
+             color="black")+
+    
+    geom_segment(aes(y = 0.5, x = m1, yend = 0.25, xend = m1),show.legend=FALSE, linetype=1,
+                 arrow = arrow(length = unit(0.5, "cm")))+
+    geom_segment(aes(y = 0.75, x = m1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=2)+
+    geom_segment(aes(y = 0.75, x = q2, yend = 0.25, xend = q2),show.legend=FALSE,
+                 arrow = arrow(length = unit(0.5, "cm")))+
+    annotate(geom="text", x=q2+0.2, y=.6, label="95th percentile",
+             color="black")+
+    annotate(geom="text", x=q1+0.2, y=.6, label="95th percentile",
+             color="black")+
+    
+    
+    theme(legend.justification=c(1,1), 
+          legend.position=c(1,1),
+          legend.title = element_blank())
+    )
+  #geom_vline(xintercept = q1)+
+  #geom_vline(xintercept = q2, lty=2))
+  
 
-treeheight_bratsberg_ub<-extract(canopy_diff_bratsberg_ub,trees_bratsberg_ub[,1:2])
+#tiff("output/verticalTransect_maarud1.tif", res = 300, units = "in", width = 3, height = 5)
+vertTransect
+#dev.off()
+
+# OLD STUFF BELOW ---------------------------------------------------------
+
+theTest <- maarud1_ub
+theTest <- retrieve_pulses(theTest)
+
+#Scale dependent roughness
+rumple_index(theTest@data$X, theTest@data$Y, theTest@data$Z)
+#"vertical complexity index"
+VCI(theTest@data$Z, zmax=max(theTest@data$Z), by = 1)
+
+View(theTest@data[1:100,c("Z", "ReturnNumber", "NumberOfReturns", "pulseID")])
+theTest2 <- theTest@data[,c("Z", "ReturnNumber", "NumberOfReturns", "pulseID")]
+
+length(unique(theTest2$pulseID)) # 18026
+singleOrFirstOfMany <- theTest2$Z[theTest2$ReturnNumber==1] # 17996
+length(singleOrFirstOfMany)
+
+a <- aggregate(data=theTest2, ReturnNumber~pulseID, FUN = max)
+b <- aggregate(data=theTest2, ReturnNumber~pulseID, FUN = min)
+
+a$ID <- paste(a$pulseID, a$ReturnNumber, sep="-")
+b$ID <- paste(b$pulseID, b$ReturnNumber, sep="-") 
+
+table(a$ReturnNumber)
+table(b$ReturnNumber)
+# for some pulses, the first return is not marked 1
 
 
-#Make new canopy height model for 18x18 m square
-terrainmod_bratsberg_b18  <- grid_terrain(bratsberg_b_cut, 
-                                        algorithm = knnidw(k = 10, p = 2, rmax = 50), 
-                                        res=1)
-plot(terrainmod_bratsberg_b18)
-terrainmod_bratsberg_b_18x18 <-grid_terrain(bratsberg_b_cut,method='knnidw',res=1)
-canopymod_bratsberg_b_20x20  <-grid_canopy(bratsberg_b_cut,res=1)
+theTest2$ID <- paste(theTest2$pulseID, theTest2$ReturnNumber, sep="-")
 
-terrainmod_bratsberg_b_resampeled_20x20 <- resample(as.raster(terrainmod_bratsberg_b_20x20), as.raster(canopymod_bratsberg_b_20x20, method='bilinear'))
-canopy_diff_bratsberg_b_20x20 <- (as.raster(canopymod_bratsberg_b_20x20)-terrainmod_bratsberg_b_resampeled_20x20)
-plot(canopy_diff_bratsberg_b_20x20)
-
-writeRaster(canopy_diff_bratsberg_b_20x20,'Trondelag/canopy_height_clipped_raster/bratsberg_b_canopyheight', overwrite=TRUE)
+singleOrLastOfMany <- theTest2$Z[theTest2$ID %in% a$ID]
+nr <- seq(1, length(singleOrFirstOfMany), by=1)
+t <- cbind(singleOrFirstOfMany, singleOrLastOfMany, nr)
 
 
- #Bratsberg_ub
+
+
+#Bratsberg_ub
 terrainmod_bratsberg_ub <-grid_terrain(bratsberg_ub,method='knnidw',res=1)
 canopymod_bratsberg_ub   <-grid_canopy(bratsberg_ub,res=1)
 

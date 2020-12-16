@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(ggplot2)
 library(glmmTMB)
+library(ggplot2)
+library(ggpubr)
 ```
 
 ## Get compiled dataset (see compile.R)
@@ -48,13 +50,97 @@ table(dat$LocalityName, dat$Treatment)
 Looks good.
 
 
-## Canopy growth per year
-Lets first compute canopy growth per year since exclosure
+# Biomass
+Calculatin AGB after Næsset et al 2011
+
 ```{r}
-dat$canopygrowth <- dat$md/dat$YrsSinceExclosure
-summary(dat$canopygrowth)
+dat$AGB <- 12.033*(dat$pf70^1.094)*(dat$df1^0.5245)*(dat$dl2^0.3746)
+summary(dat$AGB)
 ```
-The numbers are in meters I'm pretty sure
+The las two calculations produces zeros. The tree volumne is simply too small.
+
+```{r}
+length(dat$AGB[dat$AGB==0])/length(dat$AGB)
+```
+71% zeros
+
+```{r}
+length(dat$AGB[dat$AGB==0 & dat$Treatment=="B"])/length(dat$AGB[dat$Treatment=="B"])
+```
+```{r}
+length(dat$AGB[dat$AGB==0 & dat$Treatment=="UB"])/length(dat$AGB[dat$Treatment=="UB"])
+```
+
+```{r}
+plot(dat$AGB, ylab="Biomass (Mg / ha)")
+```
+
+
+
+
+```{r}
+summary(dat$vci)
+```
+VCI function gives NA when the max point height is <1m (2* bin width set to 0.5). So these are super short statured plots. Its fine to set these to zero
+```{r}
+dat$vci[is.na(dat$vci)] <- 0
+```
+
+# Four parameters
+Se we have four parameters of interest, but AGB is highly zero-inflated. Canopy height is perhaps moset interesting.
+```{r}
+par(mfrow=c(2,2))
+boxplot(dat$AGB~dat$Treatment, ylab="Biomass (Mg / ha)")
+boxplot(dat$rumple~dat$Treatment, ylab="Rumple Index")
+boxplot(dat$ninetyfive~dat$Treatment, ylab="95th percentile (m)")
+boxplot(dat$vci~dat$Treatment, ylab="Vertical Complexity Index")
+```
+
+# Canopy height
+We used to use median height, but thats more approprate for rasters (canopy models.) Now we re using 'raw' point data, and I think the 95th percentile is more appropriate.
+```{r}
+plot(dat$ninetyfive)
+```
+```{r}
+plot(dat$YrsSinceExclosure, dat$ninetyfive)
+```
+
+
+
+## Canopy growth per year
+Lets first compute canopy growth per year since exclosure. 
+
+```{r}
+dat$canopygrowth <- dat$ninetyfive/dat$YrsSinceExclosure # in m
+dat$MgAGBperYearAndHA <- dat$AGB/dat$YrsSinceExclosure
+
+plot(dat$canopygrowth)
+```
+
+
+The other option would be to add time since clear-cutting as a fixed effect to the models. That would complicate the models obviously, but it would allow fitting non-linear effects of time. Here we impose linearity. Let's see what it looks like for canopy height.
+
+```{r}
+dat$Treatment <- as.factor(dat$Treatment)
+levels(dat$Treatment) <- c('Open plot','Exclosure')
+
+ggplot(data = dat, aes(x = YrsSinceExclosure, y = ninetyfive))+
+  geom_point(aes(colour= Treatment, shape=region))+
+   geom_smooth(aes(colour= Treatment),
+               method = "loess", se=F)+
+  labs(y='Canopy height', x='Years since exclosure')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment", shape="Region")+
+  theme(text = element_text(size = 20))+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+```
+Loess gave some warnings here, but still, this plot shows that it's quite linear, so that's good.
+
 
 One of the first things to decide on is what to do with productivity, as there are two outliers:
 ```{r}
@@ -65,12 +151,1007 @@ dat[dat$prod>0.6,c("LocalityName", "region", "prod")]
 ```
 These are two sites in Hedmark that probably really are very productive, although there could have been serious sampling error due to chance. But they are legitimate, and we should be careful not to drop them too willingly. 
 
+After careful sensitivity analysis, I decided to drop these two locations. Scripts are moved to the end of the file
+
+
+## modelling
+```{r}
+dat2 <- dat[dat$prod <0.7,]
+dim(dat2)
+```
+That deleted the two most productive sites.
+Lets check our assumption about linear growth over time:
+```{r}
+ggplot(data = dat2,
+                    aes(x = YrsSinceExclosure, y = ninetyfive))+
+  geom_point(aes(colour= Treatment, shape=region))+
+   geom_smooth(aes(colour= Treatment),
+               method = "loess")+
+  labs(y='Canopy height', x='Years since exclosure')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment", shape="Region")+
+  theme(text = element_text(size = 20))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+```
+It's still valid.
 
 ```{r}
-dat$Treatment <- as.factor(dat$Treatment)
-levels(dat$Treatment) <- c('Open plot','Exclosure')
+mod_sens1 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2) + (1|region) + (1|LocalityName),
+  data = dat2,  family = gaussian)
+
+mod_sens2 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2)+(1|LocalityName),
+  data = dat2,  family = gaussian)
+AIC(mod_sens1, mod_sens2)
+# regions explains nothing, so I'm removing it
+#summary(mod_sens2)
+library(MuMIn)
+(cg_cand <- dredge(mod_sens2, beta="none", rank = "AICc"))
+#write.csv(cg_cand, "/home/anders/Documents/lidar ms/canopyGrowth.csv")
+
+# best model is:
+cg_best <- glmmTMB(canopygrowth ~ Treatment +(1|LocalityName),
+  data = dat2,  family = gaussian)
+summary(cg_best)
+#
+#mod_sens3 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2),
+#  data = dat2,  family = gaussian)
+#cg_cand <- data.frame(AIC(mod_sens1, mod_sens2, mod_sens3))
+#cg_cand$model <- c("Intial model: Treatment * prod + (1|region)",
+#                   "-(1|region)",
+#                   "-(1|region) and + prod²")
+
+```
+
+
+The results are qualitatively the same, which justified keeping the 'outliers' in. (but see discussing below at the end of the MAD chaper)
+```{r, eval =F}
+sink("/home/anders/Documents/lidar ms/canopyGrowth.csv")
+print(summary(cg_best))
+sink()
+```
+
+
+## Plot
+
+```{r}
+#plotting effect size
+library(reshape2)
+#datCast <- dcast(data=dat2, value.var="canopygrowth", LocalityName~Treatment)
+#datCast$Effect <- datCast$Exclosure - datCast$`Open plot` 
+#datCast$Treatment <- "Canopy height (95th percentile) growth per year"
+#ggplot(data=datCast)+
+#  geom_violin(aes(y=Effect, x=Treatment))+
+#  coord_flip()
+
+# but I'd like to see the real numbers
+
+```
+
+```{r}
+cg_viol <- 
+   ggplot(data = dat2, aes(x = Treatment, y = canopygrowth))+
+  geom_violin(fill = "grey")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Canopy height (95th percentile) growth (m year'^'-1', ')')), x='')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
+  xlab("")
+
+
+ch_viol <- 
+   ggplot(data = dat2, aes(x = Treatment, y = ninetyfive))+
+  geom_violin(fill = "grey")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y='Canopy height (95th percentile)')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
+  xlab("")
+
+viol <- ggarrange(ch_viol, cg_viol,
+                    labels = c("A", "B"),
+                    ncol = 2, nrow = 1)
+
+viol
+```
+
+```{r}
+tiff("/home/anders/Documents/lidar ms/violinPlot.tiff", height = 5, width=7, units="in", res=600)
+viol
+dev.off()
+```
+
+
+
+```{r}
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+prod_l <- rep(seq(from = min(dat$prod_l), to=max(dat$prod_l), length.out = 50), 2)
+prod_l2 <- prod_l^2
+
+pred <- predict(mod3, list(Treatment= tr, 
+                           prod_l   = prod_l, 
+                           prod_l2  = prod_l2), 
+                           se.fit   = TRUE)
+pred2 <- data.frame(Treatment = tr,
+                    prod_l    = prod_l,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+```
+
+```{r}
+(cg_wOutlier <- 
+  ggplot()+
+  geom_point(data = dat,aes(x = exp(prod_l)-1, y = canopygrowth, colour= Treatment))+
+  geom_line(data=pred2, aes(x = exp(prod_l)-1, y=pred, colour = Treatment))+
+  geom_ribbon(data=pred2, aes(x = exp(prod_l)-1, 
+                              ymin=pred-se, 
+                              ymax=pred+se, 
+                              group = Treatment),
+                              alpha=0.2,
+                              linetype="blank")+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   guides(colour = "none")
+)
+```
+```{r}
+rm(tr, prod_l, prod_l2, pred, pred2)
+```
+I have backtransformed the productivity axis in this plot. The ribbons are +-SE, but perhaps 95%CIs are better, or +-1.96SE.
+
+We can also make these nice violin plots, even though the main plot should show the interaction effect like the plot above does.
+```{r}
+(cg_viol <- 
+   ggplot(data = dat2, aes(x = Treatment, y = canopygrowth))+
+  geom_violin(fill = "grey")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2)
+)
+```
+
+## MAD
+I think first and foremost it's the relative MAD we should focus on. That's the equivalent of CV (Coefficient of Variation).
+```{r}
+
+summary(dat$rmad)
+```
+Looks sqewed.
+```{r}
+par(mfrow=c(1,2))
+plot(dat$mad)
+plot(dat$md)
+```
+The two factors are well-behaved at first glance. 
+```{r}
+plot(dat$rMAD)
+```
+But this one is not.
+```{r}
+dat[dat$rMAD>4, c("LocalityName", "Treatment", "md", "mn", "sd", "mad", "rMAD")]
+```
+It's the median that is causing trubble. It's very low, 0.004m.
+```{r}
+library(reshape2)
+myMelt <- melt(data = dat, id.vars = "LocalityCode", measure.vars = c("mad", "mn"))
+ggplot(myMelt, aes(x=variable, y=value, group=LocalityCode))+
+  geom_line()+
+  labs(y='...', x='Variable')+
+  theme_bw()+
+  theme(text = element_text(size = 20))
+```
+This doesn't look strange. 
+Is is simply the low median value that increases rMAD asymptotically. It's of coarse the lowest median in the data set, as you can see here:
+```{r}
+min(dat$md)
+```
+Lets remake rMAD with a slight moderation:
+```{r}
+dat$rMAD2 <- dat$mad/(dat$mn+1)
+par(mfrow=c(1,2))
+plot(dat$rMAD2, main = "new")
+plot(dat$rMAD, main = "old")
+```
+I don't see how this can affect the interpretation of rMAD. Let's use it.
+
+```{r}
+(spag2 <- 
+   ggplot(dat, aes(x=Treatment, y=rMAD2, group=LocalityName, linetype = outlier))+
+  geom_line()+
+  labs(y='Relative Median Abs. Deviation', x='Treatment')+
+  scale_linetype_manual(breaks = c("Exclosure", "Open plot"), 
+                        labels = c("Open plots", "Exclosures"), values=c(1,2))+
+  scale_x_discrete(limits = c('Open plot', 'Exclosure'), 
+                   breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))+
+  theme_bw()+
+  theme(text = element_text(size = 20))
+)
+```
+The two outlier sites are only outliers in the productivity.
+
+Note that we are not standardising rMAD (ie dividing by YrsSinceExclosure). But rMAD could change iver time. Let's investigate.
+```{r}
+ggplot(data = dat,
+                    aes(x = YrsSinceExclosure, y = rMAD2))+
+  geom_point(aes(colour= Treatment, shape=region))+
+   geom_smooth(aes(colour= Treatment),
+               method = "loess", formula =  'y ~ x')+
+  labs(y='Canopy height', x='Years since exclosure')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment", shape="Region")+
+  theme(text = element_text(size = 20))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+```
+
+
+```{r}
+ggplot(data = dat,
+                    aes(x = prod, y = rMAD2))+
+  geom_point(aes(colour= Treatment, shape=region))+
+   geom_smooth(aes(colour= Treatment),
+               method = "loess", formula =  'y ~ x')+
+  labs(y='Relative Median Abs. Deviation', x='log(Productivity)')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment", shape="Region")+
+  theme(text = element_text(size = 20))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+
+```
+Prorbably no interaction with productivity here, but the 'exclosure line' appear to lie higher.
+Let's see if there an effect of region
+```{r}
+ggplot(data = dat,
+                    aes(x = prod, y = rMAD2))+
+  geom_point(aes(colour=region, shape=Treatment))+
+   geom_smooth(aes(colour= region),
+               method = "lm", formula =  'y ~ x')+
+  labs(y='Relative Median Abs. Deviation', x='log(Productivity)')+
+  theme_bw()+
+  #scale_color_manual(values = c("gray80", "black", "grey20"))+
+  labs(colour="Region", shape="Treatment")+
+  theme(text = element_text(size = 20))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+
+```
+Looks like we might need a random slope for this one.
+
+```{r}
+modmad <- glmmTMB(data = dat,
+                  rMAD2~Treatment*prod_l+prod_l2+(prod_l|region),
+                  family = gaussian)
+summary(modmad)
+```
+Note perfect correlation between random effect. All I can think of trying the centering.
+
+```{r}
+dat$prod_lc <- dat$prod_l-mean(dat$prod_l)
+dat$prod_l2c <- dat$prod_l2-mean(dat$prod_l2)
+par(mfrow=c(2,2))
+hist(dat$prod_l, xlim = c(-0.7,0.7))
+hist(dat$prod_lc, xlim = c(-0.7,0.7))
+hist(dat$prod_l2, xlim = c(-0.7,0.7))
+hist(dat$prod_l2c, xlim = c(-0.7,0.7))
+
+```
+Ok, but notice how sqewed the quadratic term is, probably amplifying the 'outlier issue'...
+
+
+```{r}
+modmad2 <- glmmTMB(data = dat,
+                  rMAD2~Treatment*prod_lc+prod_l2c+(prod_lc|region),
+                  family = gaussian)
+summary(modmad2)
+```
+Well that just made it worse. I think we just need to simplyfy the model.
+
+
+```{r}
+modmad3 <- glmmTMB(data = dat,
+                  rMAD2~Treatment*prod_l+prod_l2+(1|region),
+                  family = gaussian)
+summary(modmad3)
+```
+Like so. Lets for fun compare with the random slope model, but I'm not sure if its AIC is compareable/reliable:
+
+```{r}
+AIC(modmad, modmad3)
+```
+The random intecept model is better anyways.
+But we can drop the interaction, and that leave us with:
+```{r}
+modmad4 <- update(modmad3, .~. -Treatment:prod_l)
+summary(modmad4)
+```
+All very significant. Error estimates seem reasonable. Let's look at some validation plots.
+```{r}
+par(mfrow = c(2,2))
+plot(resid(modmad4), fitted(modmad4))
+plot(dat$prod_l, resid(modmad4))
+plot(dat$prod_l2, resid(modmad4))
+plot(resid(modmad4)~dat$Treatment)
+```
+Looks fine. 
+
+## Plot rMAD2
+```{r}
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+prod_l <- rep(seq(from = min(dat$prod_l), to=max(dat$prod_l), length.out = 50), 2)
+prod_l2 <- prod_l^2
+region <- rep(NA, times=100)
+
+pred <- predict(modmad4, list(Treatment=tr, 
+                              prod_l=prod_l, 
+                              prod_l2=prod_l2,
+                              region = region), se.fit = TRUE)
+pred2 <- data.frame(Treatment = tr,
+                    prod_l    = prod_l,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+```
+
+```{r}
+(rmad_wOutlier <- 
+  ggplot()+
+  geom_point(data = dat,aes(x = exp(prod_l)-1, y = rMAD2, colour= Treatment))+
+  geom_line(data=pred2, aes(x = exp(prod_l)-1, y=pred, colour = Treatment))+
+  geom_ribbon(data=pred2, aes(x = exp(prod_l)-1, 
+                              ymin=pred-se, 
+                              ymax=pred+se, 
+                              group = Treatment),
+                              alpha=0.2,
+                              linetype="blank")+
+  labs(y="Relative Median Abs. Deviation", x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   theme(legend.title=element_blank())+
+   theme(legend.justification=c(1,1), legend.position=c(0.98,0.98))
+)
+```
+
+That looks a bit odd. Lets look at it without backtransforming the x-axis:
+```{r}
+ggplot()+
+  geom_point(data = dat,aes(x = prod_l, y = rMAD2, colour= Treatment))+
+  geom_line(data=pred2, aes(x = prod_l, y=pred, colour = Treatment))+
+  geom_ribbon(data=pred2, aes(x = prod_l, 
+                              ymin=pred-se, 
+                              ymax=pred+se, 
+                              group = Treatment),
+                              alpha=0.2,
+                              linetype="blank")+
+  labs(y="Relative Median Abs. Deviation", x='log(Productivity)')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+```
+```{r}
+rm(tr, prod_l, prod_l2, region, pred, pred2)
+```
+Still strange. 
+
+
+## Sensitivity analysis
+Removing the most productive sites and comparing the results
+```{r}
+dat2 <- dat[dat$prod<0.7,]
+dat2$prod2 <- dat2$prod^2
+```
+
+```{r}
+mads <- glmmTMB(data=dat2,
+                rMAD2~Treatment*prod+prod2+(1|region), family = gaussian)
+mads2 <- update(mads, .~. -(1|region))
+AIC(mads, mads2)
+AIC(mads)-AIC(mads2)
+#summary(mads2)
+library(MuMIn)
+(rmad_cand <- dredge(mads2, beta="none", rank = "AICc"))
+
+# And the best model is:
+rmad_cand_best <- update(mads2, .~. -Treatment:prod)
+summary(rmad_cand_best)
+```
+The interaction term is dropped when not including the most productive sites.
+
+```{r}
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+prod <- rep(seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 50), 2)
+prod2 <- prod^2
+region <- rep(NA, times=100)
+pred <- predict(mads4, list(Treatment=tr, 
+                              prod   =prod,
+                              prod2  =prod2,
+                              region =region), se.fit = TRUE)
+pred2 <- data.frame(Treatment = tr,
+                    prod      = prod,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+```
+
+```{r}
+(rmad <- 
+   ggplot()+
+  geom_point(data = dat2,aes(x = prod, y = rMAD2, colour= Treatment))+
+  geom_line(data=pred2, aes(x = prod, y=pred, colour = Treatment))+
+  geom_ribbon(data=pred2, aes(x = prod, 
+                              ymin=pred-se, 
+                              ymax=pred+se, 
+                              group = Treatment),
+                              alpha=0.2,
+                              linetype="blank")+
+  labs(y="Relative Median Abs. Deviation", x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  theme(legend.position = 'right',
+        legend.text = element_text(size=12),
+        legend.box.background = element_rect(colour = "black"))+
+   theme(legend.title=element_blank())+
+   theme(legend.justification=c(1,1), legend.position=c(0.98,0.25))
+)
+```
+```{r}
+rm(tr, prod, prod2, region, pred, pred2)
+```
+
+The plots are very different looking, but from 0 - 0.5 the lines follow a quite similar path. Probably this last one is more logical, as there no reason to think that rMAD should go towards zero as prod increases. It's however a little confusing for the reader if we sometimes take the points out and sometimes not... That makes me opt for removing them from the start. We can include the plots as appendix as a safeguard perhaps.
+
+Lets validata that last model.
+
+```{r}
+par(mfrow=c(2,2))
+plot(resid(mads4), fitted(mads4))
+plot(dat2$prod, resid(mads4))
+plot(dat2$prod2, resid(mads4))
+plot(resid(mads4)~dat2$Treatment)
+```
+ok. 
+```{r}
+summary(mads4)
+```
+So the interaction isn't significant, but lowers the AIC none the less.
+Summary stats:
+```{r}
+m <- tapply(dat2$rMAD2, dat2$Treatment, FUN = mean)
+# And standard error:
+source('se.R')
+s <- tapply(dat2$rMAD2, dat2$Treatment, FUN = se)
+(rmad_means <- data.frame("mean canopy growth per year" = round(m, 3),
+                        "standard error of the mean" = round(s, 3)))
+```
+
+## Canopy growth v2
+Because we decided to drop the 'outliers', we want to da that also in the canopy growth analysis.
+We have the model:
+```{r}
+summary(mod_sens2)
+```
+Significant interaction, ok.
+Some validation.
+```{r}
+par(mfrow = c(2,2))
+plot(resid(mod_sens2), fitted(mod_sens2))
+plot(dat2$prod, resid(mod_sens2))
+plot(resid(mod_sens2)~dat2$Treatment)
+```
+Ok. And some new summary stats:
+```{r}
+m <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = mean)
+s <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = se)
+data.frame("mean canopy growth per year in meters" = round(m, 3),
+                        "standard error of the mean" = round(s, 3))
+```
+And plot
+```{r}
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+prod <- rep(seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 50), 2)
+pred <- predict(mod_sens2, list(Treatment= tr, 
+                           prod   = prod), 
+                           se.fit   = TRUE)
+pred2 <- data.frame(Treatment = tr,
+                    prod      = prod,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+```
+
+```{r}
+(cg <- 
+  ggplot()+
+  geom_point(data = dat2,aes(x = prod, y = canopygrowth, colour= Treatment))+
+  geom_line(data=pred2, aes(x = prod, y=pred, colour = Treatment))+
+  geom_ribbon(data=pred2, aes(x = prod, 
+                              ymin=pred-se, 
+                              ymax=pred+se, 
+                              group = Treatment),
+                              alpha=0.2,
+                              linetype="blank")+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
+  theme_bw()+
+  scale_color_manual(values = c("gray80", "black"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+ #theme(legend.position = 'right',
+ #                           legend.justification = c("left", "top"),
+ #                           legend.box.just = "left",
+ #                           #legend.margin = margin(5, 5, 5, 5),
+ #                           legend.text = element_text(size=12))
+   guides(colour=F)
+)
+```
+```{r}
+rm(tr, prod, pred, pred2)
+```
+
+## Compare LiDAR and field data
+In Ingrids master she compared the LiDar data to the field data so see it they matched. I think the idea was that thi should be some type of  ground-truthing. However, it's important to remind ourselves that the field data is measuring mean tree height and the lidar data is measuring mean canopy height, ie per unit area. Take a hypothetical plot with no small trees and just one tree 4m tall and covering 25% of the ground area. The field data will give a value of 4m for the canopy height in this case because it will always include the single tree. The LiDar however could also just be measuring ground level and miss the tree completely and the mean canopy height for the LiDar data in this case would be 1m. Now, take that same plot but add a blancet of endless amounts of small seedlings covering the ground 50 cm tall. The mean tree height from field data would be pulled/sqewed towards 0.5m, but the lidar would instead increase by about 0.5m on avererage to become about 1.5m. In other words, the LiDar approach and the field data are not meassuring the same thing. Therefore, rather than comparing the canopy height from Lidar to the canopy height(/mean tree height) from the field data, I think it'd be more interesting and correct to try and figure out what field derived data best match the LiDar data. It could be that the max tree height per plot, of the mean of the tallest trees per plot, have a higher correaltion to the LiDar derived canopy height than the field derived canopy height has. But this is not really possible however, because in the field protocol all trees above 4m are grouped together in one height category. 
+
+Then, to also validate the LiDar data we could include a data simulation excercice where we subsample laser points and see if the CV in the Lidar data decreases and flattens out when we go from 1 to the maximum available point density. This would imply there is no more precission to be gained from adding another laser point, and ie the data is accurate. 
+https://www.sciencedirect.com/science/article/pii/S0034425710003123
+This just leaves ut with the problem of co-registration errors (lack of spatial overlap between field data and LiDar data) which we cant fix.
+
+
+We don't want to analyse the field data alone, or by itself. That we have done in other papers and with more data. For comparing LiDAR and field-based data we can use the raw values, ie the canopy height (not divided by years since exclosure).
+
+
+```{r}
+summary(dat2$field_median)
+```
+
+```{r}
+par(mfrow=c(2,2), mar=c(4,4,1,1))
+plot(dat2$field_median, ylab="Median")
+plot(dat2$field_median~dat2$Treatment, xlab="", ylab="Median")
+plot(dat2$field_median~dat2$prod, xlab="Productivity", ylab="Median")
+plot(dat2$field_median~dat2$region, xlab="", ylab="Median")
+```
+
+Canopy height is greater in exclosures and increases with productivity, and is highest in Hedmark. Very similar to the LiDAR data. It probably also increases with time:
+```{r}
+plot(dat2$field_median~dat2$YrsSinceExclosure, xlab="Years since exclusion", ylab="Median")
+
+```
+Yes it does.
+
+```{r}
+m2 <- tapply(dat2$field_median, dat2$Treatment, FUN = mean)
+s2 <- tapply(dat2$field_mean, dat2$Treatment, FUN = se)
+(cg_field <- data.frame("mean canopy height from field data" = round(m2, 3),
+                        "standard error of the mean" = round(s2, 3)))
+```
+This is actually the mean of the medians. 
+Ignore this for now.
+
+Let's look at the relationship between the lidar and field derived canopy heights.
+```{r}
+ggplot(data = dat2,
+                    aes(x = dat2$md, y = dat2$field_median, colour= Treatment))+
+  geom_point(size=3)+
+   #geom_smooth(method = "lm")+
+  labs(y='Mean tree height from field data (m)', 
+       x='Canopy height from LiDAR (m)')+
+  theme_bw()+
+  scale_color_manual(values = c("gray0", "gray60"))+
+  labs(colour="Treatment")+
+  theme(text = element_text(size = 12))+
+  ylim(0, 4)+xlim(0,4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+
+```
+Perhaps the correlation strength differes between treatment, but not very much. They are also quite close to the 1:1 line, supprisingly.
+
+```{r}
+ggplot(data = dat2,
+                    aes(x = dat2$md, y = dat2$field_median, colour= region))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y='Mean tree height from field data (m)', 
+       x='Canopy height from LiDAR (m)')+
+  theme_bw()+
+  labs(colour="Region")+
+  theme(text = element_text(size = 12))+
+  ylim(0, 4)+xlim(0,4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+   geom_abline(intercept = 0, slope = 1, color="red", 
+                 linetype="dashed", size=1.5)
+
+```
+Also it differs a bit between region. 
+
+Also, we can look at the effect that experimental duration has had on the correlation:
+```{r}
+dat2$diff <- dat2$md-dat2$field_median
+hist(dat2$diff)
+```
+
+```{r}
+ggplot(data = dat2,
+        aes(x = YrsSinceExclosure, y = diff))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y="LiDAR-data minus field-based data",
+         x="Years since exclosure")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+   
+```
+It looks like older exclosures have a greater difference between LiDAR and field-based data, but not much. The LiDar data is typically smaller than the field data.
+
+
+
+I would like to see if the correlation depends on LiDAR resolution, but then we should figure out what this is about:
+```{r}
+table(dat2$plot_density_m2, dat2$resolution_m)
+```
+It's not clear which is derived from which, but I think its plot density that is the original.
+
+```{r, echo=F}
+ggplot(data = dat2,
+        aes(x = plot_density_m2, y = diff))+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(y="LiDAR-data minus field-based data",
+         x="Plot density (points per m2)")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  #ylim(0, 0.4)+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))
+```
+Greater point density makes the two approaches more similar. 
+
+It would be nice to compare LiDar derived canopy height to a range of field derived metrices, but as mentioned above, there is this unsurmountable problem off all trees >4m being grouped together into one height category in the field.
+Potential variable to include could have been:
+- mean (of median) tree height
+- mean of tallest trees 
+- mean of two tallest trees
+- mean of three tallest trees
+- density (number of individuals)
+
+But let's just use what we have, which is the mean of the median tree height.
+
+```{r}
+(field_lidar_cor <- cor(dat2$md, dat2$field_median, method = "pearson"))
+
+```
+The correlation is quite higg. This is the actual tree and canopy height we are comparing now, not divided by time since fencing.
+
+
+# OLD ####
+We can use a more sophisticated model to see where the field-based data is better or worse at predicting LiDAR results.
+
+```{r}
+moddiff <- glmmTMB(md~field_median
+                   +region+field_median:region
+                   +YrsSinceExclosure+YrsSinceExclosure:field_median
+                   +plot_density_m2+plot_density_m2:field_median
+                   +Treatment+Treatment:field_median,
+                   family=gaussian,
+                   data=dat2)
+summary(moddiff)
+```
+
+Since there are so many candidate models, we can do a shortcut and apply dredge:
+```{r}
+library(MuMIn)
+(corr_cand <- dredge(moddiff, beta="none", rank = "AICc")[1:5,])
+```
+And the best model is...:
+```{r}
+moddiff2 <- glmmTMB(md~field_median
+                   +YrsSinceExclosure+YrsSinceExclosure:field_median
+                   +plot_density_m2
+                   +Treatment,
+                   family=gaussian,
+                   data=dat2)
+summary(moddiff2)
+```
+Interpretation: Field-based data have a high correlation to LiDAR data (0.716). The coorelation is dependent on Years since exclosure (probably this could be exchanged with tree height?) and LiDAR data is more likely to underestimate canopy growth at short experimental durations (see figure above). Similarly, lower LiDAR resolution induces underestimates in the same way. Field-based data is also not able to explain the variation induced by the fencing treatment. This could be a three way ineraction as well, including years since exclusion. Not sure if it should be included here actually.
+
+Validation 
+```{r}
+par(mfrow=c(1,2), mar = c(4,4,1,1))
+plot(resid(moddiff2), fitted(moddiff2))
+qqnorm(resid(moddiff2))
+
+```
+```{r}
+par(mfrow=c(3,2), mar = c(4,4,1,1))
+plot(resid(moddiff2)~ dat2$region)
+plot(resid(moddiff2), dat2$prod)
+plot(resid(moddiff2)~ dat2$Treatment)
+plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
+plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
+plot(resid(moddiff2)~ dat2$plot_density_m2)
+
+```
+Looks Ok
+For the final plot I think just keep it simple.
+```{r}
+(corr_plot <- 
+  ggplot(data = dat2,
+                    aes(x = md, y = field_median))+
+   geom_point(aes(shape = Treatment, 
+                  fill = as.factor(plot_density_m2)), 
+                  size=3, stroke=1)+
+  labs(y=expression(paste('Mean tree heights from field data (m year'^'-1', ')')),
+       x=expression(paste('LiDAR-derived canopy height growth (m year'^'-1', ')')))+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  theme(legend.position = 'right',
+                             legend.justification = c("left", "top"),
+                             legend.box.just = "left",
+                             #legend.margin = margin(5, 5, 5, 5),
+                             legend.text = element_text(size=12))+
+  scale_shape_manual(values=c(21, 24), name = "Treatment")+
+  scale_fill_manual(values = c("black", "grey"), 
+                    name = expression(paste(ext="Point density m"^"-2")))+
+  geom_abline(intercept = 0, slope = 1, color="grey", 
+                 linetype="solid", size=1.5, alpha  = 0.4)+
+  guides(fill = guide_legend(override.aes=list(shape=21)))
+)
+```
+That last line is tricky (https://github.com/tidyverse/ggplot2/issues/2322)
+
+
+
+# SUMMARY (final plots and tables)
+
+### For the main manuscript:
+#### methods figure from Ingrid
+...
+
+#### interaction plot for canopy growth
+```{r}
+cg
+```
+
+
+
+#### interaction plot for rMAD
+
+```{r}
+rmad
+```
+
+```{r}
+ggarrange(cg, rmad, labels = c("A", "B"))
+```
+
+
+```{r, eval =F}
+tiff("/home/anders/Documents/lidar ms/canopyGrowthAndRMAD.tiff", height = 400, width=600, units="px")
+
+ggarrange(cg, rmad, labels = c("A", "B"))
+
+dev.off()
+```
+
+####Violin plot of max canopy height
+```{r}
+(viol1 <- 
+   ggplot(data = dat2, aes(x = Treatment))+
+  geom_violin(aes(y = md), fill = "white", alpha = 0.3)+
+  geom_violin(aes(y = max), fill = "grey", alpha = 0.3)+ 
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y='Canopy height (m)', x='')+
+  stat_summary(aes(y = max), fun.y=mean, geom="point", shape=23, size=2)
+)
+```
+Max values in grey and median values in white. This plot is nice because it shows the canopy height in m, not as m per year, and that makes it more intuitive how the forests look today, like a vertical transection.
+
+```{r}
+tiff("viola.tiff", width=400, height=400, units="px")
+viol1
+dev.off()
+
+```
+
+####Violin plot of canopy height growth
+```{r}
+(viol2 <- 
+   ggplot(data = dat2, aes(x = Treatment))+
+  geom_violin(aes(y = dat2$canopygrowth), fill = "grey", alpha = 0.3)+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='')+
+  stat_summary(aes(y = canopygrowth), fun.y=mean, geom="point", shape=23, size=2)
+)
+```
+```{r, eval =F}
+library(ggpubr)
+tiff("/home/anders/Documents/lidar ms/violaPlots.tiff", height = 400, width=600, units="px")
+ggarrange(viol1, viol2, labels = c("A", "B"))
+dev.off()
+```
+
+##### Scatter plot LiDAR vs field data
+```{r}
+corr_plot
+```
+```{r, eval =F}
+tiff("lidarVSfield.tiff", width=500, height=400, units="px")
+corr_plot
+dev.off()
+
+```
+
+
+### Figures for the appendix:
+####spagettiplot of canopy growth
+```{r}
+spag1
+```
+Two excluded sites as dotted lines
+
+##### spagettiplot of rMAD
+```{r}
+spag2
+```
+Two excluded sites as dotted lines
+
+##### interaction plot for canopy growth incl outlier
+```{r}
+cg_wOutlier
+```
+
+##### Interaction plot for rMAD incl outlier
+```{r}
+rmad_wOutlier
+```
+
+```{r, eval = F}
+tiff("/home/anders/Documents/lidar ms/wOutliers.tiff", height = 400, width=600, units="px")
+
+ggarrange(cg_wOutlier, rmad_wOutlier, labels = c("A", "B"))
+
+dev.off()
+```
+
+
+##### Violin plot of canopy growth
+```{r}
+cg_viol
+```
+
+
+### Tables
+#### Canopy Growth
+##### Mean and sd
+```{r}
+cg_means
+```
+
+##### Best model
+```{r}
+summary(mod_sens2)
+```
+##### Candidate models
+```{r}
+cg_cand
+```
+
+
+rMAD
+
+```{r}
+rmad_means
+```
+best model 
+```{r}
+summary(mads4)
+```
+candidate models
+```{r}
+rmad_cand
+```
+
+#### Field data
+##### Mean and se
+```{r}
+cg_field
+```
+
+##### Correlaction
+```{r}
+field_lidar_cor
+```
+##### Global model
+```{r, eval = FALSE}
+canopygrowth ~ canopygrowth_f + region + canopygrowth_f:region +  
+    YrsSinceExclosure + YrsSinceExclosure:canopygrowth_f + plot_density_m2 +  
+    plot_density_m2:canopygrowth_f + Treatment + Treatment:canopygrowth_f
+```
+
+
+##### Candiate models, top 5
+```{r}
+corr_cand
+```
+
+##### Best model
+```{r}
+summary(moddiff2)
+```
+
+```{r}
+AICc(moddiff2)
+```
+
+
+# END 
+
+
+```{r}
+
 dat$outlier <- "no"
 dat$outlier[dat$LocalityName == "Nes 2" | dat$LocalityName == "Stig Dahlen"] <- "yes"
+table(dat$outlier)
+
 (spag1 <- 
     ggplot(dat, aes(x=Treatment, y=canopygrowth, group=LocalityName, linetype = outlier))+
   geom_line()+
@@ -80,11 +1161,11 @@ dat$outlier[dat$LocalityName == "Nes 2" | dat$LocalityName == "Stig Dahlen"] <- 
   scale_x_discrete(limits = c('Open plot', 'Exclosure'), 
                    breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))+
   theme_bw()+
-  theme(text = element_text(size = 20))+
-  ylim(0, 0.45)
+  theme(text = element_text(size = 20))
+ 
 )
 ```
-The two 'outlier sites' are in dotted lines.
+The two 'outlier sites' are in dotted lines. They are not extreme in terms of canopy growth.
 
 Now lets plot the interaction between productivity and treatment.
 We can use the log of the productivity if residuals are acting strange.
@@ -158,9 +1239,9 @@ ggplot(data = dat,
                              legend.text = element_text(size=12))
 
 ```
-This plot tells us there is no need for a random slope model. Also, the two productivity outliers appear less like outliers when only looking at the Hedmark data points.
+This plot tells us there is no need for a random slope in the model. Also, the two productivity outliers appear less like outliers when only looking at the Hedmark data points.
 
-### Summary stats (OBS, don't report these - keep reading)
+Summary stats (OBS, don't report these - keep reading)
 Let's get some summary stats. 
 ```{r}
 m <- tapply(dat$canopygrowth, dat$Treatment, FUN = mean)
@@ -179,12 +1260,12 @@ We need a model to describe the interaction between treatment and productivity. 
 ```{r}
 library(glmmTMB) # using this package even though I dont need all its finesse...
 dat$region <- as.factor(dat$region)
-mod1 <- glmmTMB(canopygrowth ~ Treatment * prod_l + (1|region),
+mod1 <- glmmTMB(canopygrowth ~ Treatment * prod_l + (1|LocalityName) + (1|region),
   data = dat,  family = gaussian)
 ```
 
 ```{r}
-mod2 <- glmmTMB(canopygrowth ~ Treatment * prod_l ,
+mod2 <- glmmTMB(canopygrowth ~ Treatment * prod_l + (1|LocalityName) ,
   data = dat,  family = gaussian)
 
 ```
@@ -203,26 +1284,27 @@ The models explain exactly the same, so we can drop the random intercept. The on
 ```{r}
 summary(mod2)
 ```
-Significant interaction term, so we're keeping this full model.
-We can also see what the random effect would've give us:
-```{r}
-ranef(mod1)
-```
-, and it's not very much.
+Non-significant interaction term
 
 ```{r}
-plot(resid(mod2), fitted(mod2))
+mod3 <- update(mod2, .~. -Treatment:prod_l )
+summary(mod3)
+```
+Drop productivity
+
+```{r}
+plot(resid(mod3), fitted(mod3))
 ```
 
 ```{r}
 par(mfrow=c(2,2))
-qqnorm(resid(mod2))
-plot(resid(mod2)~ dat$region)
-plot(resid(mod2), dat$prod)
-plot(resid(mod2)~ dat$Treatment)
+qqnorm(resid(mod3))
+plot(resid(mod3)~ dat$region)
+plot(resid(mod3), dat$prod)
+plot(resid(mod3)~ dat$Treatment)
 
 ```
-Looks like everything is in order. The residuals agains productivity at least sho a centering around zero.
+Looks like everything is in order. The residuals against productivity at least show a centering around zero.
 
 
 ```{r}
@@ -242,815 +1324,18 @@ ggplot(data = dat,
                              #legend.margin = margin(5, 5, 5, 5),
                              legend.text = element_text(size=12))
 ```
-So here we're modelling a linear function of productivity. We could try adding a quadratic term. 
+So here we're modelling a linear function of productivity. We could try adding a quadratic term. OBS prod_l is already log-transfomed.
 
 ```{r}
 dat$prod_l2 <- dat$prod_l*dat$prod_l
-mod3 <- glmmTMB(canopygrowth ~ Treatment * prod_l + prod_l2,
+mod4<- glmmTMB(canopygrowth ~ Treatment * prod_l + prod_l2 +(1|LocalityName),
   data = dat,  family = gaussian)
 ```
 
 ```{r}
-AIC(mod2, mod3)
+AIC(mod3, mod4)
 ```
-This gave a slight improvement.
-```{r}
-anova(mod2, mod3)
-```
-The numbers tell us we should keep it. We will need to remake that plot above, but we'll get to that.
-
-
-## Sensitivity analysis
-We should do a sensitivity analysis by removing the outliers and comparing the results that those models give us.
-```{r}
-dat2 <- dat[dat$prod <0.7,]
-dim(dat2)
-```
-That deleted the two most productive sites.
-```{r}
-mod_sens1 <- glmmTMB(canopygrowth ~ Treatment * prod + (1|region),
-  data = dat2,  family = gaussian)
-mod_sens2 <- glmmTMB(canopygrowth ~ Treatment * prod,
-  data = dat2,  family = gaussian)
-mod_sens3 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2),
-  data = dat2,  family = gaussian)
-cg_cand <- data.frame(AIC(mod_sens1, mod_sens2, mod_sens3))
-cg_cand$model <- c("Intial model: Treatment * prod + (1|region)",
-                   "-(1|region)",
-                   "-(1|region) and + prod²")
-cg_cand
-```
-
-```{r}
-summary(mod_sens2)
-```
-The results are qualitatively the same, which justified keeping the 'outliers' in. (but see discussing below at the end of the MAD chaper)
-
-## Plot
-```{r}
-tr <- rep(c("Open plot", "Exclosure"), times=50, each=1)
-prod_l <- seq(from = min(dat$prod_l), to=max(dat$prod_l), length.out = 100)
-prod_l2 <- prod_l^2
-
-pred <- predict(mod3, list(Treatment= tr, 
-                           prod_l   = prod_l, 
-                           prod_l2  = prod_l2), 
-                           se.fit   = TRUE)
-pred2 <- data.frame(Treatment = tr,
-                    prod_l    = prod_l,
-                    pred      = pred$fit,
-                    se        = pred$se.fit)
-```
-
-```{r}
-(cg_wOutlier <- 
-  ggplot()+
-  geom_point(data = dat,aes(x = exp(prod_l)-1, y = canopygrowth, colour= Treatment))+
-  geom_line(data=pred2, aes(x = exp(prod_l)-1, y=pred, colour = Treatment))+
-  geom_ribbon(data=pred2, aes(x = exp(prod_l)-1, 
-                              ymin=pred-se, 
-                              ymax=pred+se, 
-                              group = Treatment),
-                              alpha=0.2,
-                              linetype="blank")+
-  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-)
-```
-```{r}
-rm(tr, prod_l, prod_l2, pred, pred2)
-```
-I have backtransformed the productivity axis in this plot. The ribbons are +-SE, but perhaps 95%CIs are better, or +-1.96SE.
-
-We can also make these nice violin plots, even though the main pot should show the interaction effect like the plot above does.
-```{r}
-(cg_viol <- 
-   ggplot(data = dat2, aes(x = Treatment, y = canopygrowth))+
-  geom_violin(fill = "grey")+
-  theme_bw()+
-  theme(text = element_text(size = 12))+
-  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='')+
-  stat_summary(fun.y=mean, geom="point", shape=23, size=2)
-)
-```
-
-## MAD
-I think first and foremost it's the relative MAD we should focus on. That's the equivalent of CV (Coefficient of Variation).
-```{r}
-dat$rMAD <- dat$mad/dat$md
-summary(dat$rMAD)
-```
-Looks sqewed.
-```{r}
-par(mfrow=c(1,2))
-plot(dat$mad)
-plot(dat$md)
-```
-The two factors are well-behaved at first glance. 
-```{r}
-plot(dat$rMAD)
-```
-But this one is not.
-```{r}
-dat[dat$rMAD>4, c("LocalityName", "Treatment", "md", "mn", "sd", "mad", "rMAD")]
-```
-It's the median that is causing trubble. It's very low, 0.004m.
-```{r}
-library(reshape2)
-myMelt <- melt(data = dat, id.vars = "LocalityCode", measure.vars = c("mad", "mn"))
-ggplot(myMelt, aes(x=variable, y=value, group=LocalityCode))+
-  geom_line()+
-  labs(y='...', x='Variable')+
-  theme_bw()+
-  theme(text = element_text(size = 20))
-```
-This doesn't look strange. 
-Is is simply the low median value that increases rMAD asymptotically. It's of coarse the lowers median in the data set, as you can see here:
-```{r}
-min(dat$md)
-```
-Lets remake rMAD with a slight moderation:
-```{r}
-dat$rMAD2 <- dat$mad/(dat$mn+1)
-par(mfrow=c(1,2))
-plot(dat$rMAD2, main = "new")
-plot(dat$rMAD, main = "old")
-```
-I don't see how this can affect the interpretation of rMAD. Let's use it.
-
-
-```{r}
-(spag2 <- 
-   ggplot(dat, aes(x=Treatment, y=rMAD2, group=LocalityName, linetype = outlier))+
-  geom_line()+
-  labs(y='Relative Median Abs. Deviation', x='Treatment')+
-  scale_linetype_manual(breaks = c("Exclosure", "Open plot"), 
-                        labels = c("Open plots", "Exclosures"), values=c(1,2))+
-  scale_x_discrete(limits = c('Open plot', 'Exclosure'), 
-                   breaks = c('Open plot', 'Exclosure'), expand = c(0.1,0))+
-  theme_bw()+
-  theme(text = element_text(size = 20))
-)
-```
-```{r}
-ggplot(data = dat,
-                    aes(x = prod, y = rMAD2))+
-  geom_point(aes(colour= Treatment, shape=region))+
-   geom_smooth(aes(colour= Treatment),
-               method = "loess", formula =  'y ~ x')+
-  labs(y='Relative Median Abs. Deviation', x='log(Productivity)')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment", shape="Region")+
-  theme(text = element_text(size = 20))+
-  #ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-
-```
-Prorbably no interaction with productivity here, but the 'exclosure line' appear to lie higher.
-Let's see if there an effect of region
-```{r}
-ggplot(data = dat,
-                    aes(x = prod, y = rMAD2))+
-  geom_point(aes(colour=region, shape=Treatment))+
-   geom_smooth(aes(colour= region),
-               method = "lm", formula =  'y ~ x')+
-  labs(y='Relative Median Abs. Deviation', x='log(Productivity)')+
-  theme_bw()+
-  #scale_color_manual(values = c("gray80", "black", "grey20"))+
-  labs(colour="Region", shape="Treatment")+
-  theme(text = element_text(size = 20))+
-  #ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-
-```
-Looks like we might need a random slope for this one.
-
-```{r}
-modmad <- glmmTMB(data = dat,
-                  rMAD2~Treatment*prod_l+prod_l2+(prod_l|region),
-                  family = gaussian)
-summary(modmad)
-```
-Note perfect correlation between random effect. All I can think of trying the centering.
-```{r}
-dat$prod_lc <- dat$prod_l-mean(dat$prod_l)
-dat$prod_l2c <- dat$prod_l2-mean(dat$prod_l2)
-par(mfrow=c(2,2))
-hist(dat$prod_l, xlim = c(-0.7,0.7))
-hist(dat$prod_lc, xlim = c(-0.7,0.7))
-hist(dat$prod_l2, xlim = c(-0.7,0.7))
-hist(dat$prod_l2c, xlim = c(-0.7,0.7))
-
-```
-Ok, but notice how sqewed the quadratic term is, probably amplifying the 'outlierissue'...
-```{r}
-modmad2 <- glmmTMB(data = dat,
-                  rMAD2~Treatment*prod_lc+prod_l2c+(prod_lc|region),
-                  family = gaussian)
-summary(modmad2)
-```
-Well that just made it worse. I think we just need to simplyfy the model.
-```{r}
-modmad3 <- glmmTMB(data = dat,
-                  rMAD2~Treatment*prod_l+prod_l2+(1|region),
-                  family = gaussian)
-summary(modmad3)
-```
-Like so. Lets for fun compare with the random slope model, but I'm not sure if its AIC is compareable/reliable:
-```{r}
-AIC(modmad, modmad3)
-```
-The random intecept model is better anyways.
-Byt we can drop the interaction, and theat leave us with:
-```{r}
-modmad4 <- update(modmad3, .~. -Treatment:prod_l)
-summary(modmad4)
-```
-All very significant. Error estimates seem reasonable. Let's look at some validation plots.
-```{r}
-par(mfrow = c(2,2))
-plot(resid(modmad4), fitted(modmad4))
-plot(dat$prod_l, resid(modmad4))
-plot(dat$prod_l2, resid(modmad4))
-plot(resid(modmad4)~dat$Treatment)
-```
-Looks fine. 
-
-## Plot rMAD2
-```{r}
-tr <- rep(c("Open plot", "Exclosure"), times=50, each=1)
-prod_l <- seq(from = min(dat$prod_l), to=max(dat$prod_l), length.out = 100)
-prod_l2 <- prod_l^2
-region <- rep(NA, times=100)
-
-pred <- predict(modmad4, list(Treatment=tr, 
-                              prod_l=prod_l, 
-                              prod_l2=prod_l2,
-                              region = region), se.fit = TRUE)
-pred2 <- data.frame(Treatment = tr,
-                    prod_l    = prod_l,
-                    pred      = pred$fit,
-                    se        = pred$se.fit)
-```
-
-```{r}
-(rmad_wOutlier <- 
-  ggplot()+
-  geom_point(data = dat,aes(x = exp(prod_l)-1, y = rMAD2, colour= Treatment))+
-  geom_line(data=pred2, aes(x = exp(prod_l)-1, y=pred, colour = Treatment))+
-  geom_ribbon(data=pred2, aes(x = exp(prod_l)-1, 
-                              ymin=pred-se, 
-                              ymax=pred+se, 
-                              group = Treatment),
-                              alpha=0.2,
-                              linetype="blank")+
-  labs(y="Relative Median Abs. Deviation", x='Productivity')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-)
-```
-
-That looks a bit odd. Lets look at it without backtransforming the x-axis:
-```{r}
-ggplot()+
-  geom_point(data = dat,aes(x = prod_l, y = rMAD2, colour= Treatment))+
-  geom_line(data=pred2, aes(x = prod_l, y=pred, colour = Treatment))+
-  geom_ribbon(data=pred2, aes(x = prod_l, 
-                              ymin=pred-se, 
-                              ymax=pred+se, 
-                              group = Treatment),
-                              alpha=0.2,
-                              linetype="blank")+
-  labs(y="Relative Median Abs. Deviation", x='log(Productivity)')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-```
-```{r}
-rm(tr, prod_l, prod_l2, region, pred, pred2)
-```
-Still strange. 
-
-
-## Sensitivity analysis
-Removing the most productive sites and comparing the results
-```{r}
-dat2 <- dat[dat$prod<0.7,]
-dat2$prod2 <- dat2$prod^2
-```
-```{r}
-mads <- glmmTMB(data=dat2,
-                rMAD2~Treatment*prod+prod2+(1|region), family = gaussian)
-mads2 <- update(mads, .~. -prod2)
-mads3 <- update(mads2, .~. -Treatment:prod)
-mads4 <- update(mads, .~. -Treatment:prod)
-
-rmad_cand <- data.frame(AIC(mads, mads2, mads3, mads4))
-rmad_cand$model <- c("Global model: Treatment*prod+prod2+(1|region)",
-                     "-prod2",
-                     "-Treatment:prod and -prod2",
-                     "-Treatment:prod")
-rmad_cand
-```
-The interaction term is dropped when not including the most productive sites.
-```{r}
-tr <- rep(c("Open plot", "Exclosure"), times=50, each=1)
-prod <- seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 100)
-prod2 <- prod^2
-region <- rep(NA, times=100)
-pred <- predict(mads4, list(Treatment=tr, 
-                              prod   =prod,
-                              prod2  =prod2,
-                              region =region), se.fit = TRUE)
-pred2 <- data.frame(Treatment = tr,
-                    prod      = prod,
-                    pred      = pred$fit,
-                    se        = pred$se.fit)
-```
-
-```{r}
-(rmad <- 
-   ggplot()+
-  geom_point(data = dat2,aes(x = prod, y = rMAD2, colour= Treatment))+
-  geom_line(data=pred2, aes(x = prod, y=pred, colour = Treatment))+
-  geom_ribbon(data=pred2, aes(x = prod, 
-                              ymin=pred-se, 
-                              ymax=pred+se, 
-                              group = Treatment),
-                              alpha=0.2,
-                              linetype="blank")+
-  labs(y="Relative Median Abs. Deviation", x='Productivity')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-)
-```
-```{r}
-rm(tr, prod, prod2, region, pred, pred2)
-```
-
-The plots are very different looking, but from 0 - 0.5 the lines follow a quite similar path. Probably this last one is more logical, as there no reason to think that rMAD should go towards zero as prod increases. It's however a little confusing for the reader if we sometimes take the points out and sometimes not... That makes me opt for removing them from the start. We can include the plots as appendix as a safeguard perhaps.
-
-Lets validata that last model.
-
-```{r}
-par(mfrow=c(2,2))
-plot(resid(mads4), fitted(mads4))
-plot(dat2$prod, resid(mads4))
-plot(dat2$prod2, resid(mads4))
-plot(resid(mads4)~dat2$Treatment)
-```
-ok. 
-```{r}
-summary(mads4)
-```
-So the interaction isn't significant, but lowers the AIC none the less.
-Summary stats:
-```{r}
-m <- tapply(dat2$rMAD2, dat2$Treatment, FUN = mean)
-# And standard error:
-source('se.R')
-s <- tapply(dat2$rMAD2, dat2$Treatment, FUN = se)
-(rmad_means <- data.frame("mean canopy growth per year" = round(m, 3),
-                        "standard error of the mean" = round(s, 3)))
-```
-
-## Canopy growth v2
-Because we decided to drop the 'outliers', we want to da that also in the canopy growth analysis.
-We have the model:
-```{r}
-summary(mod_sens2)
-```
-Significant interaction, ok.
-Some validation.
-```{r}
-par(mfrow = c(2,2))
-plot(resid(mod_sens2), fitted(mod_sens2))
-plot(dat2$prod, resid(mod_sens2))
-plot(resid(mod_sens2)~dat2$Treatment)
-```
-Ok. And some new summary stats:
-```{r}
-m <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = mean)
-s <- tapply(dat2$canopygrowth, dat2$Treatment, FUN = se)
-data.frame("mean canopy growth per year in meters" = round(m, 3),
-                        "standard error of the mean" = round(s, 3))
-```
-And plot
-```{r}
-tr <- rep(c("Open plot", "Exclosure"), times=50, each=1)
-prod <- seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 100)
-pred <- predict(mod_sens2, list(Treatment= tr, 
-                           prod   = prod), 
-                           se.fit   = TRUE)
-pred2 <- data.frame(Treatment = tr,
-                    prod      = prod,
-                    pred      = pred$fit,
-                    se        = pred$se.fit)
-```
-
-```{r}
-(cg <- 
-  ggplot()+
-  geom_point(data = dat2,aes(x = prod, y = canopygrowth, colour= Treatment))+
-  geom_line(data=pred2, aes(x = prod, y=pred, colour = Treatment))+
-  geom_ribbon(data=pred2, aes(x = prod, 
-                              ymin=pred-se, 
-                              ymax=pred+se, 
-                              group = Treatment),
-                              alpha=0.2,
-                              linetype="blank")+
-  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='Productivity')+
-  theme_bw()+
-  scale_color_manual(values = c("gray80", "black"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-)
-```
-```{r}
-rm(tr, prod, pred, pred2)
-```
-
-## Compare LiDAR and field data
-First, let's calculate canopy growth as we did for the LiDAR data
-
-```{r}
-dat2$canopygrowth_f <- dat2$field_median/dat2$YrsSinceExclosure
-```
-
-```{r}
-summary(dat2$canopygrowth_f)
-```
-
-```{r}
-par(mfrow=c(2,2), mar=c(4,4,1,1))
-plot(dat2$canopygrowth_f, ylab="Median")
-plot(dat2$canopygrowth_f~dat2$Treatment, xlab="", ylab="Median")
-plot(dat2$canopygrowth_f~dat2$prod, xlab="Productivity", ylab="Median")
-plot(dat2$canopygrowth_f~dat2$region, xlab="", ylab="Median")
-```
-Appears the annual median tree growth of a site (median of the median of a circle) is around 0.1, or precisely:
-```{r}
-median(dat2$canopygrowth_f)
-```
-Also, it is greater in exclosures and increases with productivity, and is highest in Hedmark. Very similar to the LiDAR data.
-```{r}
-m2 <- tapply(dat2$canopygrowth_f, dat2$Treatment, FUN = mean)
-s2 <- tapply(dat2$canopygrowth_f, dat2$Treatment, FUN = se)
-(cg_field <- data.frame("mean canopy growth per year" = round(m2, 3),
-                        "standard error of the mean" = round(s2, 3)))
-```
-
-We don't want to analyse the field data alone, or by itself. That we have done in other papers and with more data. Here we are only interested in 'ground-truthing' the LiDAR data. So..:
-
-```{r}
-ggplot(data = dat2,
-                    aes(x = canopygrowth, y = canopygrowth_f, colour= Treatment))+
-  geom_point()+
-   geom_smooth(method = "lm")+
-  labs(y=expression(paste('Field-based canopy height growth (m year'^'-1', ')')), x=expression(paste('LiDAR-based canopy height growth (m year'^'-1', ')')))+
-  theme_bw()+
-  scale_color_manual(values = c("gray0", "gray60"))+
-  labs(colour="Treatment")+
-  theme(text = element_text(size = 12))+
-  ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))+
-   geom_abline(intercept = 0, slope = 1, color="red", 
-                 linetype="dashed", size=1.5)
-
-```
-Perhaps the correation strength differes between treatment, but not very much.
-
-```{r}
-ggplot(data = dat2,
-                    aes(x = canopygrowth, y = canopygrowth_f, colour= region))+
-  geom_point()+
-   geom_smooth(method = "lm")+
-  labs(y=expression(paste('Field-based canopy height growth (m year'^'-1', ')')), x=expression(paste('LiDAR-based canopy height growth (m year'^'-1', ')')))+
-  theme_bw()+
-  
-  labs(colour="Region")+
-  theme(text = element_text(size = 12))+
-  ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))+
-   geom_abline(intercept = 0, slope = 1, color="red", 
-                 linetype="dashed", size=1.5)
-
-```
-Also it differs a bit between region. 
-
-Also, we can look at the effect that experimental duration has had on the correlation:
-```{r}
-dat2$diff <- dat2$canopygrowth-dat2$canopygrowth_f
-hist(dat2$diff)
-```
-
-```{r}
-ggplot(data = dat2,
-        aes(x = YrsSinceExclosure, y = diff))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  labs(y="LiDAR-data minus field-based data",
-         x="Years since exclosure")+
-  theme_bw()+
-  theme(text = element_text(size = 12))+
-  #ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))+
-   geom_abline(intercept = 0, slope = 1, color="red", 
-                 linetype="dashed", size=1.5)
-```
-It looks like older exclosures have a greater difference between LiDAR and field-based data.
-
-I would like to see if the correlation depends on LiDAR resolution, but then we should figure out what this is about:
-```{r}
-table(dat2$plot_density_m2, dat2$resolution_m)
-```
-It's not clear which is derived from which, but I think its plot density that is the original.
-
-```{r, echo=F}
-ggplot(data = dat2,
-        aes(x = plot_density_m2, y = diff))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  labs(y="LiDAR-data minus field-based data",
-         x="Plot density (points per m2)")+
-  theme_bw()+
-  theme(text = element_text(size = 12))+
-  #ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))+
-   geom_abline(intercept = 0, slope = 1, color="red", 
-                 linetype="dashed", size=1.5)
-```
-No big difference.
-
-Note that we are not seeing if the slope is close to 1 or not. We assume it will be. It's correlation strength that matters.
-```{r}
-(field_lidar_cor <- cor(dat2$canopygrowth, dat2$canopygrowth_f, method = "pearson"))
-```
-And it's not very high.
-We can use a more sophisticated model to see where the field-based data is better or worse at predicting LiDAR results.
-
-```{r}
-moddiff <- glmmTMB(canopygrowth~canopygrowth_f
-                   +region+canopygrowth_f:region
-                   +YrsSinceExclosure+YrsSinceExclosure:canopygrowth_f
-                   +plot_density_m2+plot_density_m2:canopygrowth_f
-                   +Treatment+Treatment:canopygrowth_f,
-                   family=gaussian,
-                   data=dat2)
-summary(moddiff)
-```
-Nothing significant.
-Since there are so many candidate models, we can do a shortcut and apply dredge:
-```{r}
-library(MuMIn)
-(corr_cand <- dredge(moddiff, beta="none", rank = "AICc")[1:5,])
-```
-And the best model is...:
-```{r}
-moddiff2 <- glmmTMB(canopygrowth~canopygrowth_f
-                   +YrsSinceExclosure+YrsSinceExclosure:canopygrowth_f
-                   +plot_density_m2
-                   +Treatment,
-                   family=gaussian,
-                   data=dat2)
-summary(moddiff2)
-```
-Interpretation: Field-based data have a medium correlation to LiDAR data (0.57). The coorelation is dependent on Years since exclosure (probably this could be exchanged with tree height?) and LiDAR data is more likely to underestimate canopy growth at short experimental durations (see figure above). Similarly, lower LiDAR resolution induces underestimates in the same way. Field-based data is also not able to explain the variation induced by the fencing treatemtn. This could be a three way ineraction as well, including years since exclusion. Not sure if it should be included here actually.
-
-Validation 
-```{r}
-par(mfrow=c(1,2), mar = c(4,4,1,1))
-plot(resid(moddiff2), fitted(moddiff2))
-qqnorm(resid(moddiff2))
-
-```
-```{r}
-par(mfrow=c(3,2), mar = c(4,4,1,1))
-plot(resid(moddiff2)~ dat2$region)
-plot(resid(moddiff2), dat2$prod)
-plot(resid(moddiff2)~ dat2$Treatment)
-plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
-plot(resid(moddiff2)~ dat2$YrsSinceExclosure)
-plot(resid(moddiff2)~ dat2$plot_density_m2)
-
-```
-Looks Ok
-For the final plot I think just keep it simple.
-```{r}
-(corr_plot <- 
-  ggplot(data = dat2,
-                    aes(x = canopygrowth, y = canopygrowth_f))+
-   geom_point(aes(shape = Treatment, 
-                  fill = as.factor(plot_density_m2)), 
-                  size=3, stroke=1)+
-  labs(y=expression(paste('Field-based canopy height growth (m year'^'-1', ')')),
-       x=expression(paste('LiDAR-based canopy height growth (m year'^'-1', ')')))+
-  theme_bw()+
-  theme(text = element_text(size = 12))+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))+
-  scale_shape_manual(values=c(21, 24), name = "Treatment")+
-  scale_fill_manual(values = c("black", "grey"), 
-                    name = expression(paste(ext="Point density m"^"-2")))+
-  geom_abline(intercept = 0, slope = 1, color="grey", 
-                 linetype="solid", size=1.5, alpha  = 0.4)+
-  guides(fill = guide_legend(override.aes=list(shape=21)))
-)
-```
-That last line is tricky (https://github.com/tidyverse/ggplot2/issues/2322)
-
-
-
-## Summary (final plots and tables)
-
-### For the main manuscript:
-#### methods figure from Ingrid
-...
-
-#### interaction plot for canopy growth
-```{r}
-cg
-```
-
-#### interaction plot for rMAD
-
-```{r}
-rmad
-```
-
-####Violin plot of max canopy height
-Here we could have kept the 'outliers', but for clarity we remove them by using dat2 instead of dat.
-```{r}
-(viol1 <- 
-   ggplot(data = dat2, aes(x = Treatment))+
-  geom_violin(aes(y = md), fill = "white", alpha = 0.3)+
-  geom_violin(aes(y = max), fill = "grey", alpha = 0.3)+ 
-  theme_bw()+
-  theme(text = element_text(size = 12))+
-  labs(y='Canopy height (m)', x='')+
-  stat_summary(aes(y = max), fun.y=mean, geom="point", shape=23, size=2)
-)
-```
-Max values in grey and median values in white
-
-##### Scatter plot LiDAR vs field data
-```{r}
-corr_plot
-```
-
-
-### Figures for the appendix:
-####spagettiplot of canopy growth
-```{r}
-spag1
-```
-Two excluded sites as dotted lines
-
-##### spagettiplot of rMAD
-```{r}
-spag2
-```
-Two excluded sites as dotted lines
-
-##### interaction plot for canopy growth incl outlier
-```{r}
-cg_wOutlier
-```
-
-##### Interaction plot for rMAD incl outlier
-```{r}
-rmad_wOutlier
-```
-
-##### Violin plot of canopy growth
-```{r}
-cg_viol
-```
-
-
-### Tables
-#### Canopy Growth
-##### Mean and sd
-```{r}
-cg_means
-```
-
-##### Best model
-```{r}
-summary(mod_sens2)
-```
-##### Candidate models
-```{r}
-cg_cand
-```
-
-
-rMAD
-
-```{r}
-rmad_means
-```
-best model 
-```{r}
-summary(mads4)
-```
-candidate models
-```{r}
-rmad_cand
-```
-
-#### Field data
-##### Mean and se
-```{r}
-cg_field
-```
-
-##### Correlaction
-```{r}
-field_lidar_cor
-```
-##### Global model
-```{r, eval = FALSE}
-canopygrowth ~ canopygrowth_f + region + canopygrowth_f:region +  
-    YrsSinceExclosure + YrsSinceExclosure:canopygrowth_f + plot_density_m2 +  
-    plot_density_m2:canopygrowth_f + Treatment + Treatment:canopygrowth_f
-```
-
-
-##### Candiate models, top 5
-```{r}
-corr_cand
-```
-
-##### Best model
-```{r}
-summary(moddiff2)
-```
-
-```{r}
-AICc(moddiff2)
-```
+It's worse.
 
 
 
