@@ -275,7 +275,7 @@ LASstats <- data.frame(
 )
 
 
-#i <- "singsaas_b"
+#i <- "bratsberg_b"
 # FOR-loop ----------------------------------------------------------------
 
 

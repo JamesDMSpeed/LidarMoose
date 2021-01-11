@@ -74,6 +74,42 @@ length(dat$AGB[dat$AGB==0 & dat$Treatment=="UB"])/length(dat$AGB[dat$Treatment==
 ```{r}
 plot(dat$AGB, ylab="Biomass (Mg / ha)")
 ```
+Hard to analyse these data, but is there a pattern in which sites that have 0 biomass? And can we stratify? 
+
+```{r}
+
+ABMdat <- dat
+
+par(mfrow=c(1,2))
+plot(ABMdat$prod,ABMdat$AGB, ylab="Biomass (Mg / ha)")
+# Not really a pattern
+plot(ABMdat$YrsSinceExclosure,ABMdat$AGB, ylab="Biomass (Mg / ha)")
+plot(ABMdat$AGB[ABMdat$YrsSinceExclosure<=6])
+# the nine shortes experiments all have almost zero biomass
+# Add criteria of duration of more thab 6 years
+ABMdat <- ABMdat[ABMdat$YrsSinceExclosure >6,]
+length(ABMdat$AGB[ABMdat$AGB==0])/length(ABMdat$AGB) #67%
+plot(ABMdat$prod,ABMdat$AGB, ylab="Biomass (Mg / ha)")
+# zoom in ...
+plot(ABMdat$prod[ABMdat$prod < 0.2],
+     ABMdat$AGB[ABMdat$prod < 0.2], ylab="Biomass (Mg / ha)")
+plot(ABMdat$prod[ABMdat$prod > 0.2],
+     ABMdat$AGB[ABMdat$prod > 0.2], ylab="Biomass (Mg / ha)")
+quantile(ABMdat$prod, 0.5) #0.15
+ABMdat <- ABMdat[ABMdat$prod >quantile(ABMdat$prod, 0.5),]
+length(ABMdat$AGB[ABMdat$AGB==0])/length(ABMdat$AGB) #52%
+
+ABMdat2 <- ABMdat[ABMdat$Treatment == "UB",]
+length(ABMdat2$AGB[ABMdat2$AGB==0])/length(ABMdat2$AGB) #33%
+
+ABMdat2 <- dcast(data=ABMdat, value.var="AGB", LocalityName~Treatment)
+ABMdat2$diff <- ABMdat2$UB - ABMdat2$B
+length(ABMdat2$diff[ABMdat2$diff==0])/length(ABMdat2$diff) #33%
+
+# Cannot get below 33% zero inflation
+# Zero- inflated gamma hurdle model
+# https://seananderson.ca/2014/05/18/gamma-hurdle/
+```
 
 
 
@@ -86,8 +122,24 @@ VCI function gives NA when the max point height is <1m (2* bin width set to 0.5)
 dat$vci[is.na(dat$vci)] <- 0
 ```
 
+# Site table
+```{r}
+sites <- dat[dat$Treatment=="UB",]
+#write_csv(sites, "../output/sites.csv")
+```
+
+
+
 # Four parameters
 Se we have four parameters of interest, but AGB is highly zero-inflated. Canopy height is perhaps moset interesting.
+
+To avoid three level interaction we divide by duration. The linearity of these relationships have been tested below
+```{r}
+dat$canopygrowth <- dat$ninetyfive/dat$YrsSinceExclosure # in m
+dat$MgAGBperYearAndHA <- dat$AGB/dat$YrsSinceExclosure
+```
+
+
 ```{r}
 par(mfrow=c(2,2))
 boxplot(dat$AGB~dat$Treatment, ylab="Biomass (Mg / ha)")
@@ -95,12 +147,23 @@ boxplot(dat$rumple~dat$Treatment, ylab="Rumple Index")
 boxplot(dat$ninetyfive~dat$Treatment, ylab="95th percentile (m)")
 boxplot(dat$vci~dat$Treatment, ylab="Vertical Complexity Index")
 ```
+```{r}
+library(corrgram)
+
+corrgram(dat2[,c("vci", "rumple", "prod", 
+                 "MgAGBperYearAndHA", "canopygrowth",
+                 "YrsSinceExclosure")], order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Corellogram")
+```
+We have to measures of strucural complexity, rumple and VCI. They are correlated, but rumple is also correlated to biomass
 
 # Canopy height
 We used to use median height, but thats more approprate for rasters (canopy models.) Now we re using 'raw' point data, and I think the 95th percentile is more appropriate.
 ```{r}
 plot(dat$ninetyfive)
 ```
+
 ```{r}
 plot(dat$YrsSinceExclosure, dat$ninetyfive)
 ```
@@ -108,17 +171,8 @@ plot(dat$YrsSinceExclosure, dat$ninetyfive)
 
 
 ## Canopy growth per year
-Lets first compute canopy growth per year since exclosure. 
-
-```{r}
-dat$canopygrowth <- dat$ninetyfive/dat$YrsSinceExclosure # in m
-dat$MgAGBperYearAndHA <- dat$AGB/dat$YrsSinceExclosure
-
-plot(dat$canopygrowth)
-```
 
 
-The other option would be to add time since clear-cutting as a fixed effect to the models. That would complicate the models obviously, but it would allow fitting non-linear effects of time. Here we impose linearity. Let's see what it looks like for canopy height.
 
 ```{r}
 dat$Treatment <- as.factor(dat$Treatment)
@@ -160,32 +214,16 @@ dat2 <- dat[dat$prod <0.7,]
 dim(dat2)
 ```
 That deleted the two most productive sites.
-Lets check our assumption about linear growth over time:
-```{r}
-ggplot(data = dat2,
-                    aes(x = YrsSinceExclosure, y = ninetyfive))+
-  geom_point(aes(colour= Treatment, shape=region))+
-   geom_smooth(aes(colour= Treatment),
-               method = "loess")+
-  labs(y='Canopy height', x='Years since exclosure')+
-  theme_bw()+
-  scale_color_manual(values = c("gray0", "gray60"))+
-  labs(colour="Treatment", shape="Region")+
-  theme(text = element_text(size = 20))+
-  #ylim(0, 0.4)+
-  theme(legend.position = 'right',
-                             legend.justification = c("left", "top"),
-                             legend.box.just = "left",
-                             #legend.margin = margin(5, 5, 5, 5),
-                             legend.text = element_text(size=12))
-```
-It's still valid.
+
+
 
 ```{r}
-mod_sens1 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2) + (1|region) + (1|LocalityName),
+mod_sens1 <- glmmTMB(ninetyfive ~ Treatment * prod + I(prod^2)
+                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment + (1|region) + (1|LocalityName),
   data = dat2,  family = gaussian)
 
-mod_sens2 <- glmmTMB(canopygrowth ~ Treatment * prod + I(prod^2)+(1|LocalityName),
+mod_sens2 <- glmmTMB(ninetyfive ~ Treatment * prod + I(prod^2)
+                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment +  (1|LocalityName),
   data = dat2,  family = gaussian)
 AIC(mod_sens1, mod_sens2)
 # regions explains nothing, so I'm removing it
@@ -195,7 +233,7 @@ library(MuMIn)
 #write.csv(cg_cand, "/home/anders/Documents/lidar ms/canopyGrowth.csv")
 
 # best model is:
-cg_best <- glmmTMB(canopygrowth ~ Treatment +(1|LocalityName),
+cg_best <- glmmTMB(ninetyfive ~ Treatment * YrsSinceExclosure + (1|LocalityName),
   data = dat2,  family = gaussian)
 summary(cg_best)
 #
@@ -209,7 +247,6 @@ summary(cg_best)
 ```
 
 
-The results are qualitatively the same, which justified keeping the 'outliers' in. (but see discussing below at the end of the MAD chaper)
 ```{r, eval =F}
 sink("/home/anders/Documents/lidar ms/canopyGrowth.csv")
 print(summary(cg_best))
@@ -236,20 +273,20 @@ library(reshape2)
 ```{r}
 cg_viol <- 
    ggplot(data = dat2, aes(x = Treatment, y = canopygrowth))+
-  geom_violin(fill = "grey")+
+  geom_violin(fill = "grey", alpha=0.7)+
   theme_bw()+
   theme(text = element_text(size = 12))+
-  labs(y=expression(paste('Canopy height (95th percentile) growth (m year'^'-1', ')')), x='')+
+  labs(y=expression(paste('Canopy height growth (m year'^'-1', ')')), x='')+
   stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
   xlab("")
 
 
 ch_viol <- 
    ggplot(data = dat2, aes(x = Treatment, y = ninetyfive))+
-  geom_violin(fill = "grey")+
+  geom_violin(fill = "grey", alpha=0.7)+
   theme_bw()+
   theme(text = element_text(size = 12))+
-  labs(y='Canopy height (95th percentile)')+
+  labs(y='Canopy height (m)')+
   stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
   xlab("")
 
@@ -260,10 +297,10 @@ viol <- ggarrange(ch_viol, cg_viol,
 viol
 ```
 
-```{r}
-tiff("/home/anders/Documents/lidar ms/violinPlot.tiff", height = 5, width=7, units="in", res=600)
+```{r, eval=F}
+#tiff("/home/anders/Documents/lidar ms/violinPlot.tiff", height = 5, width=7, units="in", res=600)
 viol
-dev.off()
+#dev.off()
 ```
 
 
@@ -307,6 +344,7 @@ pred2 <- data.frame(Treatment = tr,
    guides(colour = "none")
 )
 ```
+
 ```{r}
 rm(tr, prod_l, prod_l2, pred, pred2)
 ```
@@ -324,6 +362,307 @@ We can also make these nice violin plots, even though the main plot should show 
 )
 ```
 
+# Interaction Canopy hgt 
+```{r}
+summary(cg_best)
+```
+
+```{r}
+
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+
+YrsSinceExclosure <- rep(seq(from = min(dat2$YrsSinceExclosure), 
+                             to=max(dat2$YrsSinceExclosure), length.out = 50), 2)
+LocalityName <- rep(NA, times=100)
+
+pred <- predict(cg_best, 
+                list(
+            Treatment         =tr, 
+            YrsSinceExclosure =YrsSinceExclosure,
+            LocalityName      =LocalityName), 
+            se.fit = TRUE)
+
+pred2 <- data.frame(Treatment = tr,
+                    YrsSinceExclosure      = YrsSinceExclosure,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+  
+(Canopy_line <-    ggplot()+
+  geom_point(data = dat2, 
+             aes(x = YrsSinceExclosure, y = ninetyfive, shape=Treatment),
+             size=3, alpha=0.8)+
+  geom_line(data=pred2, 
+            aes(x = YrsSinceExclosure, y=pred, linetype = Treatment))+
+ scale_shape_manual("", values = c(1, 16), 
+                    breaks=c("Exclosure", "Open plot"),
+                    labels=c("Exclosure", "Open plot"))+
+ scale_linetype_manual("", values=c(1,2),
+                       breaks=c("Exclosure", "Open plot"),
+                    labels=c("Exclosure", "Open plot"))+
+  geom_ribbon(data=pred2, aes(x = YrsSinceExclosure, 
+                 ymin=pred-se, 
+                 ymax=pred+se, 
+                 group = Treatment),
+                 alpha=0.2,
+                 linetype="blank")+
+        theme_bw()+
+  theme(legend.justification=c(1,0), 
+        legend.position=c(1,0),
+        legend.background = element_blank(),
+        legend.text = element_text(size=12),
+        text = element_text(size = 12))+
+guides(linetype=F, shape=F)+
+  
+  labs(y="Canopy height (m)")+
+  xlab("Experimental duration"))
+```
+
+# Biomass 
+As explained above, we're gonna try a gamme-hurdle model
+```{r}
+dat2$non_zero <- ifelse(dat2$AGB==0, 0,1)
+ggplot(dat2, aes(x = prod, y = AGB, colour = as.factor(non_zero))) + geom_point()
+
+```
+```{r}
+m1 <- glmmTMB(data = dat2, 
+              non_zero ~ Treatment*prod + (1|LocalityName), 
+              family = binomial(link = logit))
+summary(m1)
+m1v2 <- glmmTMB(data = dat2, 
+              non_zero ~ Treatment+prod + (1|LocalityName), 
+              family = binomial(link = logit))
+
+m1v3 <- glmmTMB(data = dat2, 
+              non_zero ~ Treatment + (1|LocalityName), 
+              family = binomial(link = logit))
+AIC(m1, m1v2, m1v3)
+summary(m1v2)
+```
+
+```{r}
+m2 <- glmmTMB(data = subset(dat2, non_zero == 1), 
+              AGB~Treatment*prod + (1|LocalityName), 
+              family = Gamma(link = log))
+m2v2 <- glmmTMB(data = subset(dat2, non_zero == 1), 
+              AGB~Treatment+prod + (1|LocalityName), 
+              family = Gamma(link = log))
+m2v3 <- glmmTMB(data = subset(dat2, non_zero == 1), 
+              AGB~Treatment + (1|LocalityName), 
+              family = Gamma(link = log))
+summary(m2)
+
+AIC(m2, m2v2, m2v3)
+summary(m2v2)
+```
+
+
+```{r}
+bin <- summary(m1v2)
+
+binI <- plogis(bin$coefficients$cond[1,1])
+binT <- plogis(bin$coefficients$cond[2,1])
+binP <- plogis(bin$coefficients$cond[3,1])
+
+gamma <- summary(m2v2)
+gamma$coefficients$cond[,1]
+gammaI <- exp(gamma$coefficients$cond[1,1])
+gammaT <- exp(gamma$coefficients$cond[2,1])
+gammaP <- exp(gamma$coefficients$cond[3,1])
+
+dat2$TreatmentNum <- ifelse(dat2$Treatment=="Open plot", 0, 1)
+
+
+dat2$predAGB <- exp(log(binI) + log(gammaI))+
+  dat2$TreatmentNum*(exp(log(binT) + log(gammaT)))+
+  dat2$prod*(exp(log(binP) + log(gammaP)))
+
+pred1 <- predict(m1v2, se = TRUE, type = "link")
+pred2 <- predict(m2v2, se = TRUE, type = "link")
+
+dat2$predAGBbin <- pred1$fit
+
+datt <- dat2[dat2$non_zero==1,]
+datt$predAGBgamma <- pred2$fit
+
+
+plot(dat2$AGB, dat2$predAGB)
+
+```
+```{r}
+ggplot(dat2, aes(x = prod, y = AGB, colour = as.factor(non_zero))) + 
+  geom_point()+
+  geom_line(aes(x=prod, y=plogis(predAGBbin), colour=Treatment))+
+  geom_line(dat=datt, aes(x=prod, y=exp(predAGBgamma), colour=Treatment))
+  
+  #geom_line(aes(x=prod, y=predAGB, colour=Treatment))
+
+```
+
+
+Hmm,,,
+```{r}
+mean(dat2$AGB) #2.241339
+(myMean <- exp(log(binI) + log(gammaI))+
+  0.5*(exp(log(binT) + log(gammaT)))+
+  mean(dat2$prod)*(exp(log(binP) + log(gammaP)))) #11.6
+```
+
+
+Fuck it, let's just present a violin plot and people can judge 
+
+```{r}
+agb_viol <- 
+   ggplot(data = dat2, aes(x = Treatment, y = MgAGBperYearAndHA))+
+  geom_violin(fill = "grey")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Annual biomass increment (Mg ha'^'-1', ')')), x='')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
+  xlab("")
+
+
+datB <- dcast(data=dat2, value.var="MgAGBperYearAndHA", LocalityName+prod~Treatment)
+datB$diff <- datB$Exclosure - datB$`Open plot`
+(agb_line <- 
+   ggplot(data = dat2, aes(x = prod, y = MgAGBperYearAndHA, colour=Treatment))+
+  geom_point()+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y=expression(paste('Annual biomass increment (Mg ha'^'-1', ')')), x='')+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2)+
+  xlab("Productivity"))
+(agb_line2 <- 
+   ggplot(data = datB, aes(x = prod, y = diff))+
+  geom_point(fill="grey", colour="black", size=3, shape=21, stroke=1.2, alpha=.7)+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  #labs(y=expression(atop("Exclosure - Open plot", 
+  #            paste('annual biomass increment (Mg ha'^'-1', ')')), x=''))+
+  labs(y=expression(
+              paste('AGB (Mg ha'^'-1', ') (Excl.-Open plot)')))+
+  xlab("Productivity"))
+
+#tiff("/home/anders/Documents/lidar ms/AGB.tiff", height = 4, width=4, units="in", res=600)
+#agb_line2
+#dev.off()
+```
+
+
+# VCI
+We have to measures of strucural complexity
+```{r}
+cor(dat2$vci, dat2$MgAGBperYearAndHA)
+```
+
+
+
+```{r}
+
+(vci_line <- 
+   ggplot(data = dat2, aes(x = prod, y = vci, shape=Treatment))+
+  geom_point(size=3, alpha=0.8)+
+  scale_shape_manual(values = c(16, 1))+
+  geom_smooth(method="lm", aes(linetype=Treatment), colour="black")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y="VCI")+
+  xlab("Productivity"))
+```
+
+```{r}
+(vci_line2 <- 
+   ggplot(data = dat2, aes(x = YrsSinceExclosure, y = vci, shape=Treatment))+
+  geom_point(size=3, alpha=0.8)+
+  scale_shape_manual(values = c(16, 1))+
+  geom_smooth(method="lm", aes(linetype=Treatment), colour="black")+
+  theme_bw()+
+  theme(text = element_text(size = 12))+
+  labs(y="VCI")+
+  xlab("YrsSinceExclosure"))
+```
+
+```{r}
+dat2$prod2 <- dat2$prod*dat2$prod
+mod_vci <- glmmTMB(vci ~ Treatment * prod + YrsSinceExclosure + YrsSinceExclosure:Treatment+ prod2 +  (1|LocalityName),
+  data = dat2,  family = gaussian)
+dmod_vci <- dredge(mod_vci)
+mod_vci <- glmmTMB(vci ~ Treatment + prod + prod2 + YrsSinceExclosure+ (1|LocalityName),
+  data = dat2,  family = gaussian)
+summary(mod_vci)
+```
+
+```{r}
+tr <- rep(c("Open plot", "Exclosure"), each=50)
+prod <- rep(seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 50), 2)
+prod2 <- prod^2
+YrsSinceExclosure <- rep(mean(dat2$YrsSinceExclosure), times=100)
+LocalityName <- rep(NA, times=100)
+
+pred <- predict(mod_vci, 
+                list(
+            Treatment         =tr, 
+            prod              =prod,
+            prod2             =prod2,
+            YrsSinceExclosure =YrsSinceExclosure,
+            LocalityName      =LocalityName), 
+            se.fit = TRUE)
+
+pred2 <- data.frame(Treatment = tr,
+                    prod      = prod,
+                    pred      = pred$fit,
+                    se        = pred$se.fit)
+  
+  (vci_line <- 
+   ggplot()+
+  geom_point(data = dat2, 
+             aes(x = prod, y = vci, shape=Treatment),
+             size=3, alpha=0.8)+
+  geom_line(data=pred2, 
+            aes(x = prod, y=pred, linetype = Treatment))+
+ scale_shape_manual("", values = c(1, 16), 
+                    breaks=c("Exclosure", "Open plot"),
+                    labels=c("Exclosure", "Open plot"))+
+ scale_linetype_manual("", values=c(1,2),
+                       breaks=c("Exclosure", "Open plot"),
+                    labels=c("Exclosure", "Open plot"))+
+  geom_ribbon(data=pred2, aes(x = prod, 
+                 ymin=pred-se, 
+                 ymax=pred+se, 
+                 group = Treatment),
+                 alpha=0.2,
+                 linetype="blank")+
+        theme_bw()+
+  theme(legend.justification=c(1,0), 
+        legend.position=c(1,0),
+        legend.background = element_blank(),
+        legend.text = element_text(size=12),
+        text = element_text(size = 12))+
+
+  
+  labs(y="VCI")+
+  xlab("Productivity"))
+```
+
+
+```{r}
+(allPlots <- ggarrange(Canopy_line, ch_viol,agb_line2, vci_line,
+                    labels = c("A)", "B)", "C)", "D)"),
+                    ncol = 2, nrow = 2))
+```
+
+# 4 plots
+```{r}
+tiff("/home/anders/Documents/lidar ms/fourPlots.tiff", 
+     height = 8, width=8, units="in", res=600)
+
+allPlots
+
+dev.off()
+```
+
+
+# OLD
 ## MAD
 I think first and foremost it's the relative MAD we should focus on. That's the equivalent of CV (Coefficient of Variation).
 ```{r}
