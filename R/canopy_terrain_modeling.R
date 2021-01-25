@@ -274,7 +274,8 @@ LASstats <- data.frame(
   dl2    = as.numeric(NULL)
 )
 
-
+i <- "nsb_verdal_b"
+#i <- "stig_dahlen_ub"
 #i <- "bratsberg_b"
 # FOR-loop ----------------------------------------------------------------
 
@@ -462,6 +463,7 @@ for(i in sites){
 # Export example point cloud ----------------------------------------------------------
 #plot(bratsberg_b)
 plot(maarud1_ub)
+plot(stig_dahlen_ub)
 #rgl.postscript("output/bratsbergBrowsedPlot.eps", "eps", drawText = FALSE)
 
 
@@ -471,11 +473,11 @@ plot(maarud1_ub)
 # Using k-nearest neighbour with inverse-distance weighing for terrain models
 
 # Example
-myLAS <- maarud1_b
+myLAS <- stig_dahlen_ub
 myLAS2 <- maarud1_ub
-name <- "maarud1_b"
+name <- "stig_dahlen_ub"
 name2 <- "maarud1_ub"
-
+myLAS <-normalize_height(myLAS, tin())
 TM  <- grid_terrain(myLAS, 
           algorithm = knnidw(k = 10, p = 2, rmax = 50), 
           res=1)
@@ -529,7 +531,7 @@ plot(CDiff2, xlab=myX, ylab=myY, main="UB")
 # Remove big trees --------------------------------------------------------
 
 # first, detect all trees using local maximum filter
-trees <- find_trees(myLAS,lmf(ws = 8, hmin= 7 , shape = "square"))
+trees <- find_trees(myLAS,lmf(ws = 8, hmin= 10 , shape = "square"))
 trees2 <- find_trees(myLAS2,lmf(ws = 8, hmin= 7 , shape = "square"))
 #Detects all trees with moving window of 3m
 # I cannot set a detection threshold becaaus the Z column is in masl, not references to the ground level

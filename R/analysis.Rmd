@@ -51,6 +51,10 @@ dat$canopygrowth <- dat$ninetyfive/dat$YrsSinceExclosure # in m
 dat$MgAGBperYearAndHA <- dat$AGB/dat$YrsSinceExclosure
 ```
 
+```{r}
+dat$vci[is.na(dat$vci)] <- 0
+```
+
 This is the dataset after removing the two most productive sites (explained below)
 ```{r}
 dat2 <- dat[dat$prod <0.7,]
@@ -141,7 +145,7 @@ summary(dat$vci)
 ```
 VCI function gives NA when the max point height is <1m (2* bin width set to 0.5). So these are super short statured plots. Its fine to set these to zero
 ```{r}
-dat$vci[is.na(dat$vci)] <- 0
+#dat$vci[is.na(dat$vci)] <- 0
 ```
 
 
@@ -223,64 +227,89 @@ After careful sensitivity analysis, I decided to drop these two locations in dat
 
 ## modelling
 ```{r}
+dat2$prod2 <- dat2$prod^2
 mod_sens1 <- glmmTMB(ninetyfive ~ 
-                       Treatment * prod + I(prod^2)
-                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment + (1|region) + (1|LocalityName),
-  data = dat2,  family = gaussian)
+             Treatment * prod + I(prod^2)
+             + YrsSinceExclosure+ 
+               YrsSinceExclosure:Treatment + (1|region) + (1|LocalityName),
+  data = dat2,  REML=F, family = gaussian)
 
-mod_sens2 <- glmmTMB(ninetyfive ~ Treatment * prod + I(prod^2)
-                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment +  (1|LocalityName),
-  data = dat2,  family = gaussian)
+mod_sens2 <- glmmTMB(ninetyfive ~ Treatment * prod + prod2
+        + YrsSinceExclosure+ 
+          YrsSinceExclosure:Treatment +  (1|LocalityName),
+  data = dat2, REML=F, family = gaussian)
 AIC(mod_sens1, mod_sens2)
+```
 # regions explains nothing, so I'm removing it
+
+```{r}
 summary(mod_sens2)
 ```
 
-glmmTMB is not supported by MuMIn, so switching to lmer
+glmmTMB is not supported by arm::standardise, 
 ```{r}
-mod_sens1 <- lmer(ninetyfive ~ 
-                       Treatment * prod + I(prod^2)
-                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment + 
-                    (1|region) +
-                    (1|LocalityName),
-                    data = dat2,
-                  REML = F)
+dat2$prod_s <- scale(dat2$prod)
+dat2$prod2_s <- scale(dat2$prod2)
+dat2$YrsSinceExclosure_s <- scale(dat2$YrsSinceExclosure)
+dat2$Treatment_c <- ifelse(dat2$Treatment == "Open plot", -0.5, 0.5)
+dat2$ninetyfive_s <- scale(dat2$ninetyfive)[,1]
+summary(dat2$ninetyfive_s)
+sd(dat2$ninetyfive_s)
 
-mod_sens2 <- lme4::lmer(ninetyfive ~ Treatment * prod + I(prod^2)
-                     + YrsSinceExclosure+ YrsSinceExclosure:Treatment +
-                       (1|LocalityName),
-                       data = dat2,
-                     REML = F)
+mod_sens2_s <- glmmTMB(ninetyfive_s ~ Treatment_c * prod_s + prod2_s
+                     + YrsSinceExclosure_s+ YrsSinceExclosure_s:Treatment+ 
+                    (1|LocalityName), REML=F,
+                       data = dat2)
 
-AIC(mod_sens1, mod_sens2)
-summary(mod_sens2)
+
+summary(mod_sens2_s)
 ```
 
-Model averaging and the use of quadratic terms both indicate we should scake and centre predictors
+Scaling predictors make it easier to compare slopes, but unstandardised models are much easier to work with for making predictions ect.
 ```{r}
-stdz_model <- standardize(mod_sens2, standardize.y = FALSE)
-summary(stdz_model)
+#stdz_model <- standardize(mod_sens2, standardize.y = FALSE, unchanged="Treatment")
+
+#summary(stdz_model)
 ```
+
 
 Then we find all possible model configurations 
 ```{r}
 options(na.action = "na.fail")
-(cg_cand <- dredge(stdz_model, beta="none", rank = "AICc"))
+cg_cand <- dredge(mod_sens2_s, beta="none", rank = "AICc")
+```
+
+Lets compare this to the un.standardised model
+```{r}
+uns <- dredge(mod_sens2, beta="none", rank = "AICc")
 ```
 
 create confidence set with model less than 2 AICc units
 ```{r}
 (cg_cand2 <- subset(cg_cand, delta <2))
 ```
-We exclude models with quadratic terms when the main effect is not in the model, but none such here.
+We exclude models with quadratic terms when the main effect is not in the model, if there are such.
+```{r}
+cg_cand2 <- cg_cand2[-3,]
+```
+
+Lets compare to the unstandardised model
+```{r}
+(uns2 <- subset(uns, delta <2))
+```
+removing model 3
+```{r}
+(uns2 <- uns2[-3,])
+```
+The model weight are exactly the same.
 
 Lets export this as a table for the supplementary
 ```{r}
-cg_cand2X <- as.data.frame(cg_cand2)
-names(cg_cand2X) <- c("Intercept",
-                      "Herbivore Exclusion (HE)",
+temp <- as.data.frame(uns2)
+names(temp) <- c("Intercept",
                       "Productivity (P)",
                       "Productivity squared",
+                 "Herbivore Exclusion (HE)",
                       "Experimental duration (ED)",
                       "HE x P",
                       "HE x ED",
@@ -290,16 +319,22 @@ names(cg_cand2X) <- c("Intercept",
                       "delta AICc",
                       "weight"
                       )
-
-#write.csv(cg_cand2X, "../output/95thModelSet.csv", row.names = F)
+temp[is.na(temp)] <- 0
+#write.csv(temp, "../output/95thModelSet_unstandardized.csv", row.names = F)
 ```
 
 
 Average across these three models
 ```{r}
-MA.ests<-model.avg(cg_cand2, revised.var = TRUE)
+MA.ests<-model.avg(cg_cand2, revised.var = TRUE, fit=F)
+MA.ests_uns <-model.avg(uns2, revised.var = TRUE, fit=T) # used for predictions
 summary(MA.ests)
 ```
+
+```{r}
+summary(MA.ests_uns)
+```
+No they're not the same. Not sure why, but part of the reason must be that treatment has been centred.
 
 Get parameter weights
 ```{r}
@@ -307,12 +342,13 @@ importance(MA.ests)
 ```
  I can check VIFs
 ```{r}
-vif(stdz_model)
+#vif(stdz_model)
 ```
+ prod and prod2 and highly collinear, and more so when using prod2 compared to I(prod^2)
  
 We want to get at the values to plot them. The intercept dont make sense in averaged models, so remove intercept from table
 ```{r}
-(macdf <- data.frame(summary(MA.ests)$coefmat.full[-1,]))
+(macdf <- data.frame(summary(MA.ests)$coefmat.subset[-1,]))
 ```
 
 get the weights and add them to the same table
@@ -342,22 +378,24 @@ Fix names
 ```{r}
 Row.names<-c('Productivity squared',
              'Productivity',
-             'Herbivore Exclusion (HE)',
+             'Experimental duration (ED)',
              'HE x ED',
-             'Experimental duration (ED)'
+             'Herbivore Exclusion (HE)'
                     )
 macdf3 <- cbind(Row.names, macdf3)
 macdf3
 ```
 
-Then lets male the figure
+Then lets make the figure
 First, adding empty row
 ```{r}
 macdf4 <- macdf3[-(1:nrow(macdf3)),]
-macdf4[1,] <- c(NA, 100, NA, NA, NA, NA, NA, NA, NA) 
+macdf4[1,] <- c(NA, NA, NA, NA, NA, NA, NA, NA, NA) 
+macdf4[2,] <- c(NA, 100, NA, NA, NA, NA, NA, NA, NA) 
+
 macdf3 <- rbind(macdf3, macdf4)
 macdf3$Row.names <- as.character(macdf3$Row.names)
-macdf3$Row.names[6] <- "Canopy height"
+macdf3$Row.names[6] <- "Canopy height:"
 ```
 
 ```{r}
@@ -376,21 +414,21 @@ barplot(macdf3$importance.MA.ests.,
         cex.axis=0.8,
         cex.names=0.8,
         cex.lab=0.8,
-        col=c(0,0,2,2,0, 0))
+        col=c(0,0,0,2,2, 0))
 par(mar=c(5,1,1,1))
 b1 <- barplot(macdf3[,2],
             horiz=T,
             col=F,
             border=F,
-            xlim=c(-1,2),
+            xlim=c(-1.2,1.2),
             las=1,
-            xlab='Model averaged coefficients',
+            xlab='Standardised, model\naveraged coefficients',
             cex.axis=0.8,
             cex.lab=0.8)
 points(macdf3[,2], #est
        b1,
        pch=16,
-       col=c(1,1,2,2,1, 1))
+       col=c(1,1,1,2,2, 1))
 arrows(macdf3[,9], 
        b1,                         
        macdf3[,8], 
@@ -398,14 +436,15 @@ arrows(macdf3[,9],
        code=3,
        angle=90,
        length=0.05,
-       col=c(1,1,2,2,1, 1))
+       col=c(1,1,1,2,2, 1))
 par(xpd=F)
 abline(v=0,lty=2)
 }
 canopyAvg
 ```
 
-This can be exported but I'll wait and do it later
+
+This figure can be exported but I'll wait and do it later
 ```{r, eval=F}
 tiff("/home/anders/Documents/lidar ms/avgCanopyMod.tiff", height = 5, width=7, units="in", res=600)
 canopyAvg
@@ -447,28 +486,28 @@ viol
 ```
 
 
-Then we need to plot canopy height against experimental duration
+Then we need to plot canopy height against experimental duration. There is a predict function in MuMIn.
 
 ```{r}
+all.vars(formula(MA.ests_uns))
+```
 
-Treatment <- rep(c("Open plot", "Exclosure"), each=50)
+```{r}            
+newd <- dat2
+newd$YrsSinceExclosure <- rep(seq(from = min(dat2$YrsSinceExclosure), 
+                             to=max(dat2$YrsSinceExclosure), length.out = 43), 2)
+newd$prod <- rep(mean(dat2$prod), nrow(newd))
+newd$prod2 <- rep(mean(dat2$prod2), nrow(newd))
+newd$LocalityName <- rep(NA, 86)
+pred <- predict(MA.ests_uns,
+                            se.fit = TRUE,
+                            full=FALSE,
+                            re.form=~0, # same as leaving out LocalityName
+                newdata=newd
+                )
 
-YrsSinceExclosure <- rep(seq(from = min(dat2$YrsSinceExclosure), 
-                             to=max(dat2$YrsSinceExclosure), length.out = 50), 2)
-
-
-
-LocalityName <- rep(NA, times=100)
-
-pred <- predict(cg_best, 
-                list(
-            Treatment         =tr, 
-            YrsSinceExclosure =YrsSinceExclosure,
-            LocalityName      =LocalityName), 
-            se.fit = TRUE)
-
-pred2 <- data.frame(Treatment = tr,
-                    YrsSinceExclosure      = YrsSinceExclosure,
+pred2 <- data.frame(Treatment = newd$Treatment,
+                    YrsSinceExclosure      = newd$YrsSinceExclosure,
                     pred      = pred$fit,
                     se        = pred$se.fit)
   
@@ -481,7 +520,7 @@ pred2 <- data.frame(Treatment = tr,
  scale_shape_manual("", values = c(1, 16), 
                     breaks=c("Exclosure", "Open plot"),
                     labels=c("Exclosure", "Open plot"))+
- scale_linetype_manual("", values=c(1,2),
+ scale_linetype_manual("", values=c(2,1),
                        breaks=c("Exclosure", "Open plot"),
                     labels=c("Exclosure", "Open plot"))+
   geom_ribbon(data=pred2, aes(x = YrsSinceExclosure, 
@@ -503,98 +542,7 @@ guides(linetype=F, shape=F)+
 ```
 
 # Biomass 
-As explained above, we're gonna try a gamme-hurdle model
-```{r}
-dat2$non_zero <- ifelse(dat2$AGB==0, 0,1)
-ggplot(dat2, aes(x = prod, y = AGB, colour = as.factor(non_zero))) + geom_point()
-
-```
-```{r}
-m1 <- glmmTMB(data = dat2, 
-              non_zero ~ Treatment*prod + (1|LocalityName), 
-              family = binomial(link = logit))
-summary(m1)
-m1v2 <- glmmTMB(data = dat2, 
-              non_zero ~ Treatment+prod + (1|LocalityName), 
-              family = binomial(link = logit))
-
-m1v3 <- glmmTMB(data = dat2, 
-              non_zero ~ Treatment + (1|LocalityName), 
-              family = binomial(link = logit))
-AIC(m1, m1v2, m1v3)
-summary(m1v2)
-```
-
-```{r}
-m2 <- glmmTMB(data = subset(dat2, non_zero == 1), 
-              AGB~Treatment*prod + (1|LocalityName), 
-              family = Gamma(link = log))
-m2v2 <- glmmTMB(data = subset(dat2, non_zero == 1), 
-              AGB~Treatment+prod + (1|LocalityName), 
-              family = Gamma(link = log))
-m2v3 <- glmmTMB(data = subset(dat2, non_zero == 1), 
-              AGB~Treatment + (1|LocalityName), 
-              family = Gamma(link = log))
-summary(m2)
-
-AIC(m2, m2v2, m2v3)
-summary(m2v2)
-```
-
-
-```{r}
-bin <- summary(m1v2)
-
-binI <- plogis(bin$coefficients$cond[1,1])
-binT <- plogis(bin$coefficients$cond[2,1])
-binP <- plogis(bin$coefficients$cond[3,1])
-
-gamma <- summary(m2v2)
-gamma$coefficients$cond[,1]
-gammaI <- exp(gamma$coefficients$cond[1,1])
-gammaT <- exp(gamma$coefficients$cond[2,1])
-gammaP <- exp(gamma$coefficients$cond[3,1])
-
-dat2$TreatmentNum <- ifelse(dat2$Treatment=="Open plot", 0, 1)
-
-
-dat2$predAGB <- exp(log(binI) + log(gammaI))+
-  dat2$TreatmentNum*(exp(log(binT) + log(gammaT)))+
-  dat2$prod*(exp(log(binP) + log(gammaP)))
-
-pred1 <- predict(m1v2, se = TRUE, type = "link")
-pred2 <- predict(m2v2, se = TRUE, type = "link")
-
-dat2$predAGBbin <- pred1$fit
-
-datt <- dat2[dat2$non_zero==1,]
-datt$predAGBgamma <- pred2$fit
-
-
-plot(dat2$AGB, dat2$predAGB)
-
-```
-```{r}
-ggplot(dat2, aes(x = prod, y = AGB, colour = as.factor(non_zero))) + 
-  geom_point()+
-  geom_line(aes(x=prod, y=plogis(predAGBbin), colour=Treatment))+
-  geom_line(dat=datt, aes(x=prod, y=exp(predAGBgamma), colour=Treatment))
-  
-  #geom_line(aes(x=prod, y=predAGB, colour=Treatment))
-
-```
-
-
-Hmm,,,
-```{r}
-mean(dat2$AGB) #2.241339
-(myMean <- exp(log(binI) + log(gammaI))+
-  0.5*(exp(log(binT) + log(gammaT)))+
-  mean(dat2$prod)*(exp(log(binP) + log(gammaP)))) #11.6
-```
-
-
-Fuck it, let's just present a violin plot and people can judge 
+Here I tried to model thsi heavely zero-inflated biomass variable with a gamme hurdle model, but was unsuccessful.
 
 ```{r}
 agb_viol <- 
@@ -659,7 +607,7 @@ heat
 # VCI
 We have to measures of strucural complexity
 ```{r}
-cor(dat2$vci, dat2$MgAGBperYearAndHA)
+cor(dat2$vci, dat2$rumple)
 ```
 
 
@@ -690,36 +638,210 @@ cor(dat2$vci, dat2$MgAGBperYearAndHA)
 ```
 
 ```{r}
-dat2$prod2 <- dat2$prod*dat2$prod
+dat2$vci_s <- scale(dat2$vci)[,1]
+
 mod_vci <- glmmTMB(vci ~ Treatment * prod + YrsSinceExclosure + YrsSinceExclosure:Treatment+ prod2 +  (1|LocalityName),
-  data = dat2,  family = gaussian)
-dmod_vci <- dredge(mod_vci)
-mod_vci <- glmmTMB(vci ~ Treatment + prod + prod2 + YrsSinceExclosure+ (1|LocalityName),
-  data = dat2,  family = gaussian)
+  data = dat2, REML=F, family = gaussian)
+
+mod_vci_s <- glmmTMB(vci_s ~ Treatment_c * prod_s + YrsSinceExclosure_s + YrsSinceExclosure_s:Treatment_c+ prod2_s +  (1|LocalityName),
+  data = dat2, REML=F,  family = gaussian)
+
 summary(mod_vci)
 ```
 
 ```{r}
-tr <- rep(c("Open plot", "Exclosure"), each=50)
-prod <- rep(seq(from = min(dat2$prod), to=max(dat2$prod), length.out = 50), 2)
-prod2 <- prod^2
-YrsSinceExclosure <- rep(mean(dat2$YrsSinceExclosure), times=100)
-LocalityName <- rep(NA, times=100)
+dmod_vci <- dredge(mod_vci, beta="none", rank = "AICc")
+dmod_vci_s <- dredge(mod_vci_s, beta="none", rank = "AICc")
+```
 
-pred <- predict(mod_vci, 
-                list(
-            Treatment         =tr, 
-            prod              =prod,
-            prod2             =prod2,
-            YrsSinceExclosure =YrsSinceExclosure,
-            LocalityName      =LocalityName), 
-            se.fit = TRUE)
+```{r}
+(dmod_vci2 <- subset(dmod_vci, delta <2))
+```
 
-pred2 <- data.frame(Treatment = tr,
-                    prod      = prod,
+```{r}
+(dmod_vci_s2 <- subset(dmod_vci_s, delta <2))
+```
+
+```{r}
+importance(dmod_vci2)
+```
+
+Lets export this as a table for the supplementary
+```{r}
+temp <- as.data.frame(dmod_vci2)
+temp <- temp[,-2]
+names(temp) <- c("Intercept",
+                      "Productivity (P)",
+                      "Productivity squared",
+                 "Herbivore Exclusion (HE)",
+                      "Experimental duration (ED)",
+                      "HE x P",
+                      "HE x ED",
+                      "df",
+                      "log likelihood",
+                      "AICc",
+                      "delta AICc",
+                      "weight"
+                      )
+temp[is.na(temp)] <- 0
+#write.csv(temp, "../output/VCIModelSet_unstandardized.csv", row.names = F)
+```
+
+
+Average across these three models
+```{r}
+VCIavg     <-model.avg(dmod_vci_s2, revised.var = TRUE, fit=F)
+VCIavg_uns <-model.avg(dmod_vci2, revised.var = TRUE, fit=T) # used for predictions
+summary(VCIavg_uns)
+```
+Lets add the standardized stuff to the canopy height figure
+
+
+```{r}
+(figdat <- data.frame(summary(VCIavg)$coefmat.subset[-1,]))
+```
+
+get the weights and add them to the same table
+```{r}
+VCIimpdf<-data.frame(importance(VCIavg))
+VCIimpdf[c(4,1,2,3,5),]
+
+VCIimpdf <- as.numeric(VCIimpdf[,1])
+figdat$importance.MA.ests.<-VCIimpdf[c(4,1,2,3,5)] 
+figdat
+```
+
+Then we also need the 95 CIs
+```{r}
+cis <- confint(VCIavg)
+cis <- cis[-1,]
+cis <- as.data.frame(cis)
+figdat$low <- cis[,1]
+figdat$high <- cis[,2]
+figdat
+```
+
+Lets order them after effect size
+```{r}
+figdat<-figdat[order(figdat$Estimate),]
+```
+
+Fix names
+```{r}
+Row.names<-c('Productivity squared',
+             'HE x ED',
+             'Experimental duration (ED)',
+             'Herbivore Exclusion (HE)',
+             'Productivity'
+                    )
+figdat <- cbind(Row.names, figdat)
+figdat
+```
+
+Then lets make the figure
+First, adding empty row
+```{r}
+b <- macdf3
+colnames(macdf3)
+figdat2 <- figdat[-(1:nrow(figdat)),]
+figdat2[1,] <- c(NA, 100, NA, NA, NA, NA, NA, NA, NA) 
+figdat3 <- rbind(figdat, figdat2)
+figdat3$Row.names <- as.character(figdat3$Row.names)
+figdat3$Row.names[6] <- "VCI:"
+```
+
+Combine:
+```{r}
+figdat4 <- rbind(macdf3, figdat3)
+```
+
+```{r}
+Avg %<a-% {
+  
+par(oma=c(1,10,1,1))
+par(mfrow=c(1,2))
+par(mar=c(5,0,1,1))
+par(xpd=T)
+
+barplot(figdat4$importance.MA.ests.,
+        beside=T,horiz=T,
+        names.arg=figdat4$Row.names,
+        las=1,
+        xlab='Importance',
+        cex.axis=0.8,
+        cex.names=0.8,
+        cex.lab=0.8,
+        col=c(0,0,0,2,2,0,0,0,2,0,2,0,0))
+par(mar=c(5,1,1,1))
+b1 <- barplot(figdat4[,2],
+            horiz=T,
+            col=F,
+            border=F,
+            xlim=c(-1.2,1.5),
+            las=1,
+            xlab='Standardised, model\naveraged coefficients',
+            cex.axis=0.8,
+            cex.lab=0.8)
+points(figdat4[,2], #est
+       b1,
+       pch=16,
+       col=c(1,1,1,2,2,1,1,1,2,1,2,1,1))
+arrows(figdat4[,9], 
+       b1,                         
+       figdat4[,8], 
+       b1,
+       code=3,
+       angle=90,
+       length=0.05,
+       lwd=3,
+       col=c(1,1,1,2,2,1,1,1,2,1,2,1,1))
+par(xpd=F)
+abline(v=0,lty=2)
+}
+Avg
+```
+
+```{r, eval=F}
+tiff("/home/anders/Documents/lidar ms/modAveragedEst.tiff", 
+     height = 8, width=8, units="in", res=600)
+Avg
+dev.off()
+```
+
+
+
+
+
+```{r}
+newd <- dat2
+newd$YrsSinceExclosure <- rep(seq(from = min(dat2$YrsSinceExclosure), 
+                             to=max(dat2$YrsSinceExclosure), length.out = 43), 2)
+newd$prod <- rep(seq(from = min(dat2$prod), 
+                             to=max(dat2$prod), length.out = 43), 2)
+newd$prod2 <- newd$prod*newd$prod
+newd$LocalityName <- rep(NA, 86)
+pred <- predict(VCIavg_uns,
+                            se.fit = TRUE,
+                            full=FALSE,
+                            re.form=~0, # same as leaving out LocalityName
+                newdata=newd
+                )
+
+pred2 <- data.frame(Treatment = newd$Treatment,
+                    YrsSinceExclosure      = newd$YrsSinceExclosure,
+                    prod = newd$prod,
+                    prod2 = newd$prod2,
                     pred      = pred$fit,
                     se        = pred$se.fit)
+
+
+
+
+
+##
+
   
+
   (vci_line <- 
    ggplot()+
   geom_point(data = dat2, 
@@ -730,7 +852,7 @@ pred2 <- data.frame(Treatment = tr,
  scale_shape_manual("", values = c(1, 16), 
                     breaks=c("Exclosure", "Open plot"),
                     labels=c("Exclosure", "Open plot"))+
- scale_linetype_manual("", values=c(1,2),
+ scale_linetype_manual("", values=c(2,1),
                        breaks=c("Exclosure", "Open plot"),
                     labels=c("Exclosure", "Open plot"))+
   geom_ribbon(data=pred2, aes(x = prod, 
@@ -745,8 +867,6 @@ pred2 <- data.frame(Treatment = tr,
         legend.background = element_blank(),
         legend.text = element_text(size=12),
         text = element_text(size = 12))+
-
-  
   labs(y="VCI")+
   xlab("Productivity"))
 ```
