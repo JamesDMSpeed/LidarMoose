@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # An analysis using LiDAR data to detect moose browsing effects, with ground truthing
 
-```{r}
+```{r, message=FALSE}
 library(readr)
 library(ggplot2)
 library(glmmTMB)
@@ -44,6 +44,33 @@ dat$AGB <- 12.033*(dat$pf70^1.094)*(dat$df1^0.5245)*(dat$dl2^0.3746)
 summary(dat$AGB)
 ```
 The las two calculations produces zeros. The tree volumne is simply too small.
+
+Calculatin AGB after Økseter et al 2015
+```{r}
+dat$Hskew[is.na(dat$Hskew)] <- 0
+dat$AGB2 <- 
+  38.55+0.75*log(dat$D6)+0.63*log(dat$D9)+1.68*asinh(dat$Hskew)+0.78*asinh(dat$H30)
+
+plot(dat$AGB2, dat$AGB)
+```
+Very different!
+
+```{r}
+ggplot(data =dat, aes(x=Treatment, y=AGB2))+
+         geom_violin()
+```
+```{r}
+tapply(dat$AGB2, dat$Treatment, FUN = mean, na.rm=T)
+```
+
+```{r}
+ggplot(data=dat, aes(x=max, y=AGB2))+
+  geom_point()
+
+ggplot(data=dat, aes(y=ninetyfive, x=Treatment))+
+  geom_boxplot()
+```
+
 
 # We might need these:
 ```{r}

@@ -14,7 +14,7 @@ library(ggplot2)
 library(stringr)
 library(readr)
 library(rgeos)
-
+library(moments)
 
 # Coordinates -------------------------------------------------------------
 
@@ -271,7 +271,12 @@ LASstats <- data.frame(
   rmad    = as.numeric(NULL),
   pf70    = as.numeric(NULL),
   df1    = as.numeric(NULL),
-  dl2    = as.numeric(NULL)
+  dl2    = as.numeric(NULL),
+  
+  D6    = as.numeric(NULL), # first echos above 6th fraction, over total first return
+  D9    = as.numeric(NULL), # first echos above 9th fraction, over total first return
+  Hskew = as.numeric(NULL), #skewness
+  H30   = as.numeric(NULL)    # Heith at 30th percentile
 )
 
 i <- "nsb_verdal_b"
@@ -368,7 +373,8 @@ for(i in sites){
   
  
   
-  # Calculating nessesary metrics for est biomass (Næsset et al 2011)
+  
+  # Seperate first and last returns
   # The following is perhaps correct(?) 
   # but some pulses dont have returnNumber == 1, but start from 2, 3 or even 4
   # singleOrFirstOfMany <- temp@data$Z[temp@data$ReturnNumber==1]
@@ -391,6 +397,7 @@ for(i in sites){
   singleOrFirstOfMany <- temp@data$Z[temp@data$ID %in% myMin$ID]
   singleOrLastOfMany  <- temp@data$Z[temp@data$ID %in% myMax$ID]
   
+  # Calculating nessesary metrics for est biomass (Næsset et al 2011)
   # cut point below 2m and above 95th quantile
   singleOrFirstOfManyCut  <- 
     singleOrFirstOfMany[singleOrFirstOfMany > 2 & 
@@ -412,6 +419,30 @@ for(i in sites){
   ifelse(exists("dl2Lim"), 
   dl2 <- length(singleOrLastOfManyCut[singleOrLastOfManyCut>dl2Lim])/length(singleOrLastOfManyCut),
   dl2 <-0)
+  
+  
+  # Calculate AGB as in Økseter et al 2015
+  singleOrFirstOfManyCut2  <-   singleOrFirstOfMany[singleOrFirstOfMany > 0.5]
+  
+  #plot(singleOrFirstOfMany)
+  #plot(singleOrFirstOfManyCut2)
+  
+  if(length(singleOrFirstOfManyCut2)>0){
+    D6Lim <- 0.5+ (max(singleOrFirstOfManyCut2)-min(singleOrFirstOfManyCut2))/10*6 }
+  
+  ifelse(exists("D6Lim"),
+         D6 <- length(singleOrFirstOfManyCut2[singleOrFirstOfManyCut2>D6Lim])/length(singleOrFirstOfMany),
+         D6 <-0)
+  
+  if(length(singleOrFirstOfManyCut2)>0){
+    D9Lim <- 0.5+ (max(singleOrFirstOfManyCut2)-min(singleOrFirstOfManyCut2))/10*9 }
+  
+  ifelse(exists("D9Lim"),
+         D9 <- length(singleOrFirstOfManyCut2[singleOrFirstOfManyCut2>D9Lim])/length(singleOrFirstOfMany),
+         D9 <-0)
+  
+  
+ moments::skewness(singleOrFirstOfManyCut2)
   
   
   #Scale dependent roughness
@@ -441,7 +472,11 @@ for(i in sites){
     df1     = df1,
     dl2     = dl2,
     rumple  = rumple,
-    vci     = vci
+    vci     = vci,
+    D6      = D6,
+    D9      = D9,
+    Hskew   = moments::skewness(singleOrFirstOfManyCut2),
+    H30     = stats::quantile(singleOrFirstOfManyCut2, 0.3, na.rm=T)
    
   )
   
