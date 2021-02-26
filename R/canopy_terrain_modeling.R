@@ -15,6 +15,7 @@ library(stringr)
 library(readr)
 library(rgeos)
 library(moments)
+library(lasR)
 
 # Coordinates -------------------------------------------------------------
 
@@ -279,7 +280,7 @@ LASstats <- data.frame(
   H30   = as.numeric(NULL)    # Heith at 30th percentile
 )
 
-i <- "nsb_verdal_b"
+#i <- "nsb_verdal_b"
 #i <- "stig_dahlen_ub"
 #i <- "bratsberg_b"
 # FOR-loop ----------------------------------------------------------------
@@ -442,8 +443,21 @@ for(i in sites){
          D9 <-0)
   
   
- moments::skewness(singleOrFirstOfManyCut2)
+  Hskew   <-  moments::skewness(singleOrFirstOfManyCut2)
+  H30     <-  stats::quantile(singleOrFirstOfManyCut2, 0.3, na.rm=T)
   
+  
+  # same variables, using lasR
+ 
+  temp2 <- laser.metrics(singleOrFirstOfMany, rep(1, length(singleOrFirstOfMany)), gtv=0.5)
+  temp2$H30
+  H30
+  temp2$D6
+  D6
+  temp2$D9
+  D9
+  temp2$Hskewness
+  Hskew
   
   #Scale dependent roughness
   rumple <- rumple_index(temp@data$X, temp@data$Y, temp@data$Z)
@@ -475,8 +489,12 @@ for(i in sites){
     vci     = vci,
     D6      = D6,
     D9      = D9,
-    Hskew   = moments::skewness(singleOrFirstOfManyCut2),
-    H30     = stats::quantile(singleOrFirstOfManyCut2, 0.3, na.rm=T)
+    Hskew   = Hskew,
+    H30     = H30,
+    lasR_D6 = temp2$D6,
+    lasR_D9 = temp2$D9,
+    lasR_Hskew = temp2$Hskewness,
+    lasR_H30   = temp2$H30
    
   )
   
@@ -484,8 +502,10 @@ for(i in sites){
   
 }
 
-
-
+LASstats$Hskew[is.na(LASstats$Hskew)] <- 0
+LASstats$lasR_Hskew[is.na(LASstats$lasR_Hskew)] <- 0
+#plot(LASstats$lasR_H30, LASstats$H30)
+#plot(LASstats$D6, LASstats$lasR_D6)
 # END for-loop ------------------------------------------------------------
 
 
