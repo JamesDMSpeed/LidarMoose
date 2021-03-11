@@ -976,6 +976,9 @@ figdat5$Row.names[11] <- "Ungulate exclusion"
 figdat5$Row.names[10] <- "Experimental duration"
 figdat5$Row.names[5] <- "Ungulate exclusion"
 figdat5$Row.names[3] <- "Experimental duration"
+figdat5$Row.names[4] <- "UE x ED"
+figdat5$Row.names[9] <- "UE x ED"
+figdat5$Row.names[18] <- "UE x ED"
 ```
 
 ```{r}

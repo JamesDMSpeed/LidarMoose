@@ -280,6 +280,8 @@ LASstats <- data.frame(
   H30   = as.numeric(NULL)    # Heith at 30th percentile
 )
 
+#i <- "maarud1_b"
+#i <- "maarud1_ub"
 #i <- "nsb_verdal_b"
 #i <- "stig_dahlen_ub"
 #i <- "bratsberg_b"
@@ -707,65 +709,6 @@ myLAS2@data$relHeight <- myLAS2@data$Z - myLAS2@data$terrainHeight
 
 
 
-# PLOT --------------------------------------------------------------------
-
-q1 <- stats::quantile(myLAS@data$relHeight[myLAS@data$ReturnNumber==1], 0.95)
-q2 <- stats::quantile(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1], 0.95)
-m1 <- median(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.1
-m2 <- median(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) # 2.9
-sd1 <- sd(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.69
-sd2 <- sd(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) # 1.8
-mad1 <- mad(myLAS@data$relHeight[myLAS@data$ReturnNumber==1]) #0.16
-mad2 <- mad(myLAS2@data$relHeight[myLAS2@data$ReturnNumber==1]) #0.1.82
-rmad1 <- mad1/m1 #1.63
-rmad2 <- mad2/m2 #0.6
-
-
-tempdat <- rbind(
-  myLAS@data, myLAS2@data
-)
-tempdat$Treatment <- c(rep("Open Plots", nrow(myLAS@data)), 
-                       rep("Exclosure", nrow(myLAS2@data)))
-library(ggplot2)
-(vertTransect <- ggplot(tempdat, aes(relHeight, stat(density), grou=Treatment, lty=Treatment)) +
-  geom_freqpoly(binwidth = 0.3, lwd=1)+
-  coord_flip()+
-  theme_classic()+
-  xlim(c(-0.2,9))+
-  ylim(c(0,1))+
-  xlab("LiDAR height (m)") + ylab("Density")+
-    geom_segment(aes(y = 0.25, x = q1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=1,
-                 arrow = arrow(length = unit(0.5, "cm")))+
-    geom_segment(aes(y = 0.75, x = q1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=2)+
-    geom_segment(aes(y = 0.75, x = q2, yend = 0.25, xend = q2),show.legend=FALSE,
-                 arrow = arrow(length = unit(0.5, "cm")))+
-    annotate(geom="text", x=q2+0.2, y=.6, label="95th percentile",
-             color="black")+
-    annotate(geom="text", x=q1+0.2, y=.6, label="95th percentile",
-             color="black")+
-    
-    geom_segment(aes(y = 0.5, x = m1, yend = 0.25, xend = m1),show.legend=FALSE, linetype=1,
-                 arrow = arrow(length = unit(0.5, "cm")))+
-    geom_segment(aes(y = 0.75, x = m1, yend = 0.25, xend = q1),show.legend=FALSE, linetype=2)+
-    geom_segment(aes(y = 0.75, x = q2, yend = 0.25, xend = q2),show.legend=FALSE,
-                 arrow = arrow(length = unit(0.5, "cm")))+
-    annotate(geom="text", x=q2+0.2, y=.6, label="95th percentile",
-             color="black")+
-    annotate(geom="text", x=q1+0.2, y=.6, label="95th percentile",
-             color="black")+
-    
-    
-    theme(legend.justification=c(1,1), 
-          legend.position=c(1,1),
-          legend.title = element_blank())
-    )
-  #geom_vline(xintercept = q1)+
-  #geom_vline(xintercept = q2, lty=2))
-  
-
-#tiff("output/verticalTransect_maarud1.tif", res = 300, units = "in", width = 3, height = 5)
-vertTransect
-#dev.off()
 
 # OLD STUFF BELOW ---------------------------------------------------------
 
