@@ -51,6 +51,42 @@ myCoords$LASname <- link$las[match(myCoords$Name, link$coords)]
 rm(link); rm(myCols)
 
 
+# Check plot area to make sure coordinates are correct
+# Prepare for cutting extent
+myCoords <- myCoords[!(is.na(myCoords$LASname)),]
+
+
+testDF <- data.frame(
+  plot = as.character(NULL),
+  region = as.character(NULL),
+  area  = as.numeric(NULL))
+
+for(i in unique(myCoords$LASname)){
+  tempCoords <- myCoords[myCoords$LASname==i,c('utm32ost', "utm32nord")]
+  tempCoords <- tempCoords[!is.na(tempCoords$utm32ost),]
+  
+  myHull<-chull(as.matrix(tempCoords))
+  myPoly<-Polygon(as.matrix(tempCoords[myHull,]))
+  print(i);print(myPoly@area)
+
+  testDFtemp <- data.frame(
+    plot =   myCoords[myCoords$LASname==i,c('LASname')][1],
+    region = myCoords[myCoords$LASname==i,c('region')][1],
+    area  = myPoly@area)
+  
+  testDF <- rbind(testDF, testDFtemp)
+
+}
+hist(testDF$area)
+ggplot(data=testDF, aes(x=area))+
+  geom_histogram()+
+  xlim(c(390,410))+
+  facet_wrap(.~region)
+ggplot(data=testDF[testDF$area<500,], aes(x=region, y=area))+
+  geom_boxplot()
+# Three exclosure in Hedmark are 40x40!
+# Area variation in almost zero in Telemark and Hedmark, indicating the coordinates are not measured in the field.
+
 # Import clipped files ----------------------------------------------------
 #Trondelag
 #bratsberg_b       <- readLAS('data/clipped_las/bratsberg_b.las')
@@ -367,6 +403,28 @@ for(i in sites){
   ps = Polygons(list(p),1)
   sps = SpatialPolygons(list(ps))
   sps2 <- gBuffer(sps, width = -2)
+  testBuffer1 <- gBuffer(sps, width = -1)
+  testBuffer3 <- gBuffer(sps, width = -3)
+  testBuffer5 <- gBuffer(sps, width = -5)
+  testBuffer7 <- gBuffer(sps, width = -7)
+  testBuffer9 <- gBuffer(sps, width = -9)
+  testBuffer19 <- gBuffer(sps, width = -19)
+  
+  
+  # plot all the lines ect
+  # remember to run the delineate crown function above
+  plot(CM, xlab=myX, ylab=myY)
+  points(myPoly@coords)
+  lines(myPoly@coords)
+  plot(treeout,add=T)
+  plot(sps2, add=T, lwd=2)
+  plot(testBuffer1, add=T, lwd=1)
+  plot(testBuffer3, add=T, lwd=1)
+  plot(testBuffer5, add=T, lwd=1)
+  plot(testBuffer7, add=T, lwd=1)
+  plot(testBuffer9, add=T, lwd=1)
+  plot(testBuffer19, add=T, lwd=1)
+  
   
   # clip
   temp <- clip_roi(temp, sps2)
